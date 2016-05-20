@@ -6,6 +6,7 @@
 \usepackage{listings}
 \usepackage{hyphsubst}
 \usepackage{amsmath}
+\usepackage{enumitem}
 
 				  
 \lstdefinestyle{customc}{
@@ -271,10 +272,11 @@ We believe that the solution we've just presented can bring very strong security
 \end{itemize}
 
 \begin{figure}
+%asm(''sub $50, %esp'');
+\textcolor{green}{TODO substitute with the right syntax when finished}
 \begin{lstlisting}
 int foo(int a) {
-	asm(''sub 50, esp'');
-	%asm(''sub $50, %esp'');
+	asm(``\$sub 50, \%esp'');
 	//This line does the operation ESP = ESP - 50
 	//This disrupts the stack layout we establish in our transformation
 	printf("Hello world!");
@@ -331,7 +333,7 @@ In CompCert the stack layout is composed as in Figure \ref{stack_layout}.
 \end{figure}
 
 Each frame is built when a function is called, the different steps related to the creation of a frame is called \textit{function call routine}.
-CompCert function call routine is described here and in the Figure \ref{call_routine}:
+CompCert function call routine is described in the Figure \ref{call_routine} and here:
 \begin{enumerate}
 	\item Write the return address
 	\item Allocate enough memory for the rest of the stack
@@ -347,8 +349,7 @@ CompCert function call routine is described here and in the Figure \ref{call_rou
 \label{call_routine}
 \end{figure}
 
-
-When returning from a function it's pretty much the opposite:
+When returning from a function the routine is pretty much the opposite:
 \begin{enumerate}
 	\item Restore registers state
 	\item Deallocate the stack until the return addresses
@@ -356,10 +357,18 @@ When returning from a function it's pretty much the opposite:
 \end{enumerate}
 
 
-
-
 \subsubsection{Fixed stack frames size}
 \label{sub:Fixed stack frames size}
+During this phase we want to ensure these two properties:
+\begin{itemize}[noitemsep]
+	\item Return addresses locations are all separated by a constant offset equals to the size of the frames
+	\item The transformation does not change the semantic of the module 
+\end{itemize}
+
+Fortunately in the function call routine of CompCert the return addresses is always the first location in new frames. This peculiarity makes the task easier, indeed, since the location of the return address is fixed in the stack we can deduce that with just fixed size frame the offset between two return addresses locations will be constant.
+This peculiarity is not always true, for example in x86 architecture with the compiler \textit{gcc} the location of the return addresses changes relatively to the frame depending of the parameters of the function.
+
+To fix the size of stack we had to find the description in of the stack in CompCert. Then we just had to put a constant in the attribute \textit{size} of the stack and readjust the alignment of the different part of a frame. We told CompCert to keep the return address of the stack as the first location in the frame and that all the extra space introduced by the fixed size will be taken for  \textit{stack data and locals}. The remaining parts keep the same alignment as before.
 
 \subsubsection{Stack alignment}
 \label{ssub:Stack alignment}
