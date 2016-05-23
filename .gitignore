@@ -1,4 +1,6 @@
 .vim_session
-*.aux
-*.log
-*.toc
+./*.aux
+./*.log
+./*.toc
+modele-bib4
+modele-bib4/*
