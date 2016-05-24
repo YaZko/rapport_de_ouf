@@ -57,6 +57,7 @@
 \end{itemize}
 
 
+\newpage
 \section{\textit{Software Fault Isolation}}
 	We introduce here \textit{Software Fault Isolation} (SFI) which inspired us the idea to protect return addresses through fixed stack frame size. SFI aims to protect a main program from the different modules that he will need to use. These modules will be loaded in the same memory space as the main program but in a confined area called \textit{sandbox}. The SFI mechanism is composed of two elements: a code generator and a verifier. The generator transforms the assembly code of the hazardous modules so that they will be constrained in the sandbox. The verifier operates just before loading the modules in the memory. It checks the if SFI transformations introduced by the generator are still present and valid. For the rest of the document we will reserve the word ''program'' to refer to the code protected by SFI and ''module'' to refer to the hazardous code.
 
@@ -138,6 +139,7 @@ The sandbox is a contiguous memory area which size is a power of two. Indeed, th
 \label{ssub:Proposed solution}
 
 
+\newpage
 \section{Overview of the approach}
 \label{sec:Overview of the approach}
 	Many attacks on software aims at diverting with the control flow of the targeted program. Among those, \textit{Returned Oriented Programming} (ROP) attacks specifically try to overwrite the return addresses.
@@ -167,7 +169,7 @@ The goal of this code is to execute the function called \textit{evil\_code()}. W
 The code was compiled with \textit{gcc -m32 -fno-stack-protector} to remove all stack protections used by gcc. The output of the code of the successful buffer overflow can be seen in Figure~\ref{output_buffer}
 We see in bold that the return address was modified to the address of \textit{evil\_code()} and that its code was executed.
 
-We are going to explain how the attack works. In the function \textit{foo()} the lines~??~and~?? print the stack. \textit{\%#010x} formats the output in hexadecimal with \texttt{0x} at the beginning for addresses.
+We are going to explain how the attack works. In the function \textit{foo()} the lines~??~and~?? print the stack. \textit{\%\#010x} formats the output in hexadecimal with \texttt{0x} at the beginning for addresses.
 The vulnerability resides in the function \textit{strcpy} line~??. \textit{strcpy} just copies character for character until it finds ``0'' in the source string. However our source string contains much more character than \textit{buf} is supposed to have. 
 Indeed \textit{buf} is defined line~?? as an array of 1 character.
 In this case \textit{strcpy} will just continue to write the source string over others variables location in the stack and possibly reach the return address.
@@ -190,56 +192,78 @@ This way, the next instruction that will be executed after \textit{foo} finishes
 We want to use a masking operation similar as in SFI, therefore we need to be able to check if an address is the location of a return address. 
 
 The biggest difficulty is to be able to know if a location in the stack corresponds to a return address or not. Indeed the stack grows through function calls piling up stack frames. 
-These frames are constructed dynamically depending of the function, hence the locations of return addresses aren't easily guessed. As it is we don't have enough information to correctly protect return addresses since we don't know precisely where they are located.
+These frames are constructed dynamically depending of the function, hence the locations of return addresses aren't easily known. As it is we don't have enough information to correctly protect return addresses since we don't know precisely where they are located.
 
 Several solutions exists against this issue. We could for example add a lot of meta-data during the compilation to have extra information and then effectively protect the return addresses. Another solution is to create a second stack called \textit{shadow stack}. We then have complete control over the \textit{shadow stack} which allows us defend against ROP attacks.
-\textcolor{maybe expose the cons of these approaches from our point of view}
+\textcolor{green}{maybe expose the cons of these approaches from our point of view}
 
 Our solution is to modify the current stack structure to be able to know the return addresses locations easily. The main idea is to fix a constant offset $n$ between return addresses allowing us to exactly know where a return address is located relative to the others. We will explain thoroughly the approach that we want to apply in the following section.
 
 \subsubsection{Proposed solution}
 \label{ssub:Proposed solution}
-The idea is to modify the stack layout in order to have a constant offset $n$ between neighbours return addresses. This way we know that the neighbors return addresses are always located at a distance $n$ from a frame return address. Furthermore all the other return addresses are separated by a distance which is necessarily a multiple of $n$.
+
+\paragraph{Fixing return addresses locations and stack alignment}
+\label{par:Fixing return addresses locations}
+
+We want to be able to decide if a pointer points to a return address at runtime. With this knowledge we will be able to detect if an instruction may compromise our program.
+The idea is to modify the stack layout in order to have a constant offset $n$ between neighbouring return addresses. This way we know that the neighboring return addresses are always located at a distance $n$ from a frame return address. Furthermore all the other return addresses are separated by a distance which is necessarily a multiple of $n$.
 For example let's say we know the location of a return address, we call this location $c$.
-With the property explained previously we know that the following return addresses locations will be $c+n$, $c+2n$\dots
-We then have a global formula expressing the location of all return addresses: 
+With the property explained previously we know that the following return addresses locations will be $c+n$, $c+2n$\dots Reciprocally the previous return addresses will be located at $c-n$, $c-2n$\dots
+Thus we have a global formula expressing the location of all return addresses: 
 $$ \mathbf{c~mod~n} \text{     with } c \text{ the location of one of the return addresses and } n \text{ the size of the frames }$$
 
 The next hurdle is to choose $n$ and $c$ cleverly. 
 
-For $n$, the most important thing is that frames have enough space to store all the needed data. Therefore we define the value of $n$ as the biggest frame size of all the functions in a program. 
+For $n$, the most important thing is that frames have enough space to store all the needed data. Therefore we define the value of $n$ as the biggest frame size of all the functions in a program. If the return addresses are separated by this amount we are sure that every function will have enough space in the stack for its frame. 
+Afterwards we have to define $c$. The best way that we found is to modify the stack in order to have the first return addresses location to be equal to $c$. If we are able to do such a thing, we can also easily define the value of $c$ and for simplicity we chose $c=0$.
 
-Afterwards we have to define $c$. The simplest way that we found is to modify the stack in order to have the first return addresses location to be equal to $c$. If we are able to do such a thing, we can also easily define the value of $c$ and for simplicity we chose $c=0$.
-
-The Figure~\ref{stack_transform} pictures the transformation we want to apply to the stack. On the left we have represented an usual stack with return addresses all over the place. Since these locations are almost random it's really difficult to pinpoint their location. After transforming the stack (stack on the right) we can see that the different addresses are separated by the same constant $n$. We can also notice that we fixed the location of the first return address $c$ with the value 0.
-Then we are able to know all the return addresses locations following the formula $\mathbf{c~mod~n}$.
+The Figure~\ref{idea_stack} pictures the transformation we want to apply to the stack. On the left we have represented an usual stack with return addresses all over the place. Since these locations are almost random it's really difficult to pinpoint their location. After transforming the stack (stack on the right) we can see that the different addresses are separated by the same constant $n$. We can also notice that we fixed the location of the first return address $c$ with the value 0.
+Then we are able to know all the return addresses locations following the formula $\mathbf{0~mod~n}$.
 
 \begin{figure}
 \centering
-\includegraphics[scale=0.5]{images/stack_transform.pdf}
+\includegraphics[scale=0.6]{images/idea_stack.pdf}
 \caption{Stack modifications}
-\label{stack_transform}
+\label{idea_stack}
 \end{figure}
 
-The second step is to detect every possibly harmful to return addresses (Figure \ref{dangerous_statement}). All the operations which can write in the memory can be considered dangerous. Hence we target all instruction related to variable assignment. If we want more precision, we can also target assignments to variables located on the stack.
+\paragraph{Detection of dangerous instructions}
+\label{par:Detection of dangerous instructions}
+
+The second step is to detect every possibly harmful instructions to return addresses. We consider as dangerous every instruction that can freely write to the memory. Our approach is mainly related to the C language.
+In C, instructions that fit such criteria are assignment to pointer dereference in the form of  \textit{(pointer)* = value} or \textit{(pointer+offset)* = value}. Let's get back to the buffer overflow example seen previously in Figure~\ref{buffer_overflow_code}. 
+In this example the vulnerability resides in the function \textit{strcpy} line~??. To pinpoint the dangerous instruction let's check the source code of \textit{strcpy} Figure~\ref{strcpy} from Apple.
+We can see in the \textit{while} loop line~10 that \textit{strcpy} copies each character from the source string \textit{s2} to the destination \textit{s} until it finds a character equals to \textit{0}.
+To copy the characters \textit{s} and \textit{s2} are actually pointers which initially point to the memory area of the destination and the source string. Then until it finds a character matching \textit{0} the value pointed by \textit{s2} is copied to the location pointed by \textit{s} through pointer dereferencing. We can notice that the vulnerability to ROP attacks of \textit{strcpy} corresponds to the dangerous instructions of C we described before.
+
+
 
 \begin{figure}
 \begin{lstlisting}
-int foo(int a) {
-	int* pointer = &a;
-	//In pointer we get the address of the parameter a which is in the stack
-
-	*(pointer+4) = 0xff000000;
-	//We write the value 0xff000000 in the stack
-	//if this location is a return address, the ROP attack succeeds
+/* ANSI sez:
+ *   The `strcpy' function copies the string pointed to by `s2' (including
+ *   the terminating null character) into the array pointed to by `s1'.
+ *   If copying takes place between objects that overlap, the behavior
+ *   is undefined.
+ *   The `strcpy' function returns the value of `s1'.  [4.11.2.3]
+ */
+char * strcpy(char *s1, const char *s2) {
+	char *s = s1;
+	while ((*s++ = *s2++) != 0)
+		;
+	return s1;
 }
 \end{lstlisting}
 \centering
-\caption{Example of dangerous C statement}
-\label{dangerous_statement}
+\caption{\textit{strcpy} source code from Apple}
+\label{strcpy}
 \end{figure}
 
-Finally when we have detected all the dangerous statements we transform the module code. Before each of this dangerous statement we add a protection mechanism similar to masking in SFI. If the address written does not match the location of a return address, then the operation is allowed and the program continues to run casually. Whereas if there is an attempt to write on a return address we trigger an error behaviour like crashing (Figure \ref{runtime_check}).
+\paragraph{Securing dangerous statements}
+\label{par:Protection around dangerous statements}
+
+Finally when we have detected all the dangerous statements we transform the module code. Before each of this dangerous statement we add a protection mechanism similar to masking in SFI. The algorithm of the check is represented in Figure \ref{runtime_check}. If the address written does not match the location of a return address, then the operation is allowed and the program continues to run casually.
+Whereas if there is an attempt to write on an address matching our formula $\mathbf{0~mod~n}$ we trigger an error behaviour like crashing.
 
 \begin{figure}
 \centering
@@ -248,6 +272,7 @@ Finally when we have detected all the dangerous statements we transform the modu
 \label{runtime_check}
 \end{figure}
 
+\hfill \break 
 	To sum it up, our approach aims to have an easy way to know return addresses location and then add a check at runtime before every dangerous instruction to prevent illegal writing on return addresses location.
 To do this we divided the approach into four phases:
 \begin{enumerate}
@@ -268,13 +293,11 @@ By working with these tools we hope that one day we will be able to prove some s
 \begin{enumerate}
 	\item \textbf{Fixed stack frames size}
 		\begin{itemize}
-			\item Return addresses locations are all separated by a constant offset equals to the size of the frames
-			\item The transformation does not change the semantic of the module 
+			\item Return addresses locations are all separated by a constant offset bigger or equal to any frame of the stack
 		\end{itemize}
 	\item \textbf{Stack alignment}
 		\begin{itemize}
-			\item The first return address location of the stack have its least significant bits equals to 0
-			\item The transformation does not change the semantic of the module 
+			\item The first return address location of the program has its least significant bits equals to 0
 		\end{itemize}
 	\item \textbf{Detection of memory write statements}
 		\begin{itemize}
@@ -282,34 +305,34 @@ By working with these tools we hope that one day we will be able to prove some s
 		\end{itemize}
 	\item \textbf{Securing memory write statements}
 		\begin{itemize}
-			\item Statements that does not involve the protected addresses will keep their behaviour
 			\item The protection will trigger an error behaviour if we try to write on a protected address
 		\end{itemize}
 \end{enumerate}
 
-1. and 2. combined give us the guarantee that the least significant bits of all the return addresses location will be equal to $\mathbf{0~mod~n} \text{ with } n \text{ the size of the frames }$.
+1. and 2. combined give us the guarantee that the least significant bits of all the return addresses location will be equal to $\mathbf{0~mod~n}$ with $n$ the fixed offset between return addresses.
+Basically we make it so the protection mechanism prevents any write on addresses located in the \textbf{stack memory area} with their least significant bits equal to $\mathbf{0~mod~n}$.
 
 \hfill \break 
-We make it so the protection mechanism prevents any write on addresses located in the \textbf{stack memory area} and their least significant bits equal to $\mathbf{0~mod~n}$.
+Another property we didn't mention yet is that all our transformations need to be transparent. In other words, if we apply our methods on a program which is already safe then its behaviour is not affected. We will explain how we ensure this property more thoroughly in the Chapter~\ref{sec:implementation}.
 
 \hfill \break 
-If all these properties are fulfilled we are confident that under certain conditions it's not possible for a hazardous module to modify the flow control through the return addresses.
-The necessary conditions for our approach to work will be discussed right after.
+For these properties to always hold true we need to place some conditions which we are going to list in the following section. Our approach guarantees that if all the properties mentioned are fulfilled the program will be protected against any ROP attack.
 
 \subsection{Analysis of the approach}
 \label{sub:Analysis of the approach}
 
-
 \subsubsection{Conditions}
 \label{ssub:Conditions}
 
-We believe that the solution we've just presented can bring very strong security properties against ROP attacks. However for this approach to work we need certain hypothesis to be true. Indeed some of the properties enumerated before become false after certain operations.
+The solution we've just presented can bring very strong security properties against ROP attacks. However for this approach to work we need certain hypothesis to be true. Indeed some of the properties enumerated before become false after certain operations.
 
 \begin{itemize}
 	\item \textbf{Stack modifications}, every operation that disrupts the stack structure may nullify our property that says ''every return addresses are separated by a fixed offset''. For example x86 architecture use the ESP register to keep track of the stack growth. If we fiddle with it we may introduce a shift in the return addresses location. Then our runtime check on $\mathbf{0~mod~n}$ addresses would not be relevant anymore.
-		An example of such operation in C is inline assembly which allows us to put some assembly code in C code (Figure \ref{inline_assembly}). One simple solution to this flaw would be to forbid any usage of inline assembly.
+		For example, the Figure~\ref{inline_assembly} shows a piece of inline assembly which disrupts the stack line~2. Inline assembly allows one to put some assembly code in the middle of C code. Here the assembly decrements the stack pointer stored in ESP. By doing so the stack will be shifted by an amount of 50 bytes and our formula to the locations of return addresses won't be correct anymore.
 
 	\item \textbf{Unsecure libraries}, for our approach to work we need to have all dangerous write statements to contain our runtime checks. Hence all executed code must have been compiled with our transformation. For example, the \textit{glibc} library of C contains multiple insecure functions like \textit{printf, strcpy\dots} Furthermore those flawed functions are common vulnerabilities for \textit{buffer overflows} attacks which are a type of ROP attack. To avoid this issue we would need to rewrite the glibc or compile it with our tools.
+
+	\item \textbf{Modules need the same offset}, if a program uses multiple modules or library they need to be compiled with the same offset $n$. Indeed if the offset of the different modules are different we cannot use the previously defined formula $\mathbf{0~mod~n}$ cannot be used anymore. Thus it's not possible to easily know if a location corresponds to a return address.
 \end{itemize}
 
 \begin{figure}
@@ -328,12 +351,9 @@ int foo(int a) {
 \label{inline_assembly}
 \end{figure}
 
-
-Those conditions are necessary for our approach to be relevant. Yet we can't guarantee that these conditions are an exhaustive list of the hypothesis needed. They are the conditions we could think of but there might are some more.
-
 \subsubsection{Discussion}
 \label{ssub:Discussion}
-	We have presented the principle of our approach in this chapter. Following we mentioned some necessary conditions for our solution to be relevant. In this section we are going to discuss about the pros, cons or remarks about the proposed solution.
+	We have presented the principle of our approach in this chapter. Then we mentioned some necessary conditions for our solution to work properly. In this section we are going to discuss about the pros, cons or remarks about the proposed solution.
 
 	The benefits of our transformation is clear, any code compiled with a compiler enforcing our methods is unable to interfere with the control flow of our program through return addresses.
 	Furthermore if we combine our solution with the SFI presented earlier we can have some strong security properties on the execution of dangerous modules with our main program.
@@ -341,40 +361,40 @@ Alas there are also some disadvantages to our approach that we are going to pres
 	\begin{itemize}
 		\item \textbf{Architecture dependant}, our solution depends a lot of the stack layout of the program. Indeed fixing the size of the frames requires us to modify the original stack layout. Therefore since the stack layout vary depending of the architecture and compiler you are using, the modifications that have to be done are also different. We can then easily comprehend that we would need a different implementations for every existing stack layout. Moreover since these layouts can be really different it might be very gruesome to implement our solution on certain of them.
 In the implementation we present after we focus solely on x86-32 architecture with the compiler CompCert.
-		\item \textbf{Memory consumption}, since we are fixing the size of the frames instead of having dynamic sizes the memory usage of the stack is bigger. We have the issue of choosing an adequate size for the frames in our solution. The easiest one is to take the maximum frame size of the program as the constant size for all the frames. The downside is that we might have a memory usage explosion from our stack. To put a cost on the impact of our solution on the stack size we would need to make numerous tests. Unfortunately during the span of the internship we were unable to do so but it's one of our objectives for the remaining time.
+		\item \textbf{Memory consumption}, since we are fixing the size of the frames instead of having dynamic sizes the memory usage of the stack is bigger. We have the issue of choosing an adequate size for the frames in our solution. The easiest one is to take the maximum frame size of the program as the constant size for all the frames. The downside is that we might have a memory usage explosion from our stack.
+We didn't encounter any issue about memory during the tests we did but the impacts may be visible on especially big programs. It might be interesting to study the cost of our approach on the growth of the stack.
 	\end{itemize}
 
-Despite the cons presented we believe the benefits we gain from this method is worth it. With regard to the negative impacts on stack memory consumption we personally didn't encounter any issue with the different tests we made our implementation go through. The impacts may be visible on especially big programs which we did not test yet.
+Despite the cons presented we believe the benefits we gain from this method is worth it.
 We are going to present in the following section the implementation we made based on the ideas we introduced here. This implementation was made with the compiler CompCert for the x86-32 architecture. We are targeting programs written in C, which explains that all the examples we used were related to the C language.
 
 
-\label{sec:section name}
-
+\newpage
 \section{Implementation}
-\label{sec:Implementation and analysis}
+\label{sec:implementation}
 
 For the implementation of our idea we chose to work with the compiler CompCert. CompCert already had an implementation of SFI presented earlier. Thus if we could combine our approach with the SFI, any program compiled with CompCert would have strong security guarantees. Furthermore CompCert is written with Coq the proof assistant, we eventually hope that we will be able to prove these security properties. In this section we are going explain in details how we implemented the approach and the different choices we did during the process. Afterwards we will discuss these choices and evaluate the results and performance obtained.
 
 \subsection{Implementation}
 \label{sub:Implementation}
-	Our approach is separated in four phases: ``Fixed stack frames size'', ``Stack alignment'', ``Detection of memory write statements'' and ``Evaluation of the implementation''. We are going detail the implementation of these phases in the following sections. These transformations are deeply linked to the stack layout, hence to have a better understanding we are going to start by introducing the CompCert stack structure.
+	Our approach is separated in four phases: ``Fixed stack frames size'', ``Stack alignment'', ``Detection of memory write statements'' and ``Evaluation of the implementation''. We are going to detail the implementation of these phases in the following sections. These transformations are deeply linked to the stack layout, hence to have a better understanding we are going to start by introducing the CompCert stack structure.
 
 \subsubsection{CompCert stack}
 \label{ssub:CompCert stack}
-	The layout of the stack is dependent of the architecture and the compiler/interpreter used. For a better understanding of the future sections we describe here the stack layout of x86-32 in CompCert.
-First of all in x86 the stack grows downwards, it means that the stack grows from the highest addresses to the low ones.
-A lot of information are saved in the stack, we can find the parameters of the functions, local variables, saved state of registers and the return address of the function.
-In CompCert the stack layout is composed as in Figure \ref{stack_layout}.
+	The layout of the stack is dependent of the architecture and the compiler/interpreter used. For the sake of comprehension of the future sections we describe here the stack layout of x86-32 in CompCert.
+The stack layout of CompCert x86-32 is pictured in Figure~\ref{stack_layout}.
+First of all we can notice that the stack grows downwards, it means that the stack grows from the highest addresses to the low ones.
+As we can see the usual data are stored in this stack like local variables, parameters, register states and the return address.
 
 \begin{figure}
 \centering
-\includegraphics[scale=0.5]{images/stack_layout.pdf}
+\includegraphics[scale=0.55]{images/stack_layout.pdf}
 \caption{CompCert x86-32 stack layout}
 \label{stack_layout}
 \end{figure}
 
 Each frame is built when a function is called, the different steps related to the creation of a frame is called \textit{function call routine}.
-CompCert function call routine is described in the Figure \ref{call_routine} and here:
+CompCert function call routine is described in the Figure~\ref{call_routine}. Each phase of the function call routine of the Figure~\ref{call_routine} is explained just here:
 \begin{enumerate}
 	\item Write the return address
 	\item Allocate enough memory for the rest of the stack
@@ -385,12 +405,12 @@ CompCert function call routine is described in the Figure \ref{call_routine} and
 
 \begin{figure}
 \centering
-\includegraphics[scale=0.5]{images/call_routine.pdf}
+\includegraphics[scale=0.55]{images/call_routine.pdf}
 \caption{CompCert function call routine}
 \label{call_routine}
 \end{figure}
 
-When returning from a function the routine is pretty much the opposite:
+When returning from a function, the return routine is pretty much the opposite:
 \begin{enumerate}
 	\item Restore registers state
 	\item Deallocate the stack until the return addresses
@@ -402,24 +422,66 @@ When returning from a function the routine is pretty much the opposite:
 \label{sub:Fixed stack frames size}
 During this phase we want to ensure these two properties:
 \begin{itemize}[noitemsep]
-	\item Return addresses locations are all separated by a constant offset equals to the size of the frames
-	\item The transformation does not change the semantic of the module 
+	\item Return addresses locations are all separated by a constant offset bigger or equal to any frames of the stack
 \end{itemize}
 
-Fortunately in the function call routine of CompCert the return addresses is always the first location in new frames. This peculiarity makes the task easier, indeed, since the location of the return address is fixed in the stack we can deduce that with just fixed size frame the offset between two return addresses locations will be constant.
-This peculiarity is not always true, for example in x86 architecture with the compiler \textit{gcc} the location of the return addresses changes relatively to the frame depending of the parameters of the function.
+Fortunately in the function call routine of CompCert the return addresses is always the first location in new frames.
+This particularity makes the task easier, indeed, since the location of the return address is fixed in the stack we can simply fix the size of the frames to have a constant offset between the return addresses. 
+This special trait is not always true, for example in x86 architecture with the compiler \textit{gcc} the location of the return addresses changes relatively to the frame depending of the parameters of the function.
 
-To fix the size of stack we had to find the description in of the stack in CompCert. Then we just had to put a constant in the attribute \textit{size} of the stack and readjust the alignment of the different part of a frame. We told CompCert to keep the return address of the stack as the first location in the frame and that all the extra space introduced by the fixed size will be taken for  \textit{stack data and locals}. The remaining parts keep the same alignment as before.
+To fix the size of stack we had to find the description of the stack in CompCert. Then we just had to put a constant in the attribute \textit{size} of the stack and readjust the alignment of the different part of a frame. We told CompCert to keep the return address of the stack as the first location in the frame and that all the extra space introduced by the fixed size will be taken for  \textit{stack data and locals}. The remaining parts keep the same alignment as before.
 
 \paragraph{Choice of frames size}
 \label{par:Choice of frames size}
 
-We chose to limit the choice of the frames size to powers of two. Indeed, since addresses are written in binary having a power of two as constant offset will ease our implementation for the runtime check. By doing so, all the return addresses will keep the same least significant bits. For example if the first return address location is \texttt{0xffffff000} and our constant frame size is $n = 2^8 = \texttt{100}$ (in hexadecimal). Then all the following return addresses locations will be \texttt{0xfffff100}, \texttt{0xfffff200}, \texttt{0xfffff300}\dots And their least significant bits are always equal to \texttt{00}. This peculiarity will help during the phase of addresses checking that we will explain in section~\ref{ssub:implem_check_address}.
+We chose to limit the choice of the frames size to powers of two. Indeed, since addresses are written in binary having a power of two as constant offset will ease the runtime checks implementation. Indeed by using powers of two, all the return addresses will have the same least significant bits. For example if the first return address location is \texttt{0xffffff911} (in hexadecimal) and our constant frame size is $2^8 = \texttt{100}$ (in hexadecimal). Then all the following return addresses locations will be \texttt{0xfffff811} (the stack grow downwards), \texttt{0xfffff711}, \texttt{0xfffff611}\dots And their least significant bits are actually always equal to \texttt{11}. This particularity will help during the phase of addresses checking that we will explain in section~\ref{ssub:implem_check_address}.
 
-To prevent having compiled programs with too small stack frame, we added in CompCert a check. This test verifies the chosen size is bigger than the dynamically calculated one. If it's not the compilation fails. This way the chosen size corresponds to \textbf{the smallest power of two which is bigger than any dynamically calculated frame size of the program}.
+To prevent having compiled programs with too small stack frame, we added in CompCert a check. This test verifies that the chosen size is bigger than the dynamically calculated one. If it's not the compilation fails. This way the chosen size corresponds to \textbf{the smallest power of two which is bigger or equal to any dynamically calculated frame size of the program}.
+
+We can see in Figure~\ref{stack_transform} the effect of our implementation. 
+The left stack is the usual layout of CompCert stacks, the biggest frame of the program is $n$.
+
+For our transformed stack we have to chose a fixed size for the frames and it needs to be a power of two, bigger or equal to $n$. In Figure~\ref{stack_transform} we chose $2^8$ to fit the previous explanation.
+We can see that the right stack has a fixed size frames equal to $2^8$ and the return addresses are all separated by the same amount due to CompCert stack layout.
+The implementation effectively fulfills the property of having constant offset between return addresses.
+Furthermore we can see that the location of the return addresses are \texttt{0xfffff911}, \texttt{0xfffff811}, \texttt{0xfffff711}\dots
+Hence all the return addresses have the particularity always have the same least significant bits (\texttt{11}). This particularity will be used later for the implementation of the protection mechanism.
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.6]{images/stack_transform.pdf}
+\caption{Fixing the size of CompCert stack frames}
+\label{stack_transform}
+\end{figure}
 
 \subsubsection{Stack alignment}
 \label{ssub:Stack alignment}
+
+The implementation in this section has to do a transformation that makes the following property true:
+\begin{itemize}
+	\item The first return address location of the program has its least significant bits equals to 0
+\end{itemize}
+
+We had multiple choices for the implementation of this property. One of them was to modify the main function of the protected program in order to align the return addresses locations correctly. Another idea was to modify the prelude of a program, the prelude is a piece of code created by the compilers which is executed before the program. It is necessary for any program to have this prelude to work correctly.
+
+Eventually we chose to introduce before the \textit{main} function of the program an artificial \textit{main}. Its role is to align the stack in order to make all the incoming return addresses locations to match our formula $0~mod~n$. 
+This approach has one definite advantage over the others solutions proposed. Creating a whole new function prevents us to modify unexpectedly the behaviour of the original \textit{main} or the prelude of the program. \hfill \break
+Since we have to modify the stack structure we did our transformation at the assembly level(ASM). Indeed the stack pointer ESP which is responsible for the stack growth is only available in ASM. ASM is the lowest level before binary code, though it is difficult to modify ASM correctly since you have to manipulate low level objects. 
+By creating a separate artificial \textit{main} function we avoid taking the risk of bugging the prelude or the program's \textit{main} function.
+
+TODO change value of in in previous shcema
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.6]{images/stack_align.pdf}
+\caption{Aligning CompCert stack frames}
+\label{stack_align}
+\end{figure}
+
+\paragraph{Downside}
+\label{par:Downside}
+The return address of old\_main is not protected by our formula.
+
 
 \subsubsection{Detection of memory write statements}
 \label{ssub:Detection of memory write statements}
