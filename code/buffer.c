@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 void evil_code() {
-	printf("Argh, we got hacked!");
+	printf("Argh, we got hacked!\n");
 }
 
 void foo(char* input){
@@ -16,10 +16,9 @@ void foo(char* input){
 int main (int argc, char* argv[]) {
 	void (*a)(void) = evil_code;
 	printf("Address of evil_code = %#010x\n", evil_code);
-	printf("Address of evil_code = %p\n", a);
-	a();
-	//foo(argv[1]);
-	foo("aaaaaaaaa\x4b\x84\x04\x08");
+	foo(argv[1]);
+	//foo("aaaaaaaaa\x4b\x84\x04\x08");
+	//foo("aaaaaaaaa\x3b\x84\x04\x08");
 	//0x804844b
 	return 0;
 }
