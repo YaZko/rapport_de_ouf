@@ -16,10 +16,11 @@ void foo(char* input){
 int main (int argc, char* argv[]) {
 	void (*a)(void) = evil_code;
 	printf("Address of evil_code = %#010x\n", evil_code);
-	foo(argv[1]);
-	//foo("aaaaaaaaa\x4b\x84\x04\x08");
-	//foo("aaaaaaaaa\x3b\x84\x04\x08");
-	//0x804844b
+	if (argc < 2) {
+		printf("Need an argument\n");
+	} else {
+		foo(argv[1]);
+	}
 	return 0;
 }
 

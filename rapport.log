@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2016.2.16)  24 MAY 2016 19:23
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2016.2.16)  25 MAY 2016 15:24
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -393,14 +393,6 @@ LaTeX Font Info:    Redeclaring font encoding OMS on input line 567.
 LaTeX Info: Redefining \[ on input line 2665.
 LaTeX Info: Redefining \] on input line 2666.
 )
-(/usr/share/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty
-Package: enumitem 2011/09/28 v3.5.2 Customized lists
-\labelindent=\skip47
-\enit@outerparindent=\dimen118
-\enit@toks=\toks25
-\enit@inbox=\box32
-\enitdp@description=\count109
-)
 (/usr/share/texlive/texmf-dist/tex/latex/listings/lstlang1.sty
 File: lstlang1.sty 2014/03/04 1.5c listings language file
 )
@@ -413,31 +405,31 @@ LaTeX Warning: Label `ssub:Proposed solution' multiply defined.
 )
 \openout1 = `rapport.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 42.
+LaTeX Font Info:    ... okay on input line 42.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 42.
+LaTeX Font Info:    ... okay on input line 42.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 42.
+LaTeX Font Info:    ... okay on input line 42.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 42.
+LaTeX Font Info:    ... okay on input line 42.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 42.
+LaTeX Font Info:    ... okay on input line 42.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 42.
+LaTeX Font Info:    ... okay on input line 42.
  (/usr/share/texlive/texmf-dist/tex/context/base/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count110
-\scratchdimen=\dimen119
-\scratchbox=\box33
-\nofMPsegments=\count111
-\nofMParguments=\count112
-\everyMPshowfont=\toks26
-\MPscratchCnt=\count113
-\MPscratchDim=\dimen120
-\MPnumerator=\count114
-\makeMPintoPDFobject=\count115
-\everyMPtoPDFconversion=\toks27
+\scratchcounter=\count109
+\scratchdimen=\dimen118
+\scratchbox=\box32
+\nofMPsegments=\count110
+\nofMParguments=\count111
+\everyMPshowfont=\toks25
+\MPscratchCnt=\count112
+\MPscratchDim=\dimen119
+\MPnumerator=\count113
+\makeMPintoPDFobject=\count114
+\everyMPtoPDFconversion=\toks26
 ) (/usr/share/texlive/texmf-dist/tex/generic/oberdiek/pdftexcmds.sty
 Package: pdftexcmds 2011/11/29 v0.20 Utility functions of pdfTeX for LuaTeX (HO
 )
@@ -486,84 +478,84 @@ G,.JBIG2,.JB2,.eps]
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
-\c@lstlisting=\count116
+\c@lstlisting=\count115
 
 <./header.jpg, id=1, 722.7pt x 144.54pt>
 File: ./header.jpg Graphic file (type jpg)
  <use ./header.jpg>
-Package pdftex.def Info: ./header.jpg used on input line 44.
+Package pdftex.def Info: ./header.jpg used on input line 43.
 (pdftex.def)             Requested size: 375.80544pt x 75.16121pt.
 
 <./rennes1.png, id=2, 353.32pt x 143.53625pt>
 File: ./rennes1.png Graphic file (type png)
  <use ./rennes1.png>
-Package pdftex.def Info: ./rennes1.png used on input line 44.
+Package pdftex.def Info: ./rennes1.png used on input line 43.
 (pdftex.def)             Requested size: 42.27623pt x 17.17322pt.
 
 <./ENS-Rennes.png, id=3, 479.54156pt x 205.5178pt>
 File: ./ENS-Rennes.png Graphic file (type png)
  <use ./ENS-Rennes.png>
-Package pdftex.def Info: ./ENS-Rennes.png used on input line 44.
+Package pdftex.def Info: ./ENS-Rennes.png used on input line 43.
 (pdftex.def)             Requested size: 42.27623pt x 18.11635pt.
 
 <./insa-rennes.png, id=4, 305.7021pt x 66.2475pt>
 File: ./insa-rennes.png Graphic file (type png)
  <use ./insa-rennes.png>
-Package pdftex.def Info: ./insa-rennes.png used on input line 44.
+Package pdftex.def Info: ./insa-rennes.png used on input line 43.
 (pdftex.def)             Requested size: 46.97836pt x 10.1803pt.
 
 <./supelec.jpg, id=6, 277.5168pt x 142.6128pt>
 File: ./supelec.jpg Graphic file (type jpg)
  <use ./supelec.jpg>
-Package pdftex.def Info: ./supelec.jpg used on input line 44.
+Package pdftex.def Info: ./supelec.jpg used on input line 43.
 (pdftex.def)             Requested size: 37.58125pt x 19.31064pt.
 
 <./esir.png, id=7, 160.6pt x 71.26625pt>
 File: ./esir.png Graphic file (type png)
  <use ./esir.png>
-Package pdftex.def Info: ./esir.png used on input line 44.
+Package pdftex.def Info: ./esir.png used on input line 43.
 (pdftex.def)             Requested size: 28.18414pt x 12.50656pt.
 
 <./enssat.png, id=8, 1354.05875pt x 552.0625pt>
 File: ./enssat.png Graphic file (type png)
  <use ./enssat.png>
-Package pdftex.def Info: ./enssat.png used on input line 44.
+Package pdftex.def Info: ./enssat.png used on input line 43.
 (pdftex.def)             Requested size: 32.88629pt x 13.40224pt.
 
 <./UBO.png, id=9, 170.7981pt x 113.9457pt>
 File: ./UBO.png Graphic file (type png)
  <use ./UBO.png>
-Package pdftex.def Info: ./UBO.png used on input line 44.
+Package pdftex.def Info: ./UBO.png used on input line 43.
 (pdftex.def)             Requested size: 32.88629pt x 21.93852pt.
 
 <./logo_ENIB.jpg, id=10, 742.775pt x 355.3275pt>
 File: ./logo_ENIB.jpg Graphic file (type jpg)
  <use ./logo_ENIB.jpg>
-Package pdftex.def Info: ./logo_ENIB.jpg used on input line 44.
+Package pdftex.def Info: ./logo_ENIB.jpg used on input line 43.
 (pdftex.def)             Requested size: 42.27623pt x 20.22351pt.
 
 <./tel-br.jpg, id=11, 593.21625pt x 593.21625pt>
 File: ./tel-br.jpg Graphic file (type jpg)
  <use ./tel-br.jpg>
-Package pdftex.def Info: ./tel-br.jpg used on input line 44.
+Package pdftex.def Info: ./tel-br.jpg used on input line 43.
 (pdftex.def)             Requested size: 23.48918pt x 23.48021pt.
 
 <./ensta.jpg, id=12, 204.765pt x 247.92625pt>
 File: ./ensta.jpg Graphic file (type jpg)
  <use ./ensta.jpg>
-Package pdftex.def Info: ./ensta.jpg used on input line 44.
+Package pdftex.def Info: ./ensta.jpg used on input line 43.
 (pdftex.def)             Requested size: 23.48918pt x 28.43715pt.
 
 <./logoUbs.png, id=13, 151.0443pt x 96.36pt>
 File: ./logoUbs.png Graphic file (type png)
  <use ./logoUbs.png>
-Package pdftex.def Info: ./logoUbs.png used on input line 44.
+Package pdftex.def Info: ./logoUbs.png used on input line 43.
 (pdftex.def)             Requested size: 23.48918pt x 14.98416pt.
 
 <supelec.jpg, id=14, 277.5168pt x 142.6128pt>
 File: supelec.jpg Graphic file (type jpg)
  <use supelec.jpg>
-Package pdftex.def Info: supelec.jpg used on input line 44.
+Package pdftex.def Info: supelec.jpg used on input line 43.
 (pdftex.def)             Requested size: 42.27623pt x 21.72392pt.
  [1
 
@@ -577,25 +569,14 @@ B.jpg> <./tel-br.jpg> <./ensta.jpg> <./logoUbs.png> <./supelec.jpg>] (./rapport
 
 
 [1]
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 52.
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 51.
  (/usr/share/texlive/texmf-dist/tex/latex/base/omscmr.fd
 File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10.95> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 52.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 51.
  [1] [2] [3]
-
-LaTeX Warning: Reference `rop_attack' on page 4 undefined on input line 146.
-
-
-LaTeX Warning: Reference `output_buffer' on page 4 undefined on input line 169.
-
-
-
-LaTeX Warning: Reference `output_buffer' on page 4 undefined on input line 178.
-
-
-[4] (./code/buffer.c
+(./code/buffer.c
 LaTeX Font Info:    Try loading font information for OML+cmr on input line 1.
  (/usr/share/texlive/texmf-dist/tex/latex/base/omlcmr.fd
 File: omlcmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
@@ -603,67 +584,79 @@ File: omlcmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
 LaTeX Font Info:    Font shape `OML/cmr/m/n' in size <10.95> not available
 (Font)              Font shape `OML/cmm/m/it' tried instead on input line 1.
 )
-[5] <images/idea_stack.pdf, id=54, 564.1075pt x 312.16624pt>
+LaTeX Font Info:    Font shape `OMS/cmr/m/it' in size <10.95> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 182.
+
+[4] [5]
+Underfull \hbox (badness 10000) in paragraph at lines 191--221
+
+ []
+
+[6]
+Underfull \hbox (badness 10000) in paragraph at lines 251--254
+
+ []
+
+<images/idea_stack.pdf, id=57, 564.1075pt x 312.16624pt>
 File: images/idea_stack.pdf Graphic file (type pdf)
 
 <use images/idea_stack.pdf>
-Package pdftex.def Info: images/idea_stack.pdf used on input line 225.
+Package pdftex.def Info: images/idea_stack.pdf used on input line 264.
 (pdftex.def)             Requested size: 338.4671pt x 187.3012pt.
- [6]
-LaTeX Font Info:    Font shape `OMS/cmr/m/it' in size <10.95> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 243.
+ [7]
+Underfull \hbox (badness 10000) in paragraph at lines 296--297
 
-<images/runtime_check.pdf, id=58, 383.4325pt x 383.4325pt>
+ []
+
+[8 <./images/idea_stack.pdf>]
+<images/runtime_check.pdf, id=107, 383.4325pt x 533.995pt>
 File: images/runtime_check.pdf Graphic file (type pdf)
 
 <use images/runtime_check.pdf>
-Package pdftex.def Info: images/runtime_check.pdf used on input line 270.
-(pdftex.def)             Requested size: 230.06126pt x 230.06126pt.
- [7 <./images/idea_stack.pdf>] [8 <./images/runtime_check.pdf>] [9] [10] [11]
-<images/stack_layout.pdf, id=121, 443.6575pt x 474.77374pt>
+Package pdftex.def Info: images/runtime_check.pdf used on input line 306.
+(pdftex.def)             Requested size: 230.06126pt x 320.39948pt.
+ [9 <./images/runtime_check.pdf>] [10] [11]
+[12] <images/stack_layout.pdf, id=124, 443.6575pt x 474.77374pt>
 File: images/stack_layout.pdf Graphic file (type pdf)
 
 <use images/stack_layout.pdf>
-Package pdftex.def Info: images/stack_layout.pdf used on input line 391.
+Package pdftex.def Info: images/stack_layout.pdf used on input line 427.
 (pdftex.def)             Requested size: 244.01237pt x 261.12636pt.
 
-<images/call_routine.pdf, id=122, 764.8575pt x 373.395pt>
+<images/call_routine.pdf, id=125, 764.8575pt x 373.395pt>
 File: images/call_routine.pdf Graphic file (type pdf)
 
 <use images/call_routine.pdf>
-Package pdftex.def Info: images/call_routine.pdf used on input line 408.
+Package pdftex.def Info: images/call_routine.pdf used on input line 444.
 (pdftex.def)             Requested size: 420.67291pt x 205.36787pt.
- [12] [13 <./images/stack_layout.pdf> <./images/call_routine.pdf>] <images/stac
-k_transform.pdf, id=135, 574.145pt x 352.31625pt>
+ [13] [14 <./images/stack_layout.pdf> <./images/call_routine.pdf>] <images/stac
+k_transform.pdf, id=138, 574.145pt x 352.31625pt>
 File: images/stack_transform.pdf Graphic file (type pdf)
 
 <use images/stack_transform.pdf>
-Package pdftex.def Info: images/stack_transform.pdf used on input line 452.
+Package pdftex.def Info: images/stack_transform.pdf used on input line 488.
 (pdftex.def)             Requested size: 344.48965pt x 211.39137pt.
- [14]
-<images/stack_align.pdf, id=140, 707.64375pt x 463.7325pt>
+ [15]
+<images/stack_align.pdf, id=143, 707.64375pt x 463.7325pt>
 File: images/stack_align.pdf Graphic file (type pdf)
 
 <use images/stack_align.pdf>
-Package pdftex.def Info: images/stack_align.pdf used on input line 474.
+Package pdftex.def Info: images/stack_align.pdf used on input line 512.
 (pdftex.def)             Requested size: 424.58952pt x 278.24164pt.
- [15 <./images/stack_transform.pdf>] [16 <./images/stack_align.pdf>] (./rapport
+ [16 <./images/stack_transform.pdf>] [17 <./images/stack_align.pdf>] (./rapport
 .aux)
-
-LaTeX Warning: There were undefined references.
-
 
 LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 5138 strings out of 494955
- 68783 string characters out of 6179231
- 239294 words of memory out of 5000000
- 8258 multiletter control sequences out of 15000+600000
+ 4853 strings out of 494955
+ 63967 string characters out of 6179231
+ 233974 words of memory out of 5000000
+ 7977 multiletter control sequences out of 15000+600000
  12010 words of font info for 43 fonts, out of 8000000 for 9000
  36 hyphenation exceptions out of 8191
- 38i,7n,56p,899b,1395s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 38i,7n,56p,899b,1399s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></us
 r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/shar
 e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbxti10.pfb></usr/share/te
@@ -676,10 +669,10 @@ ic/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/ams
 fonts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/
 cm/cmti12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmt
 t10.pfb>
-Output written on rapport.pdf (18 pages, 949299 bytes).
+Output written on rapport.pdf (19 pages, 959759 bytes).
 PDF statistics:
- 277 PDF objects out of 1000 (max. 8388607)
- 158 compressed objects within 2 object streams
+ 281 PDF objects out of 1000 (max. 8388607)
+ 161 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
  96 words of extra memory for PDF output out of 10000 (max. 10000000)
 
