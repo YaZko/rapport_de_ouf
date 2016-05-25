@@ -58,6 +58,8 @@
 
 \newpage
 \section{\textit{Software Fault Isolation}}
+\label{sec:sfi}
+
 	We introduce here \textit{Software Fault Isolation} (SFI) which inspired us the idea to protect return addresses through fixed stack frame size. SFI aims to protect a main program from the different modules that he will need to use. These modules will be loaded in the same memory space as the main program but in a confined area called \textit{sandbox}. The SFI mechanism is composed of two elements: a code generator and a verifier. The generator transforms the assembly code of the hazardous modules so that they will be constrained in the sandbox. The verifier operates just before loading the modules in the memory. It checks the if SFI transformations introduced by the generator are still present and valid. For the rest of the document we will reserve the word ''program'' to refer to the code protected by SFI and ''module'' to refer to the hazardous code.
 
 \subsection{Principle}
@@ -106,6 +108,8 @@ The sandbox is a contiguous memory area which size is a power of two. Indeed, th
 
 
 \subsection{SFI using CompCert}
+\label{sub:sfi_comp}
+
 
 \subsubsection{CompCert the verified compiler}
 \label{ssub:CompCert the verified compiler}
@@ -333,7 +337,7 @@ By working with these tools we hope that one day we will be able to prove some s
 		\end{itemize}
 	\item \textbf{Stack alignment}
 		\begin{itemize}
-			\item The first return address location of the program has its least significant bits equals to 0
+			\item The first return address location of the program has its least significant bits equal to 0
 		\end{itemize}
 	\item \textbf{Detection of memory write statements}
 		\begin{itemize}
@@ -461,27 +465,30 @@ During this phase we want to ensure these two properties:
 	\item Return addresses locations are all separated by a constant offset bigger or equal to any frames of the stack
 \end{itemize}
 
-Fortunately in the function call routine of CompCert the return addresses is always the first location in new frames.
+\paragraph{Fix the frames size}
+\label{par:Fix the frames size}
+
+Fortunately in the function call routine of CompCert the return addresses are always at the top of their frames.
 This particularity makes the task easier, indeed, since the location of the return address is fixed in the stack we can simply fix the size of the frames to have a constant offset between the return addresses. 
 This special trait is not always true, for example in x86 architecture with the compiler \textit{gcc} the location of the return addresses changes relatively to the frame depending of the parameters of the function.
 
-To fix the size of stack we had to find the description of the stack in CompCert. Then we just had to put a constant in the attribute \textit{size} of the stack and readjust the alignment of the different part of a frame. We told CompCert to keep the return address of the stack as the first location in the frame and that all the extra space introduced by the fixed size will be taken for  \textit{stack data and locals}. The remaining parts keep the same alignment as before.
+To fix the size of stack we had to find the description of the stack in CompCert. Then we just had to put a constant in the attribute \textit{size} of the stack and readjust the alignment of the different parts of the frames. We told CompCert to keep the return address of the stack as the first location in the frame and that all the extra space introduced by the fixed size will be taken for  \textit{stack data and locals}. The remaining parts keep the same alignment as before.
 
 \paragraph{Choice of frames size}
 \label{par:Choice of frames size}
 
-We chose to limit the choice of the frames size to powers of two. Indeed, since addresses are written in binary having a power of two as constant offset will ease the runtime checks implementation. Indeed by using powers of two, all the return addresses will have the same least significant bits. For example if the first return address location is \texttt{0xffffff911} (in hexadecimal) and our constant frame size is $2^8 = \texttt{100}$ (in hexadecimal). Then all the following return addresses locations will be \texttt{0xfffff811} (the stack grow downwards), \texttt{0xfffff711}, \texttt{0xfffff611}\dots And their least significant bits are actually always equal to \texttt{11}. This particularity will help during the phase of addresses checking that we will explain in section~\ref{ssub:implem_check_address}.
+We chose to limit the choice of the frames size to powers of two. Indeed, since addresses are written in binary having a power of two as constant offset will ease the runtime checks implementation. Indeed by using powers of two, all the return addresses will have the same least significant bits. For example if the first return address location is \texttt{0xffffff911} (in hexadecimal) and our constant frame size is $2^8 = \texttt{100}$ (in hexadecimal). Then all the following return addresses locations will be \texttt{0xfffff811} (the stack grow downwards), \texttt{0xfffff711}, \texttt{0xfffff611}\dots And their least significant bits are actually always equal to \texttt{11}. This particularity will help during the phase of runtime checks that we will explain in section~\ref{ssub:implem_check_address}.
 
-To prevent having compiled programs with too small stack frame, we added in CompCert a check. This test verifies that the chosen size is bigger than the dynamically calculated one. If it's not the compilation fails. This way the chosen size corresponds to \textbf{the smallest power of two which is bigger or equal to any dynamically calculated frame size of the program}.
+To prevent having compiled programs with too small stack frame, we added in CompCert a check. This test verifies that the chosen size is bigger than any dynamically calculated one. If it's not, the compilation fails. This way the chosen size corresponds to \textbf{the smallest power of two which is bigger or equal to any dynamically calculated frames size of the program}.
 
 We can see in Figure~\ref{stack_transform} the effect of our implementation. 
-The left stack is the usual layout of CompCert stacks, the biggest frame of the program is $n$.
+The left stack is the usual layout of CompCert stacks with the return addresses located at the top of the frames. We call $F_{size}$ the size of the biggest frame of the whole program.
 
-For our transformed stack we have to chose a fixed size for the frames and it needs to be a power of two, bigger or equal to $n$. In Figure~\ref{stack_transform} we chose $2^8$ to fit the previous explanation.
-We can see that the right stack has a fixed size frames equal to $2^8$ and the return addresses are all separated by the same amount due to CompCert stack layout.
+For our transformed stack we have to chose a fixed size for the frames and it needs to be a power of two, bigger or equal to $F_{size}$. In Figure~\ref{stack_transform} we chose $2^8$ to continue the examples we gave before.
+We can see that the stack on the right has fixed size frames equal to $2^8$ and the return addresses are all separated by the same offset dues to CompCert stack layout.
 The implementation effectively fulfills the property of having constant offset between return addresses.
 Furthermore we can see that the location of the return addresses are \texttt{0xfffff911}, \texttt{0xfffff811}, \texttt{0xfffff711}\dots
-Hence all the return addresses have the particularity always have the same least significant bits (\texttt{11}). This particularity will be used later for the implementation of the protection mechanism.
+Hence all the return addresses have the particularity of always having the same least significant bits (\texttt{11}). This particularity will be used later for the implementation of the protection mechanism.
 
 \begin{figure}[!ht]
 \centering
@@ -495,17 +502,26 @@ Hence all the return addresses have the particularity always have the same least
 
 The implementation in this section has to do a transformation that makes the following property true:
 \begin{itemize}
-	\item The first return address location of the program has its least significant bits equals to 0
+	\item The first return address location of the program has its least significant bits equal to 0
 \end{itemize}
 
 We had multiple choices for the implementation of this property. One of them was to modify the main function of the protected program in order to align the return addresses locations correctly. Another idea was to modify the prelude of a program, the prelude is a piece of code created by the compilers which is executed before the program. It is necessary for any program to have this prelude to work correctly.
 
 Eventually we chose to introduce before the \textit{main} function of the program an artificial \textit{main}. Its role is to align the stack in order to make all the incoming return addresses locations to match our formula $0~mod~n$. 
-This approach has one definite advantage over the others solutions proposed. Creating a whole new function prevents us to modify unexpectedly the behaviour of the original \textit{main} or the prelude of the program. \hfill \break
+This approach has one definite advantage over the others solutions listed before. Creating a whole new function prevents us to modify recklessly core parts of the program like the original \textit{main} or the prelude. \hfill \break
+
 Since we have to modify the stack structure we did our transformation at the assembly level(ASM). Indeed the stack pointer ESP which is responsible for the stack growth is only available in ASM. ASM is the lowest level before binary code, though it is difficult to modify ASM correctly since you have to manipulate low level objects. 
 By creating a separate artificial \textit{main} function we avoid taking the risk of bugging the prelude or the program's \textit{main} function.
 
-TODO change value of in in previous shcema
+Figure~\ref{stack_align} represents the stack alignment transformation. The left stack is CompCert stack with fixed frames size equal to $n=2^8$ like we had in the previous section. From this stack we show the consequences of our operation. We insert before the \textit{main} function of the program an artificial \textit{main}. Thus the frame of this artificial \textit{main} is the first frame of the whole stack. The artificial \textit{main} objective is to align the stack in order to have the next return address equal to \textbf{0~mod~n}. \\
+We can see on the left stack the effect of the transformation. The return address of \textit{main} was previously at the address \texttt{0xfffff911} and is now at \texttt{0xfffff700}. Since the frames size remained constant we now have all the following return addresses locations matching \textbf{0~mod~n}. This was the objective of the whole stack transformation which is now completed.
+The downside of this implementation can be seen clearly on the Figure~\ref{stack_align}. Indeed all the return addresses locations are equal to \textbf{0~mod~n} except the return address of the artificial \textit{main} we introduced.
+Since our approach aims to protect the locations matching \textbf{0~mod~n}, this return address is vulnerable.
+Nevertheless, to reach this location an attacker would need to either know the exact location either overwrite the whole stack.
+\begin{itemize}
+	\item To pinpoint the location of vulnerable return address is really difficult, it would requires a lot of tries and fails or luck. Furthermore, nowadays most of the systems have a security feature called ASLR which inserts randomness in the memory addresses like the stack location. It means that every time a program is executed the location of this return address will be different which complicates the attack. Another possibility is to add in our runtime checks an extra condition to protect this specific return address.
+	\item The other way to reach this unprotected return address is prevented by our implementation. The attacker would need to overwrite other frames return address to reach the vulnerable one. In this case our approach will make the program crash before it can arrive at the artificial \textit{main} frame.
+\end{itemize}
 
 \begin{figure}[!ht]
 \centering
@@ -514,13 +530,46 @@ TODO change value of in in previous shcema
 \label{stack_align}
 \end{figure}
 
-\paragraph{Downside}
-\label{par:Downside}
-The return address of old\_main is not protected by our formula.
+\paragraph{Alignment algorithm}
+\label{par:Alignment algorithm}
+We present in Figure~\ref{align_algo}, the algorithm used to calculate the right size in order to have the next return addresses aligned. The algorithm is written in pseudo assembly code.
 
+The easiest way to understand it is to go through it with an example. On the previous examples Figure~\ref{stack_transform} and Figure~\ref{stack_align} our stack started at the value \texttt{0xfffff911}. Hence for the continuity we will keep this value. In Figure~\ref{stack_align} we want to have our next frame starting at the address \texttt{0xfffff700}. We go through the different lines of Figure~\ref{align_algo} to explain the algorithm:
+\begin{enumerate}
+	\item we copy the current \textit{next\_frame} location into a register called \textit{reg}, for the example we take randomly \textit{next\_frame} =  \texttt{0xfffff840}.\\
+		The operation is then \textit{reg} = \textit{next\_frame} = \texttt{0xfffff840}
+	\item \textit{reg} = \textit{reg} \& $(n-1)$ = \texttt{0xfffff840} \& \texttt{0x000000ff} = \texttt{0x00000040}\\
+		In our examples we have $n-1 = 2^8-1$ = \texttt{0x000000ff}
+	\item \textit{reg} = \textit{reg} $+(n-4)$ = \texttt{0x0000040} $+$ \texttt{0x000000fc} = \texttt{0x00000140}
+	\item \textit{next\_frame} $=$ \textit{next\_frame} $-$ \textit{reg} = \texttt{0xfffff840} $-$ \texttt{0x00000140} $=$ \texttt{0xfffff700}
+	\item We start the function call routine, here we save registers state in the stack
+	\item We store the parameters of the original \textit{main} in the stack
+	\item We call the original \textit{main} function, its frame will start at the location stored in \textit{next\_frame}~$=$~\texttt{0xfffff700}
+\end{enumerate}
+
+A small remark on the example is that our algorithm only works if the last bit of the first value of \textit{next\_frame} = \texttt{0xfffff840} is \texttt{0}. However this particularity is already present in all compilers since it improves the speed of execution and then our algorithm works with all standard addresses.
+\begin{figure}[!ht]
+\centering
+\begin{lstlisting}
+move	reg		next_frame  
+and	reg		n-1	    
+add	reg		n-4    
+sub 	next_frame	reg
+store 	regs_state
+store	parameters
+call	main
+	
+\end{lstlisting}
+\caption{Alignment algorithm}
+\label{align_algo}
+\end{figure}
 
 \subsubsection{Detection of memory write statements}
 \label{ssub:Detection of memory write statements}
+We have to make sure that we cover all possibly harmful statements with our runtime protection. Since we are working with the compiler CompCert we are going to take advantage of it. CompCert has multiple compilation steps which have all been proven from C to assembly language. To prove these steps for each step language a semantic was defined in relation to the memory model briefly described in section~\ref{sub:sfi_comp}.
+To detect all dangerous statements we looked at the semantic of Clight and found all statements that in the memory model could access freely the memory.\\
+We chose Clight to implement the detection of dangerous statements and also for the runtime protection of those. This choice is explained by the fact that Clight is a high-level language. 
+Indeed doing our transformations at a high-level is much easier since all the complicated compilation operations are done later in the process. For example by using Clight we don't need to bother with low-level objects like registers. Furthermore Clight is a compilation step placed before any optimizations. This mean that our transformations can be optimized automatically by CompCert which can improve our performances.
 
 \subsubsection{Securing memory write statements}
 \label{ssub:implem_check_address}
