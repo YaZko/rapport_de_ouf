@@ -132,9 +132,6 @@ FB: We need to enforce a strict discipline for the organisation of the stack
 	- Experimental setup
 	- Experimental results
 		+ can introduce a delay up to 150% with the classic implementation in our tests
-			=> we may find better heuristics about which statement should be checked
-			FB: This should be explained in the experiments section
-			FB: Not heuristics : static analysis
 	- Discussion
 		+ Did we cover all dangerous statements?
 			=> Check function pointer for jmp after the check
@@ -148,6 +145,10 @@ FB: We need to enforce a strict discipline for the organisation of the stack
 		=> have to make measures to compare stack usage
 		+ We are confident that our transformations keep the semantics
 			=> more tests and eventually a formal proof
+	=> we may find better heuristics about which statement should be checked
+			FB: This should be explained in the experiments section
+			FB: Not heuristics : static analysis
+
 
 
 =================================================

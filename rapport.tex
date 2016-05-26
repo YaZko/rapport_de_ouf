@@ -21,7 +21,7 @@
   stringstyle=\color{orange},
 }
 
-\lstset{escapechar=@,style=customc,numbers=left}
+\lstset{escapechar=@,style=customc,numbers=left,literate={~} {$\sim$}{1}}
 
 
 %Number the pages
@@ -213,6 +213,7 @@ Stack after : \hfill \break
 0xf7712d60    \hfill \break
 0x0804868c    \hfill \break
 0xff957978   			   ~~~~~~~~~~~~~~~~\textcolor{blue}{//Buffer overflow}\hfill \break
+
 \textcolor{red}{0x61}593d00~~~~~~~~~~~~~~~~\textcolor{blue}{//``a''   } \hfill \break
 \textcolor{red}{0x61616161}~~~~~~~~~~~~~~~~\textcolor{blue}{//``aaaa''} \hfill \break
 \textcolor{red}{0x61616161}~~~~~~~~~~~~~~~~\textcolor{blue}{//``aaaa''} \hfill \break
@@ -642,11 +643,131 @@ Now that we can detect the dangerous statements we will now add the runtime chec
 
 \subsubsection{Securing memory write statements}
 \label{ssub:implem_check_address}
+We want to add a protection mechanism which prevents any dangerous statement from writing on a return address location. These return addresses locations have two special traits:
+\begin{enumerate}
+	\item they only exist in the memory area of the stack
+	\item thanks to our previous modifications, their locations match the formula \textbf{0~mod~n}
+\end{enumerate}
+If a statement try to write on an address with these two properties then it's an illegal execution and our mechanism will trigger an error behaviour like crashing. The Figure~\ref{runtime_check} explained earlier can be used as a reminder of the principle of these runtime checks.
 
+\paragraph{Distinguish stack and heap addresses}
+\label{par:Distinguish stack or heap}
+A program can only use the stack and the heap to store data during runtime. Since return addresses are only present in the stack we need a way to differentiate stack and heap addresses.
+In x86 architecture, the stack usually grows downwards in direction of the heap. Therefore the addresses from the stack occupy the high addresses and the heap the low ones. 
+The idea is to divide the memory space for the program's data into two distinct part. The high addresses for the stack and the low for the heap. \\
+We defined the clear separation at the address \texttt{0xff000000}. Every address bigger than \texttt{0xff000000} is considered as part of the stack. Reciprocally every address smaller is part of the heap.
+To ensure that either the stack or the heap grows too much and exceeds their designed area we want to put a guard area in the memory. The idea is to define a specific area in the memory, for example [\texttt{0xee000000 - \texttt{0xff000000}}], where it's forbidden to write. If an instruction writes illegally in the guard area the program will detect it and will crash.\\
+The principle is represented in Figure~\ref{guard}. Indeed we can see that the stack and the heap are clearly separated by the guard area located between [\texttt{0xee000000 - \texttt{0xff000000}}]. Thus we are sure that every address above \texttt{0xff000000} are part of the stack.
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[scale=0.6]{images/guard.pdf}
+\caption{Guard area for the memory}
+\label{guard}
+\end{figure}
+
+To detect the write in the guard one possible way is to initialize the area with 0 for example. If we detect a bit in the guard area with the value 1 then we know that the guard has been corrupted and we make the program crash. Since our approach protects against ROP attacks, which takes effect when returning from a function, it is adequate to check the integrity of the stack at the end of each function before returning.
+To be honnest the guard area hasn't been implemented yet. Most of the programs don't have a stack or a heap which grows enough to exceed the limit of \texttt{0xff000000} so we were able to do satisfactory tests nevertheless. This guard area is necessary for our implementation to be complete and we hope that we will be able to do it during the remaining time of the internship.
+
+\paragraph{Check the equality to \textbf{0~mod~n}}
+\label{par:Classic check}
+ 
+The second step of the runtime check is to see if the targeted address location equals \textbf{0~mod~n}.
+The algorithm used is represented in Figure~\ref{classic_check} with pseudo Clight.
+\begin{itemize}
+	\item At line~1 we reduce the targeted address to its $log_2(n)$ least significant bits (8 if $n=2^8)$.
+Since $n$ is a power of two just comparing the least significant bits to $0$ is equivalent to compare the whole address with $0~mod~n$.
+For example we know that the return addresses locations of our previous example Figure~\ref{stack_align} were \texttt{0xfffff700}, \texttt{0xfffff600}, \texttt{0xfffff500}\dots
+We can notice that we only need to check if the last eight bits (the last two digit in hexadecimal \texttt{00} in our example) of an address is equal to 0.
+If it is we know for sure that the targeted location is a return address.\\
+For a random authorized location \texttt{0xfffff7a2} and a return address location \texttt{0xfffff700} with $n=2^8$, we would have to compare \texttt{0x000000a2}(authorized) and \texttt{0x00000000}(unauthorized) with $0$. 
+	\item Line~2 we actually see that we don't compare the previous calculated value with 0 but 3. The reason is that return addresses are four bytes long.
+		It means that the space taken by a return address located at \texttt{0xfffff700} would be [\texttt{0xfffff700}~-~\texttt{0xffff703}]. It is logical for us to protect the whole return address space, that's why we check if the targeted address least significant bits are smaller than 3.
+	\item Line~3 is executed when there is an illegal behaviour. Currently our error behaviour is to make the program crash by trying to write over some protected memory located at the address 0 which triggers a \textit{Segmentation fault}.
+	\item Finally line~4 if we successfully pass the verification we are allowed to write on the dereferenced pointer \textit{temp\_var}.
+\end{itemize}
+
+\begin{figure}[!ht]
+\centering
+\begin{lstlisting}[language=C]
+	temp_var = targeted_address & (n-1);
+	if (temp_var < 3) {
+		Error behaviour
+	} 
+	*temp_var = value;
+	Continue execution...
+\end{lstlisting}
+\caption{Second test of the protection mechanism}
+\label{classic_check}
+\end{figure}
+
+Currently our protection mechanism use two \textit{if \dots then \dots else} operation in a row to protect the return addresses. The first to check if the address is in the stack and the second to check the equality to \textbf{0~mod~n}.
+However, this kind of control-flow operations are usually quite expensive for the processor. Furthermore we might have to inject our protection mechanism a considerable number of times for a program using a lot of pointer operations.
+Hence we present in the next section an alternative to the classic \textit{if then else} called branchless statement.
+
+\paragraph{Branchless check}
+\label{par:Branchless check}
+
+We wanted to limit the overhead introduced by our approach by trying another way to make the protection mechanism. 
+
+Branchless code allows one to create code with the same behaviour as a classic \textit{if then else} but without creating any branch for the processor. In other words the processor won't need to execute different code depending of the condition, the code will be linear.\\
+The best way to understand it is to have an example and we show the branchless version of implementation of the protection mechanism in Figure~\ref{branchless}.
+
+The branchless code presented reproduces the second test which checks if the least significant bits of an address is smaller than 3. Branchless uses a lot of bit arithmetic which may be unfamiliar so we are going to go through every line of Figure~\ref{branchless}:
+
+\begin{figure}[!ht]
+\centering
+\begin{lstlisting}
+lsb = lsb - 3;
+lsb = lsb >> 31;
+lsb = ~lsb;
+lsb = lsb & targeted_address;
+*lsb = value;
+Continue execution...
+\end{lstlisting}
+\caption{Branchless version of the second check}
+\label{branchless}
+\end{figure}
+
+\begin{enumerate}
+	\item \textit{lsb} (least significant bits) is a variable containing the least significant bits of the targeted address. For the example we will take two different values, one coming from a return address location and not for the other. We keep $n=2^8$ for the chosen frames size.
+		\begin{itemize}
+			\item \textit{lsb} comes from a return address location, we take \textit{targeted\_address} = \texttt{0xfffff700} which gives \textit{lsb} = \texttt{0x00000000}.\\
+				We get \textit{lsb}~=~\textit{lsb}~-~3~= \texttt{0x00000000} - \texttt{0x00000003}=~\texttt{0xfffffffd} (signed representation)
+			\item \textit{lsb} not from a return address location, \textit{targeted\_address} = \texttt{0xfffff7a2} which gives \textit{lsb}~=~\texttt{0x000000a2}\\
+\textit{lsb}~=~\textit{lsb}~-~3~= \texttt{0x000000a2} - \texttt{0x00000003} =~\texttt{0x0000009f}
+		\end{itemize}
+	\item We make a right shift bit operation (\texttt{0100} $\rightarrow$ \texttt{0010}) thirty-one times. If the value is negative then the new bits introduced on the left are equal to 1 else they are equal to 0.
+		\begin{itemize}
+			\item \textit{lsb} = \textit{lsb} $>>$ 31 = \texttt{0xfffffffd} $>>$ 31 = \texttt{0xffffffff} (because \textit{lsb} was negative)
+			\item \textit{lsb} = \textit{lsb} $>>$ 31 = \texttt{0x0000009f} $>>$ 31 = \texttt{0x00000000}
+		\end{itemize}
+	\item We inverse the value of \textit{lsb} (\texttt{0100} $\rightarrow$ \texttt{1011})
+		\begin{itemize}
+			\item \textit{lsb} = $\sim$\textit{lsb} = $\sim$\texttt{0xffffffff} = \texttt{0x00000000}
+			\item \textit{lsb} = $\sim$\textit{lsb} = $\sim$\texttt{0x00000000} = \texttt{0xffffffff}
+		\end{itemize}
+	\item Classic \textit{and} operator (\texttt{0101} \& \texttt{1100} = \texttt{0100})
+		\begin{itemize}
+			\item \textit{lsb} = \textit{lsb} \& \textit{targeted\_address} = \texttt{0x00000000} \& \texttt{0xfffff700} = \texttt{0x00000000}
+			\item \textit{lsb} = \textit{lsb} \& \textit{targeted\_address} = \texttt{0xffffffff} \& \texttt{0xfffff7a2} = \texttt{0xfffff7a2}
+		\end{itemize}
+	\item We write on the location we just calculated in \textit{lsb}.
+		\begin{itemize}
+			\item \textit{targeted\_address} was the location of a returned address, it was an illegal behaviour.\\
+			We write to the memory location \texttt{0x00000000} which is a protected area. The operation makes the program crash which is what we wanted.
+			\item \textit{targeted\_address} was an authorized location. We have the equality \textit{lsb}~=~\textit{targeted\_address}.\\
+				It means that our operation didn't change the behaviour of the initial program, the transformation is satisfactory.				
+		\end{itemize}
+\end{enumerate}
+
+This way we can notice that we got the same result as with the \textit{if then else} check but without creating any branch. In our case it's not possible to make two branchless instead of two \textit{if then else} since even heap addresses would go through the second check which we don't want. \\
+Unfortunately for us, the tests that we made showed that the branchless version of our approach was not faster than the classic version it was even slower. Those results will be discussed in details in the next section where we evaluate our implementation.
 \subsection{Evaluation of the implementation}
-\label{sub:Evaluation of the implementation}
+\label{sub:evaluation_of_implem}
 
-
+\section{Conclusion}
+\label{sec:Conclusion}
 
 
 
