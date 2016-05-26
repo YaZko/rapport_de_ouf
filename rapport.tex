@@ -139,7 +139,6 @@ The sandbox is a contiguous memory area which size is a power of two. Indeed, th
 \subsubsection{Return addresses}
 \label{ssub:Return addresses}
 \subsubsection{Proposed solution}
-\label{ssub:Proposed solution}
 
 
 \newpage
@@ -241,7 +240,6 @@ Several solutions exists against this issue. We could for example add a lot of m
 Our solution is to modify the current stack structure to be able to know the return addresses locations easily. The main idea is to fix a constant offset $n$ between return addresses allowing us to exactly know where a return address is located relative to the others. We will explain thoroughly the approach that we want to apply in the following section.
 
 \subsubsection{Proposed solution}
-\label{ssub:Proposed solution}
 
 \paragraph{Fixing return addresses locations and stack alignment}
 \label{par:Fixing return addresses locations}
@@ -566,10 +564,81 @@ call	main
 
 \subsubsection{Detection of memory write statements}
 \label{ssub:Detection of memory write statements}
-We have to make sure that we cover all possibly harmful statements with our runtime protection. Since we are working with the compiler CompCert we are going to take advantage of it. CompCert has multiple compilation steps which have all been proven from C to assembly language. To prove these steps for each step language a semantic was defined in relation to the memory model briefly described in section~\ref{sub:sfi_comp}.
-To detect all dangerous statements we looked at the semantic of Clight and found all statements that in the memory model could access freely the memory.\\
-We chose Clight to implement the detection of dangerous statements and also for the runtime protection of those. This choice is explained by the fact that Clight is a high-level language. 
-Indeed doing our transformations at a high-level is much easier since all the complicated compilation operations are done later in the process. For example by using Clight we don't need to bother with low-level objects like registers. Furthermore Clight is a compilation step placed before any optimizations. This mean that our transformations can be optimized automatically by CompCert which can improve our performances.
+
+\paragraph{Clight implementation}
+\label{par:Clight implementation}
+
+We chose to implement the detection of dangerous statements and also the runtime checks of those statements at the Clight level.
+This choice is explained by the fact that Clight is a high-level language in the compilation steps of CompCert (it is the closest to C so the syntax is really similar).
+Indeed, doing our transformations at a high-level is much easier since all the complicated compilation operations are done later in the process.
+For example by using Clight we don't need to bother with low-level objects like registers which if misused can modify the program unexpectedly.
+Furthermore Clight is a compilation step placed before any optimization of CompCert.
+This mean that our implementation can be optimized automatically by CompCert which can improve our performances.
+
+\paragraph{Clight semantic}
+\label{par:Clight semantic}
+
+We have to make sure that we cover all possibly harmful statements with our runtime protection.
+Since we are working with the compiler CompCert we are going to take advantage of it.
+CompCert has multiple compilation steps which have all been proven from C to assembly language.
+To make these proofs a semantic was defined for each language of the compilation process. The semantics relate to the memory model briefly described in section~\ref{sub:sfi_comp}.
+To detect all dangerous statements we looked at the semantic of Clight and found all statements that in the memory model could write freely in the memory.\\
+
+\begin{figure}[!ht]
+\centering
+\begin{lstlisting}[language=Caml]
+Inductive statement : Type :=
+  | Sskip : statement
+    (**r do nothing *)
+  | Sassign : expr -> expr -> statement
+    (**r assignment [lvalue = rvalue] *)
+  | Sset : ident -> expr -> statement 
+    (**r assignment [tempvar = rvalue] *)
+  | Scall: option ident -> expr -> list expr -> statement
+    (**r function call *)
+  | Sbuiltin: option ident -> external_function -> typelist -> list expr -> statement
+    (**r builtin invocation *)
+  | Ssequence : statement -> statement -> statement 
+    (**r sequence *)
+  | Sifthenelse : expr  -> statement -> statement -> statement
+    (**r conditional *)
+  | Sloop: statement -> statement -> statement 
+    (**r infinite loop *)
+  | Sbreak : statement   
+    (**r [break] statement *)
+  | Scontinue : statement
+    (**r [continue] statement *)
+  | Sreturn : option expr -> statement 
+    (**r [return] statement *)
+  | Sswitch : expr -> labeled_statements -> statement
+    (**r [switch] statement *)
+  | Slabel : label -> statement -> statement
+  | Sgoto : label -> statement
+\end{lstlisting}
+\caption{Clight statements}
+\label{clight_statements}
+\end{figure}
+
+In Figure~\ref{clight_statements}, we have exposed all the Clight statements. Among them we are going to focus on the ones that change the state of the memory. When looking at the semantic given to these statements, only four of them can change the state of the memory: \textit{Sassign}, \textit{Sbuiltin}, \textit{Sreturn} and \textit{Sskip}.
+
+\begin{itemize}
+	\item \textbf{\textit{Sassign}}, is used to assign value to variables, it could be considered as an equivalent of ``='' in C. These statements will be targeted by our approach.
+	\item \textbf{\textit{Sbuiltin}}, is used to call builtin functions, which are functions created by CompCert that will be expanded later in the compilation. These statements call functions we trust, that's why we won't consider them as dangerous. We could also look at the builtin functions and modify their code to make them safe.
+	\item \textbf{\textit{Sreturn}}, these statements invoke the function call routine. They are also trusted statements, we won't need to add runtime checks on them.
+	\item \textbf{\textit{Sskip}}, in certain cases these statements are used to pop the stack. This does not endanger return addresses, we won't concern ourselves with them.
+\end{itemize}
+Among all the statements, our security checks will only apply to the \textit{Sassign} statements.
+Furthermore we can limit ourselves to \textit{Sassign} statements whose left expression can write directly in the memory (``Sassign left\_expr right\_expr'' $\leftrightarrow$ ``left\_expr = right\_expr''). The left expressions targeted are then mostly pointers dereference. To be sure that we have all the dangerous instructions, we reiterate the same approach and we take a look at the semantic of the left expressions in Clight.\\
+After checking the semantic of the left expressions, only two types of expression are able to reference a location in the memory.
+
+\begin{itemize}
+	\item \textbf{\textit{Ederef}}, as we predicted these expressions dereference pointers and will be targeted by our approach.
+	\item \textbf{\textit{Efield}}, they refer to fields of structure and can also point to locations in the memory. These expressions will also be secured with runtime checks.
+\end{itemize}
+
+We finally have defined the profile of the dangerous statements that have to be targeted by our approach. To sum it up, the targeted statements are all the \textit{Sassign} whose left expression is either \textit{Ederef} or \textit{Efield}.
+
+Now that we can detect the dangerous statements we will now add the runtime checks in the Clight code which will terminate our implementation.
 
 \subsubsection{Securing memory write statements}
 \label{ssub:implem_check_address}
