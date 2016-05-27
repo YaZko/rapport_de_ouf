@@ -199,8 +199,12 @@ In our example we filled the stack with ``a'' which corresponds to ``61'' in ASC
 We can see the consequence of the attack in the output Figure~\ref{output_buffer}, where the stack is full of ``61'' after executing \textit{strcpy}.
 When we reached the return address we overwrote it with the address of \textit{evil\_code} which was \texttt{0x0804847b} given on the second line of Figure~\ref{output_buffer}.
 This way, the next instruction that will be executed after \textit{foo} finishes will be the function \textit{evil\_code}.
-At the end of the program we can see that we get a \textit{Segmentation fault (core dumped)}, which is normal because we messed up the stack when we overwrote is with ``a''. But since we managed to execute \textit{evil\_code} the attack is still successful.
+At the end of the program we can see that we get a \textit{Segmentation fault (core dumped)}, which is normal because we messed up the stack when we overwrote is with ``a''. But since we managed to execute \textit{evil\_code} the attack is still successful. \hfill \break
 
+Even though the buffer overflow was a basic one, it still happens to see the usage of vulnerable functions like \textit{strcpy} in the industry.
+Furthermore there are much more sophisticated ROP attacks which are much more effective as witnessed by security vulnerability reports.
+Before, classic ROP attacks tried to execute some malicious code that was inserted manually in the stack or in the heap. But nowadays most system render their stack and their heap non executable which prevents the classic ROP attacks.
+However modern ROP attacks are now able to create malicious code from different pieces found in the program or in the libraries used. The most famous one is called \textit{return-to-libc} attack which pieces of code from the \textit{libc} library to create malicious code. Then the attacker still try to deviate the control flow of the program through return addresses to the malicious code just assembled with \textit{libc} code.
 
 \begin{figure}[!ht]
 \textcolor{gray}{terminal\$~} ./buffer \$(python -c 'print 13*"a"+"\textbackslash{x7b}\textbackslash{x84}\textbackslash{x04}\textbackslash{x08}"') \\
@@ -818,14 +822,8 @@ To conclude we will present multiple ideas on how our approach can still be impr
 
 \paragraph{Results.}
 \label{par:Results}
-For the example we are going to confront the buffer overflow presented Figure~\ref{buffer_overflow_code} with our implementation. We modified the code of the buffer overflow a little to simplify the test, the attack can be seen Figure~\ref{buffer_2}. To make things easier we just added the function \textit{strcpy} in the program's code instead of calling it from another library. This way the vulnerable code of \textit{strcpy} will be compiled with our transformation and be secured.
+For the example we are going to confront the buffer overflow presented Figure~\ref{buffer_overflow_code} with our implementation. We modified the code of the buffer overflow a little to simplify the test. To make things easier we just added the function \textit{strcpy} in the program's code instead of calling it from another library. This way the vulnerable code of \textit{strcpy} will be compiled with our transformation and be secured instead of compiling the external library.
 
-\begin{figure}[!ht]
-\lstinputlisting{code/buffer_inlined.c}
-\centering
-\caption{Modified buffer overflow in C}
-\label{buffer_2}
-\end{figure}
 
 To check the effectiveness of our approach we compile the buffer overflow in two different ways.
 The first time we compile it with our implementation but we do not activate the protection mechanism. In other words this executable has fixed frames size but we did not insert the runtime checks so it is still vulnerable to the buffer overflow. The second executables is compiled with our whole mechanism and is protected with runtime checks.

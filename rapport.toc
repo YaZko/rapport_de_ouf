@@ -25,19 +25,19 @@
 \contentsline {subsection}{\numberline {3.1}ROP attack}{4}
 \contentsline {subsubsection}{\numberline {3.1.1}The stack}{4}
 \contentsline {subsubsection}{\numberline {3.1.2}Buffer overflow}{4}
-\contentsline {subsection}{\numberline {3.2}Description of the approach}{5}
-\contentsline {subsubsection}{\numberline {3.2.1}Proposed solution}{6}
+\contentsline {subsection}{\numberline {3.2}Description of the approach}{6}
+\contentsline {subsubsection}{\numberline {3.2.1}Proposed solution}{7}
 \contentsline {paragraph}{Fixing return addresses locations and stack alignment.}{7}
 \contentsline {paragraph}{Detection of dangerous instructions.}{7}
 \contentsline {paragraph}{Securing dangerous statements.}{8}
-\contentsline {subsection}{\numberline {3.3}Security properties}{9}
+\contentsline {subsection}{\numberline {3.3}Security properties}{10}
 \contentsline {subsection}{\numberline {3.4}Analysis of the approach}{10}
 \contentsline {subsubsection}{\numberline {3.4.1}Conditions}{10}
-\contentsline {paragraph}{Stack modifications.}{10}
+\contentsline {paragraph}{Stack modifications.}{11}
 \contentsline {paragraph}{Insecure libraries.}{11}
 \contentsline {paragraph}{Modules need the same offset.}{11}
 \contentsline {subsubsection}{\numberline {3.4.2}Discussion}{11}
-\contentsline {paragraph}{Architecture dependant.}{11}
+\contentsline {paragraph}{Architecture dependant.}{12}
 \contentsline {paragraph}{Memory consumption.}{12}
 \contentsline {section}{\numberline {4}Implementation}{13}
 \contentsline {subsection}{\numberline {4.1}Implementation}{13}
