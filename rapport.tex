@@ -820,13 +820,15 @@ We will show first that our implementation is effective.
 Afterwards we will show different benchmarks we did do measure the cost of our transformations on different criteria like speed or size of the programs.
 To conclude we will present multiple ideas on how our approach can still be improved or what we want to implement in the remaining time of the internship. 
 
-\paragraph{Results.}
-\label{par:Results}
+\subsubsection{Results}
 For the example we are going to confront the buffer overflow presented Figure~\ref{buffer_overflow_code} with our implementation. We modified the code of the buffer overflow a little to simplify the test. To make things easier we just added the function \textit{strcpy} in the program's code instead of calling it from another library. This way the vulnerable code of \textit{strcpy} will be compiled with our transformation and be secured instead of compiling the external library.
 
 
 To check the effectiveness of our approach we compile the buffer overflow in two different ways.
-The first time we compile it with our implementation but we do not activate the protection mechanism. In other words this executable has fixed frames size but we did not insert the runtime checks so it is still vulnerable to the buffer overflow. The second executables is compiled with our whole mechanism and is protected with runtime checks.
+The first time we compile it with our implementation but we do not activate the protection mechanism. 
+In other words this executable has fixed frames size but we did not insert the runtime checks so it is still vulnerable to the buffer overflow. 
+The second executables is compiled with our whole mechanism and is protected with runtime checks.
+However the two executables were compiled with the same stack frames size, $n=2^-$.
 The output of the two binaries are presented Figure~\ref{output_weak}~and~\ref{output_protected}. 
 
 \begin{figure}[!ht]
@@ -883,7 +885,36 @@ Segmentation fault (core dumped)
 \end{figure}
 
 For the sake of the example, we added in the error behaviour a statement which calls  ``\textit{printf(Address: \%p, tmp)}''. In \textit{tmp} we stored the value of the address for which the protection mechanism triggered the error behaviour.
-First of all we can see that we made the program crashed before \textit{evil\_code} was executed. Furthermore 
+First of all we can see that we made the program crashed before \textit{evil\_code} was executed. Our implementation successfully does what we aimed for, we made the program crash on a dangerous program.
+Furthermore we can even see the address on which the program tried to write and was not allowed to. In this example our protection mechanism crashed when the program tried to write on the address $a=\texttt{0xffa2b0c0}$. 
+Since the frames size is $n=2^6$ all our return addresses location should have their least six significant bits equal to 0.
+We check that $a=\texttt{0xffa2b0c0}$ is effectively a return address. First of all $a>\texttt{0xff000000}$ which means that $a$ is actually part of the stack. Moreover we need to verify the equality $a~mod~n=0 \leftrightarrow (\texttt{0xffa2b0c0})~mod~(\texttt{0x00000040}) = 0$ which is true. 
+Both the conditions are fulfilled which means that $a$ is a return address location and that our mechanism properly worked.
+
+
+\subsubsection{Experimentations}
+
+We mentioned it earlier, we also want to measure the impacts that our transformation may bring in terms of memory and efficiency.
+We made some experimentations in order to figure out these questions.
+Furthermore we also had to verify which implementation was the most efficient between the branchless and the classic \textit{if then else}.
+For our different experimentations we had \textcolor{green}{number} different C programs which were present within the CompCert project for testing purposes.
+The performances of our approach are compared with the original CompCert project whose performances are between \texttt{gcc -O0} and \texttt{gcc -O1}.
+
+\paragraph{Efficiency}
+We wanted to measure the efficiency of our different transformations and compare them to the original CompCert. During our test we measured four different implementations: the original CompCert, our transformation just with fixed frames size, with fixed frame size and classic \textit{if then else} runtime checks and the branchless version.
+To calculate the execution time we used the Unix utility \textit{time}.
+The results are presented in the following graph Figure~\ref{efficiency_graph}.
+For better comprehension among all the programs we tested we removed a part of them which execution time were too short to have a relevant comparison.
+
+\textcolor{green}{Analysis of the graph}
+
+\paragraph{Number of runtime checks added}
+
+\paragraph{Stack frames size}
+\paragraph{Relation betw}
+
+\subsubsection{Discussion}
+
 
 
 \section{Conclusion}

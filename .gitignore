@@ -4,3 +4,4 @@
 ./*.toc
 modele-bib4
 modele-bib4/*
+Makefile
