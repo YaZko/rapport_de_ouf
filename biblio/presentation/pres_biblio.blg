@@ -1,0 +1,52 @@
+This is BibTeX, Version 0.99d (TeX Live 2015/Debian)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: pres_biblio.aux
+The style file: plain.bst
+Database file #1: ref.bib
+Repeated entry---line 131 of file ref.bib
+ : @article{Abadi:2009:CIP:1609956.1609960
+ :                                        ,
+I'm skipping whatever remains of this entry
+Warning--empty year in Mccamant_evaluatingsfi
+You've used 9 entries,
+            2118 wiz_defined-function locations,
+            573 strings with 6258 characters,
+and the built_in function-call counts, 4114 in all, are:
+= -- 407
+> -- 219
+< -- 6
++ -- 86
+- -- 76
+* -- 318
+:= -- 657
+add.period$ -- 31
+call.type$ -- 9
+change.case$ -- 64
+chr.to.int$ -- 0
+cite$ -- 10
+duplicate$ -- 151
+empty$ -- 300
+format.name$ -- 76
+if$ -- 876
+int.to.chr$ -- 0
+int.to.str$ -- 9
+missing$ -- 9
+newline$ -- 48
+num.names$ -- 20
+pop$ -- 63
+preamble$ -- 1
+purify$ -- 55
+quote$ -- 0
+skip$ -- 112
+stack$ -- 0
+substring$ -- 259
+swap$ -- 50
+text.length$ -- 6
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 36
+warning$ -- 1
+while$ -- 41
+width$ -- 10
+write$ -- 108
+(There was 1 error message)

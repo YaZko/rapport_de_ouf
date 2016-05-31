@@ -1,0 +1,27 @@
+Homogénéiser les termes quitte à les définir
+Motivations et contexte
+Mémoire dédiée -> mémoire bac à sable, introduire l'idée du bac à sable dans cette mémoire SFI
+tag -> étiquette
+Enlever la partie segment matching
+Expliquer clairement le masquage
+Mieux expliciter les Figures
+Peut-être refaire la Figure1
+l'objet du SFI?
+Enlever de non-confiance
+Les trvaux ultérieur que nous détaillerons sont basés sur le même principe
+Introduire le bac à sable, introduire SFI, des codes de différents niveaux de confiance
+Faire plus de schémas
+Commencer par mettre en évidence le lien entre le vérifieur et le générateur
+Vérifieur trop rapide
+Optimisations à plus expliquer ou à enlever
+utliser Trusted Computing Base en italique
+Comme je vous le montrerai plus tard cette approche a été utilisé et développé en pratique
+L'alignement est aussi utile pour faire un désassemblage sûr
+Si je parle d'optimisations j'en parle pas et donner des chiffres
+Dans la légende dire que c'est extrait du papier
+Peut-être ne pas trop parler des défauts ou différement
+Citer les noms pas le lieu
+Définir cohérent et sûr, CompCert ses ptés ne s'applique que dans un programme dont la sémantique est bien définie dans la partie de ComptCert, th de correction
+CompCert me garantit que je n'ai pas besoin de sandboxé les sauts
+Masquage ecriture et pointeurs de fonctions à part
+Pour les appels de fonction on fait différemment

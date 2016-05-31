@@ -1,0 +1,93 @@
+
+Introduction
+# Donner des motivations de plus haut niveau. Pourquoi exécuter du code non-fiable ?
+#         - plugin de navigateur
+#         - fermes de calculs
+
+        a) Buts et applications de SFI
+		=> Sécuriser du code par le software
+		=> Exécuter du code non fiable dans le même espace mémoire que notre programme 
+        b) Notre objectif
+		=> Essayer une approche de SFI qui utiliserait les particularités de Compcert?
+# Exploiter un compilateur formellement prouvé
+# Assurer plus de propriétés
+
+# La fin de l'intro doit présenter le plan.
+
+
+1) Software Fault Isolation
+# Définir les propriétés de sécurité de SFI -- quelles sont les garanties pour le client ?
+        a) Principe
+		=> Protection de la mémoire
+		=> Modification de l'assembleur
+# Il me semble que le principe (de l'approche classique) c'est:
+               1] Compilateur untrusted
+               2] Vérifieur binaire trusted
+
+       b) Comment?
+#En l'état, le "comment" n'est pas très clair. Veux-tu parler de la génération de code ? Ou bien du vérifieur?
+#L'analyse statique semble faire référence au vérifieur
+#tandis que "sandboxing" semble faire référence au générateur de code.
+
+		=> Analyse statique pour immediate jump
+		=> sandboxing pour jump indirect
+		=> Alignement des addresses pour les transferts de contrôles
+		=> Control Flow Integrity? 
+# Il ne s'agit pas à proprement parler d'intégrité du flot de contrôle
+#-- mais on veut assurer des propriétés sur le flot de contrôle (ne pas sortir de la sandbox)
+
+#Ne serait-il pas possible d'organiser comme suit:
+# 1] énoncer une propriété nécessaire à SFI
+# 2] expliquer l'instrumentation nécessaire (compilateur)
+# 3] expliquer la validation nécessaire (vérifieur)
+
+c) Vérification du code
+# Untrusted ?
+                => Trusted compiler
+		=> Validator
+		=> Proof carrying code
+# Que vient faire PCC ? D'habitude, le PCC vient avec la notion de preuve qui est stockée à côté du code.
+
+d) Pros/Cons
+		++ Gain de temps par rapport à RPC
+		++ Langage indépendant
+		++ Small trusted computing base
+		-- Exécution normale plus lente (sans RPC)
+		-- Architecture dépendant
+# Il me semble que l'aspect RPC est historique. Il y a des applications qui seraient impossibles avec RPC.
+
+
+2) Approche classique avec validator
+	a) Google avec NativeClient
+		=> Première implémentation avec x86_32
+		=> Adaptation pour ARM et x86_64
+		=> Méthode déjà implémentée pour l'industrie
+	b) Just In time SFI
+
+3) Approche avec compileur certifié
+	a) Qu'est-ce un compileur certifié
+		=> Définition
+		=> Compcert
+	b) Principe du SFI
+		=> Modification effectuées non plus sur l'assembleur mais sur un langage intermédiaire
+		=> Joue sur le fait que le compileur conservera la sémantique des modifications
+	c) Pros/Cons
+		++ Architecture indépendant
+		++ HIgher level
+		-- Contrôle plus gros grain
+# Que signifie contrôle gros grain ?
+                -- Besoin de passer par un langage intermédiaire
+# l'approche NativeClient utilise un langage intermédiaire pour faire la transformation
+                -- Plus lent
+		-- Compcert marche en single thread
+# Quel est l'impact ?
+                -- implémentation pas encore complète
+# Que veux-tu dire ici ?
+
+
+4) Notre approche et conclusion
+	- Contrôle plus fin au niveau de sandbox pour limiter les opérations inutiles
+	- Frame stack de taille constante pour commencer
+	- Garder l'utilisation du return avec alignement sur la taille des frames stack
+# On voudrait aussi garantir plus de sécurité -- intégrité des call/return.
+# Ce n'est pas le cas de SFI -- tu peux écraser ton adresse de retour...
