@@ -1,18 +1,18 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2015.12.15)  25 JAN 2016 11:38
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=latex 2016.2.16)  1 JUN 2016 19:40
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
 **rapport.tex
 (./rapport.tex
-LaTeX2e <2015/01/01>
-Babel <3.9l> and hyphenation patterns for 2 languages loaded.
+LaTeX2e <2011/06/27>
+Babel <3.9k> and hyphenation patterns for 6 languages loaded.
 (./sdm.cls
 Document Class: sdm 2015/02/02 v0.1 LaTeX document class for Université Rennes
  1
 (/usr/share/texlive/texmf-dist/tex/latex/base/article.cls
-Document Class: article 2014/09/29 v1.4h Standard LaTeX document class
+Document Class: article 2007/10/19 v1.4h Standard LaTeX document class
 (/usr/share/texlive/texmf-dist/tex/latex/base/size11.clo
-File: size11.clo 2014/09/29 v1.4h Standard LaTeX file (size option)
+File: size11.clo 2007/10/19 v1.4h Standard LaTeX file (size option)
 )
 \c@part=\count79
 \c@section=\count80
@@ -31,14 +31,14 @@ Package: fullpage 1999/02/23 1.1 (PWD)
 \FP@margin=\skip43
 )
 (/usr/share/texlive/texmf-dist/tex/latex/graphics/graphicx.sty
-Package: graphicx 2014/10/28 v1.0g Enhanced LaTeX Graphics (DPC,SPQR)
+Package: graphicx 1999/02/16 v1.0f Enhanced LaTeX Graphics (DPC,SPQR)
 
 (/usr/share/texlive/texmf-dist/tex/latex/graphics/keyval.sty
-Package: keyval 2014/10/28 v1.15 key=value parser (DPC)
+Package: keyval 1999/03/16 v1.13 key=value parser (DPC)
 \KV@toks@=\toks14
 )
 (/usr/share/texlive/texmf-dist/tex/latex/graphics/graphics.sty
-Package: graphics 2014/10/28 v1.0p Standard LaTeX Graphics (DPC,SPQR)
+Package: graphics 2009/02/05 v1.0o Standard LaTeX Graphics (DPC,SPQR)
 
 (/usr/share/texlive/texmf-dist/tex/latex/graphics/trig.sty
 Package: trig 1999/03/16 v1.09 sin cos tan (DPC)
@@ -46,18 +46,10 @@ Package: trig 1999/03/16 v1.09 sin cos tan (DPC)
 (/usr/share/texlive/texmf-dist/tex/latex/latexconfig/graphics.cfg
 File: graphics.cfg 2010/04/23 v1.9 graphics configuration of TeX Live
 )
-Package graphics Info: Driver file: pdftex.def on input line 94.
+Package graphics Info: Driver file: dvips.def on input line 91.
 
-(/usr/share/texlive/texmf-dist/tex/latex/pdftex-def/pdftex.def
-File: pdftex.def 2011/05/27 v0.06d Graphics/color for pdfTeX
-
-(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/infwarerr.sty
-Package: infwarerr 2010/04/08 v1.3 Providing info/warning/error messages (HO)
-)
-(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ltxcmds.sty
-Package: ltxcmds 2011/11/09 v1.22 LaTeX kernel commands for general use (HO)
-)
-\Gread@gobject=\count87
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/dvips.def
+File: dvips.def 1999/02/16 v3.0i Driver-dependant file (DPC,SPQR)
 ))
 \Gin@req@height=\dimen103
 \Gin@req@width=\dimen104
@@ -68,9 +60,8 @@ Package: xcolor 2007/01/21 v2.11 LaTeX color extensions (UK)
 (/usr/share/texlive/texmf-dist/tex/latex/latexconfig/color.cfg
 File: color.cfg 2007/01/18 v1.5 color configuration of teTeX/TeXLive
 )
-Package xcolor Info: Driver file: pdftex.def on input line 225.
+Package xcolor Info: Driver file: dvips.def on input line 225.
 Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1337.
-Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1341.
 Package xcolor Info: Model `RGB' extended on input line 1353.
 Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1355.
 Package xcolor Info: Model `Hsb' substituted by `hsb' on input line 1356.
@@ -81,26 +72,26 @@ Package xcolor Info: Model `wave' substituted by `hsb' on input line 1360.
 )
 (/usr/share/texlive/texmf-dist/tex/latex/float/float.sty
 Package: float 2001/11/08 v1.3d Float enhancements (AL)
-\c@float@type=\count88
+\c@float@type=\count87
 \float@exts=\toks15
 \float@box=\box26
 \@float@everytoks=\toks16
 \@floatcapt=\box27
 )
 (/usr/share/texlive/texmf-dist/tex/latex/base/inputenc.sty
-Package: inputenc 2015/03/17 v1.2c Input encoding file
+Package: inputenc 2008/03/30 v1.1d Input encoding file
 \inpenc@prehook=\toks17
 \inpenc@posthook=\toks18
 
 (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def
-File: utf8.def 2014/09/29 v1.1m UTF-8 support for inputenc
+File: utf8.def 2008/04/05 v1.1m UTF-8 support for inputenc
 Now handling font encoding OML ...
 ... no UTF-8 mapping file for font encoding OML
 Now handling font encoding T1 ...
 ... processing UTF-8 mapping file for font encoding T1
 
 (/usr/share/texlive/texmf-dist/tex/latex/base/t1enc.dfu
-File: t1enc.dfu 2014/09/29 v1.1m UTF-8 support for inputenc
+File: t1enc.dfu 2008/04/05 v1.1m UTF-8 support for inputenc
    defining Unicode char U+00A1 (decimal 161)
    defining Unicode char U+00A3 (decimal 163)
    defining Unicode char U+00AB (decimal 171)
@@ -250,7 +241,7 @@ Now handling font encoding OT1 ...
 ... processing UTF-8 mapping file for font encoding OT1
 
 (/usr/share/texlive/texmf-dist/tex/latex/base/ot1enc.dfu
-File: ot1enc.dfu 2014/09/29 v1.1m UTF-8 support for inputenc
+File: ot1enc.dfu 2008/04/05 v1.1m UTF-8 support for inputenc
    defining Unicode char U+00A1 (decimal 161)
    defining Unicode char U+00A3 (decimal 163)
    defining Unicode char U+00B8 (decimal 184)
@@ -281,7 +272,7 @@ Now handling font encoding OMS ...
 ... processing UTF-8 mapping file for font encoding OMS
 
 (/usr/share/texlive/texmf-dist/tex/latex/base/omsenc.dfu
-File: omsenc.dfu 2014/09/29 v1.1m UTF-8 support for inputenc
+File: omsenc.dfu 2008/04/05 v1.1m UTF-8 support for inputenc
    defining Unicode char U+00A7 (decimal 167)
    defining Unicode char U+00B6 (decimal 182)
    defining Unicode char U+00B7 (decimal 183)
@@ -309,48 +300,40 @@ Package: indentfirst 1995/11/23 v1.03 Indent first paragraph (DPC)
 )
 (/usr/share/texlive/texmf-dist/tex/generic/oberdiek/hyphsubst.sty
 Package: hyphsubst 2008/06/09 v0.2 Substitute hyphenation patterns (HO)
-)
+
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/infwarerr.sty
+Package: infwarerr 2010/04/08 v1.3 Providing info/warning/error messages (HO)
+))
 (/usr/share/texlive/texmf-dist/tex/generic/babel/babel.sty
-Package: babel 2014/09/25 3.9l The Babel package
+Package: babel 2014/03/24 3.9k The Babel package
 
 (/usr/share/texlive/texmf-dist/tex/generic/babel-french/frenchb.ldf
-Language: frenchb 2015/06/26 v3.1g French support from the babel system
+Language: frenchb 2014/03/14 v3.0b French support from the babel system
 
 (/usr/share/texlive/texmf-dist/tex/generic/babel/babel.def
-File: babel.def 2014/09/25 3.9l Babel common definitions
-\babel@savecnt=\count89
+File: babel.def 2014/03/24 3.9k Babel common definitions
+\babel@savecnt=\count88
 \U@D=\dimen105
 )
-\l@french = a dialect from \language\l@nohyphenation 
-
-
-Package babel Warning: No hyphenation patterns were preloaded for
-(babel)                the language `French' into the format.
-(babel)                Please, configure your TeX system to add them and
-(babel)                rebuild the format. Now I will use the patterns
-(babel)                preloaded for \language=nohyphenation instead on input l
-ine 75.
-
 \l@acadian = a dialect from \language\l@french 
 \l@canadien = a dialect from \language\l@french 
 \FBcolonskip=\skip44
 \FBthinskip=\skip45
-\FB@interchartokenstateORI=\count90
-Package babel Info: Making : an active character on input line 353.
-Package babel Info: Making ; an active character on input line 354.
-Package babel Info: Making ! an active character on input line 355.
-Package babel Info: Making ? an active character on input line 356.
+\FB@interchartokenstateORI=\count89
+Package babel Info: Making : an active character on input line 367.
+Package babel Info: Making ; an active character on input line 368.
+Package babel Info: Making ! an active character on input line 369.
+Package babel Info: Making ? an active character on input line 370.
 \FBguillskip=\skip46
-\FBguill@level=\count91
 \FB@Mht=\dimen106
-\std@mcc=\count92
-\dec@mcc=\count93
+\std@mcc=\count90
+\dec@mcc=\count91
 \listindentFB=\skip47
 \labelwidthFB=\skip48
 \leftmarginFB=\skip49
 \parindentFFN=\dimen107
-)) (/usr/share/texlive/texmf-dist/tex/latex/carlisle/scalefnt.sty)
-(./rapport.aux)
+))
+(/usr/share/texlive/texmf-dist/tex/latex/carlisle/scalefnt.sty) (./rapport.aux)
 \openout1 = `rapport.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 27.
@@ -365,147 +348,171 @@ LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 27.
 LaTeX Font Info:    ... okay on input line 27.
 LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 27.
 LaTeX Font Info:    ... okay on input line 27.
- (/usr/share/texlive/texmf-dist/tex/context/base/supp-pdf.mkii
-[Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count94
-\scratchdimen=\dimen108
-\scratchbox=\box28
-\nofMPsegments=\count95
-\nofMParguments=\count96
-\everyMPshowfont=\toks19
-\MPscratchCnt=\count97
-\MPscratchDim=\dimen109
-\MPnumerator=\count98
-\makeMPintoPDFobject=\count99
-\everyMPtoPDFconversion=\toks20
-) (/usr/share/texlive/texmf-dist/tex/generic/oberdiek/pdftexcmds.sty
-Package: pdftexcmds 2011/11/29 v0.20 Utility functions of pdfTeX for LuaTeX (HO
-)
-
-(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ifluatex.sty
-Package: ifluatex 2010/03/01 v1.3 Provides the ifluatex switch (HO)
-Package ifluatex Info: LuaTeX not detected.
-)
-(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ifpdf.sty
-Package: ifpdf 2011/01/30 v2.3 Provides the ifpdf switch (HO)
-Package ifpdf Info: pdfTeX in PDF mode is detected.
-)
-Package pdftexcmds Info: LuaTeX not detected.
-Package pdftexcmds Info: \pdf@primitive is available.
-Package pdftexcmds Info: \pdf@ifprimitive is available.
-Package pdftexcmds Info: \pdfdraftmode found.
-)
-(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
-Package: epstopdf-base 2010/02/09 v2.5 Base part for package epstopdf
-
-(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/grfext.sty
-Package: grfext 2010/08/19 v1.1 Manage graphics extensions (HO)
-
-(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/kvdefinekeys.sty
-Package: kvdefinekeys 2011/04/07 v1.3 Define keys (HO)
-))
-(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/kvoptions.sty
-Package: kvoptions 2011/06/30 v3.11 Key value format for package options (HO)
-
-(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/kvsetkeys.sty
-Package: kvsetkeys 2012/04/25 v1.16 Key value parser (HO)
-
-(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/etexcmds.sty
-Package: etexcmds 2011/02/16 v1.5 Avoid name clashes with e-TeX commands (HO)
-Package etexcmds Info: Could not find \expanded.
-(etexcmds)             That can mean that you are not using pdfTeX 1.50 or
-(etexcmds)             that some package has redefined \expanded.
-(etexcmds)             In the latter case, load this package earlier.
-)))
-Package grfext Info: Graphics extension search list:
-(grfext)             [.png,.pdf,.jpg,.mps,.jpeg,.jbig2,.jb2,.PNG,.PDF,.JPG,.JPE
-G,.JBIG2,.JB2,.eps]
-(grfext)             \AppendGraphicsExtensions on input line 452.
-
-(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
-File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
-e
-))
 LaTeX Info: Redefining \degres on input line 27.
 LaTeX Info: Redefining \dots on input line 27.
 LaTeX Info: Redefining \up on input line 27.
-
 
 Package frenchb.ldf Warning: OT1 encoding should not be used for French.
 (frenchb.ldf)                Add \usepackage[T1]{fontenc} to the preamble
 (frenchb.ldf)                of your document, on input line 27.
 
-<./header.jpg, id=1, 722.7pt x 144.54pt>
-File: ./header.jpg Graphic file (type jpg)
- <use ./header.jpg>
-Package pdftex.def Info: ./header.jpg used on input line 28.
-(pdftex.def)             Requested size: 375.80544pt x 75.16121pt.
 
-<./rennes1.png, id=2, 353.32pt x 143.53625pt>
-File: ./rennes1.png Graphic file (type png)
- <use ./rennes1.png>
-Package pdftex.def Info: ./rennes1.png used on input line 28.
-(pdftex.def)             Requested size: 42.27623pt x 17.17322pt.
+! LaTeX Error: Cannot determine size of graphic in ./header.jpg (no BoundingBox
+).
 
-<./ENS-Rennes.png, id=3, 479.54156pt x 205.5178pt>
-File: ./ENS-Rennes.png Graphic file (type png)
- <use ./ENS-Rennes.png>
-Package pdftex.def Info: ./ENS-Rennes.png used on input line 28.
-(pdftex.def)             Requested size: 42.27623pt x 18.11635pt.
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.28 \maketitle
+               
+? 
+File: ./header.jpg Graphic file (type eps)
+<./header.jpg>
 
-<./insa-rennes.png, id=4, 305.7021pt x 66.2475pt>
-File: ./insa-rennes.png Graphic file (type png)
- <use ./insa-rennes.png>
-Package pdftex.def Info: ./insa-rennes.png used on input line 28.
-(pdftex.def)             Requested size: 46.97836pt x 10.1803pt.
+! LaTeX Error: Cannot determine size of graphic in ./rennes1.png (no BoundingBo
+x).
 
-<./supelec.jpg, id=6, 277.5168pt x 142.6128pt>
-File: ./supelec.jpg Graphic file (type jpg)
- <use ./supelec.jpg>
-Package pdftex.def Info: ./supelec.jpg used on input line 28.
-(pdftex.def)             Requested size: 37.58125pt x 19.31064pt.
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.28 \maketitle
+               
+? 
+File: ./rennes1.png Graphic file (type eps)
+<./rennes1.png>
 
-<./esir.png, id=7, 160.6pt x 71.26625pt>
-File: ./esir.png Graphic file (type png)
- <use ./esir.png>
-Package pdftex.def Info: ./esir.png used on input line 28.
-(pdftex.def)             Requested size: 28.18414pt x 12.50656pt.
+! LaTeX Error: Cannot determine size of graphic in ./ENS-Rennes.png (no Boundin
+gBox).
 
-<./enssat.png, id=8, 1354.05875pt x 552.0625pt>
-File: ./enssat.png Graphic file (type png)
- <use ./enssat.png>
-Package pdftex.def Info: ./enssat.png used on input line 28.
-(pdftex.def)             Requested size: 32.88629pt x 13.40224pt.
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.28 \maketitle
+               
+? 
+File: ./ENS-Rennes.png Graphic file (type eps)
+<./ENS-Rennes.png>
 
-<./UBO.png, id=9, 170.7981pt x 113.9457pt>
-File: ./UBO.png Graphic file (type png)
- <use ./UBO.png>
-Package pdftex.def Info: ./UBO.png used on input line 28.
-(pdftex.def)             Requested size: 32.88629pt x 21.93852pt.
+! LaTeX Error: Cannot determine size of graphic in ./insa-rennes.png (no Boundi
+ngBox).
 
-<./logo_ENIB.jpg, id=10, 742.775pt x 355.3275pt>
-File: ./logo_ENIB.jpg Graphic file (type jpg)
- <use ./logo_ENIB.jpg>
-Package pdftex.def Info: ./logo_ENIB.jpg used on input line 28.
-(pdftex.def)             Requested size: 42.27623pt x 20.22351pt.
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.28 \maketitle
+               
+? 
+File: ./insa-rennes.png Graphic file (type eps)
+<./insa-rennes.png>
 
-<./tel-br.jpg, id=11, 593.21625pt x 593.21625pt>
-File: ./tel-br.jpg Graphic file (type jpg)
- <use ./tel-br.jpg>
-Package pdftex.def Info: ./tel-br.jpg used on input line 28.
-(pdftex.def)             Requested size: 23.48918pt x 23.48021pt.
+! LaTeX Error: Cannot determine size of graphic in ./supelec.jpg (no BoundingBo
+x).
 
-<./ensta.jpg, id=12, 204.765pt x 247.92625pt>
-File: ./ensta.jpg Graphic file (type jpg)
- <use ./ensta.jpg>
-Package pdftex.def Info: ./ensta.jpg used on input line 28.
-(pdftex.def)             Requested size: 23.48918pt x 28.43715pt.
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.28 \maketitle
+               
+? 
+File: ./supelec.jpg Graphic file (type eps)
+<./supelec.jpg>
 
-<./logoUbs.png, id=13, 151.0443pt x 96.36pt>
-File: ./logoUbs.png Graphic file (type png)
- <use ./logoUbs.png>
-Package pdftex.def Info: ./logoUbs.png used on input line 28.
-(pdftex.def)             Requested size: 23.48918pt x 14.98416pt.
+! LaTeX Error: Cannot determine size of graphic in ./esir.png (no BoundingBox).
+
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.28 \maketitle
+               
+? 
+File: ./esir.png Graphic file (type eps)
+<./esir.png>
+
+! LaTeX Error: Cannot determine size of graphic in ./enssat.png (no BoundingBox
+).
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.28 \maketitle
+               
+? 
+File: ./enssat.png Graphic file (type eps)
+<./enssat.png>
+
+! LaTeX Error: Cannot determine size of graphic in ./UBO.png (no BoundingBox).
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.28 \maketitle
+               
+? 
+File: ./UBO.png Graphic file (type eps)
+<./UBO.png>
+
+! LaTeX Error: Cannot determine size of graphic in ./logo_ENIB.jpg (no Bounding
+Box).
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.28 \maketitle
+               
+? 
+File: ./logo_ENIB.jpg Graphic file (type eps)
+<./logo_ENIB.jpg>
+
+! LaTeX Error: Cannot determine size of graphic in ./tel-br.jpg (no BoundingBox
+).
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.28 \maketitle
+               
+? 
+File: ./tel-br.jpg Graphic file (type eps)
+<./tel-br.jpg>
+
+! LaTeX Error: Cannot determine size of graphic in ./ensta.jpg (no BoundingBox)
+.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.28 \maketitle
+               
+? 
+File: ./ensta.jpg Graphic file (type eps)
+<./ensta.jpg>
+
+! LaTeX Error: Cannot determine size of graphic in ./logoUbs.png (no BoundingBo
+x).
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.28 \maketitle
+               
+? 
+File: ./logoUbs.png Graphic file (type eps)
+<./logoUbs.png> [1
+
+]
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <10.95> on input line 28.
 LaTeX Font Info:    External font `cmex10' loaded for size
@@ -513,136 +520,213 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <6> on input line 28.
 
-<supelec.jpg, id=14, 277.5168pt x 142.6128pt>
-File: supelec.jpg Graphic file (type jpg)
- <use supelec.jpg>
-Package pdftex.def Info: supelec.jpg used on input line 28.
-(pdftex.def)             Requested size: 42.27623pt x 21.72392pt.
- [1
 
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./header.jpg> <./rennes1.p
-ng (PNG copy)> <./ENS-Rennes.png (PNG copy)> <./insa-rennes.png> <./supelec.jpg
-> <./esir.png (PNG copy)> <./enssat.png> <./UBO.png> <./logo_ENIB.jpg> <./tel-b
-r.jpg> <./ensta.jpg> <./logoUbs.png> <./supelec.jpg>] (./rapport.toc)
+! LaTeX Error: File `supelec' not found.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.28 \maketitle
+               
+? 
+[2] (./rapport.toc)
 \tf@toc=\write3
 \openout3 = `rapport.toc'.
 
  [1] [1] [2]
-<images/algo_sandboxing.pdf, id=41, 604.2575pt x 137.51375pt>
-File: images/algo_sandboxing.pdf Graphic file (type pdf)
 
-<use images/algo_sandboxing.pdf>
-Package pdftex.def Info: images/algo_sandboxing.pdf used on input line 84.
-(pdftex.def)             Requested size: 302.128pt x 68.7567pt.
- [3 <./images/algo_sandboxing.pdf>]
-Overfull \hbox (3.28667pt too wide) in paragraph at lines 93--96
-\OT1/cmr/m/n/10.95 impl^^Sementer les m^^Secanismes de protection de \OT1/cmr/m
-/it/10.95 sandboxing \OT1/cmr/m/n/10.95 et ne seront plus disponible pour l'ex^
-^Secution
- []
+LaTeX Warning: File `images/algo_sandboxing.pdf' not found on input line 84.
 
-[4] [5]
-Overfull \hbox (1.03468pt too wide) in paragraph at lines 136--137
-\OT1/cmr/m/n/10.95 plus complexe et le code assembleur obtenu n'est pas forc^^S
-ement repr^^Sesentatif du binaire. Auparavant,
- []
 
-[6] <images/nacl_constraints.png, id=59, 1195.46625pt x 666.49pt>
-File: images/nacl_constraints.png Graphic file (type png)
+! LaTeX Error: File `images/algo_sandboxing.pdf' not found.
 
-<use images/nacl_constraints.png>
-Package pdftex.def Info: images/nacl_constraints.png used on input line 165.
-(pdftex.def)             Requested size: 298.86583pt x 166.62209pt.
- [7 <./images/nacl_constraints.png>]
-<images/nacl_jump.png, id=64, 865.2325pt x 123.46124pt>
-File: images/nacl_jump.png Graphic file (type png)
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.84 ...ics[scale=0.5]{images/algo_sandboxing.pdf}
+                                                  
+? 
 
-<use images/nacl_jump.png>
-Package pdftex.def Info: images/nacl_jump.png used on input line 176.
-(pdftex.def)             Requested size: 190.35173pt x 27.16154pt.
+! LaTeX Error: Cannot determine size of graphic in images/algo_sandboxing.pdf (
+no BoundingBox).
 
-Overfull \hbox (8.39137pt too wide) in paragraph at lines 198--201
-[]\OT1/cmr/m/n/10.95 Jusqu'^^Ra pr^^Sesent nous n'avons vu que des impl^^Sement
-ations de SFI bas^^Sees sur le mod^^Rele traditionnel :
- []
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.84 ...ics[scale=0.5]{images/algo_sandboxing.pdf}
+                                                  
+? 
+File: images/algo_sandboxing.pdf Graphic file (type eps)
+<images/algo_sandboxing.pdf> [3] [4] [5] [6]
 
-[8 <./images/nacl_jump.png>]
-<images/compcert_pass.png, id=69, 1479.5275pt x 572.1375pt>
-File: images/compcert_pass.png Graphic file (type png)
+LaTeX Warning: File `images/nacl_constraints.png' not found on input line 165.
 
-<use images/compcert_pass.png>
-Package pdftex.def Info: images/compcert_pass.png used on input line 210.
-(pdftex.def)             Requested size: 473.45848pt x 183.08774pt.
 
-Overfull \hbox (3.70346pt too wide) in paragraph at lines 210--211
- [][] 
- []
+! LaTeX Error: File `images/nacl_constraints.png' not found.
 
-[9 <./images/compcert_pass.png>] [10]
-<images/psfi.png, id=78, 997.7275pt x 616.3025pt>
-File: images/psfi.png Graphic file (type png)
- <use images/psfi.png>
-Package pdftex.def Info: images/psfi.png used on input line 256.
-(pdftex.def)             Requested size: 359.18163pt x 221.86873pt.
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.165 ...[scale=0.25]{images/nacl_constraints.png}
+                                                  
+? 
 
-[11 <./images/psfi.png>]
-<images/before_shadow.png, id=85, 671.50874pt x 263.98625pt>
-File: images/before_shadow.png Graphic file (type png)
+! LaTeX Error: Cannot determine size of graphic in images/nacl_constraints.png 
+(no BoundingBox).
 
-<use images/before_shadow.png>
-Package pdftex.def Info: images/before_shadow.png used on input line 272.
-(pdftex.def)             Requested size: 221.59857pt x 87.11572pt.
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.165 ...[scale=0.25]{images/nacl_constraints.png}
+                                                  
+? 
+File: images/nacl_constraints.png Graphic file (type eps)
+<images/nacl_constraints.png>
 
-<images/after_shadow.png, id=86, 671.50874pt x 328.22626pt>
-File: images/after_shadow.png Graphic file (type png)
+LaTeX Warning: File `images/nacl_jump.png' not found on input line 176.
 
-<use images/after_shadow.png>
-Package pdftex.def Info: images/after_shadow.png used on input line 273.
-(pdftex.def)             Requested size: 221.59857pt x 108.31499pt.
+
+! LaTeX Error: File `images/nacl_jump.png' not found.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.176 ...raphics[scale=0.22]{images/nacl_jump.png}
+                                                  
+? 
+
+! LaTeX Error: Cannot determine size of graphic in images/nacl_jump.png (no Bou
+ndingBox).
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.176 ...raphics[scale=0.22]{images/nacl_jump.png}
+                                                  
+? 
+File: images/nacl_jump.png Graphic file (type eps)
+<images/nacl_jump.png> [7]
+
+LaTeX Warning: File `images/compcert_pass.png' not found on input line 210.
+
+
+! LaTeX Error: File `images/compcert_pass.png' not found.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.210 ...ics[scale=0.32]{images/compcert_pass.png}
+                                                  
+? 
+
+! LaTeX Error: Cannot determine size of graphic in images/compcert_pass.png (no
+ BoundingBox).
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.210 ...ics[scale=0.32]{images/compcert_pass.png}
+                                                  
+? 
+File: images/compcert_pass.png Graphic file (type eps)
+<images/compcert_pass.png> [8] [9]
+
+LaTeX Warning: File `images/psfi.png' not found on input line 256.
+
+
+! LaTeX Error: File `images/psfi.png' not found.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.256 ...ludegraphics[scale=0.36]{images/psfi.png}
+                                                  
+? 
+
+! LaTeX Error: Cannot determine size of graphic in images/psfi.png (no Bounding
+Box).
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.256 ...ludegraphics[scale=0.36]{images/psfi.png}
+                                                  
+? 
+File: images/psfi.png Graphic file (type eps)
+<images/psfi.png> [10]
+
+LaTeX Warning: File `images/before_shadow.png' not found on input line 272.
+
+
+! LaTeX Error: File `images/before_shadow.png' not found.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.272 ...ics[scale=0.33]{images/before_shadow.png}
+                                                  
+? 
+
+! LaTeX Error: Cannot determine size of graphic in images/before_shadow.png (no
+ BoundingBox).
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.272 ...ics[scale=0.33]{images/before_shadow.png}
+                                                  
+? 
+File: images/before_shadow.png Graphic file (type eps)
+<images/before_shadow.png>
+
+LaTeX Warning: File `images/after_shadow.png' not found on input line 273.
+
+
+! LaTeX Error: File `images/after_shadow.png' not found.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.273 ...hics[scale=0.33]{images/after_shadow.png}
+                                                  
+? 
+
+! LaTeX Error: Cannot determine size of graphic in images/after_shadow.png (no 
+BoundingBox).
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.273 ...hics[scale=0.33]{images/after_shadow.png}
+                                                  
+? 
+File: images/after_shadow.png Graphic file (type eps)
+<images/after_shadow.png>
 LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <10.95> not available
 (Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 279.
-
-Overfull \hbox (4.21815pt too wide) in paragraph at lines 283--284
-[]\OT1/cmr/m/it/10.95 Masquage des appels de fonctions\OT1/cmr/m/n/10.95 , des 
-blocs m^^Semoire sont sp^^Secialement r^^Seserv^^Ses pour identifier
- []
-
-
-Overfull \hbox (9.19978pt too wide) in paragraph at lines 285--286
-[]\OT1/cmr/m/it/10.95 Production d'un code s^^Semantiquement bien d^^Sefini\OT1
-/cmr/m/n/10.95 , on veut que tous les programmes transform^^Ses
- []
-
-[12 <./images/before_shadow.png> <./images/after_shadow.png>]
-Overfull \hbox (2.09929pt too wide) in paragraph at lines 305--308
-\OT1/cmr/m/n/10.95 instructions de masquage pour que l'adresse stock^^See dans 
-le registre durant l'ex^^Secution appartiennent
- []
-
-[13] [14] (./rapport.bbl) [15] (./rapport.aux) ) 
+ [11] [12] [13] (./rapport.bbl) [14] (./rapport.aux) ) 
 Here is how much of TeX's memory you used:
- 3487 strings out of 495000
- 47920 string characters out of 6181168
- 118131 words of memory out of 5000000
- 6645 multiletter control sequences out of 15000+600000
+ 2456 strings out of 494956
+ 31466 string characters out of 6179257
+ 101941 words of memory out of 5000000
+ 5645 multiletter control sequences out of 15000+600000
  10379 words of font info for 36 fonts, out of 8000000 for 9000
- 14 hyphenation exceptions out of 8191
- 38i,7n,35p,1505b,439s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/share/texlive/texmf-dist/
-fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/
-type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/
-public/amsfonts/cm/cmbxti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/publ
-ic/amsfonts/cm/cmcsc10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/am
-sfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts
-/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr
-12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb>
-</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/
-share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/share/
-texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
-Output written on rapport.pdf (17 pages, 956067 bytes).
-PDF statistics:
- 137 PDF objects out of 1000 (max. 8388607)
- 76 compressed objects within 1 object stream
- 0 named destinations out of 1000 (max. 500000)
- 101 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 36 hyphenation exceptions out of 8191
+ 32i,5n,35p,1505b,439s stack positions out of 5000i,500n,10000p,200000b,80000s
 
+Output written on rapport.dvi (17 pages, 86504 bytes).

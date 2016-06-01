@@ -1,16 +1,18 @@
 \begin{thebibliography}{1}
 
-\bibitem{Abadi:2009:CIP:1609956.1609960}
-Mart\'{\i}n Abadi, Mihai Budiu, \'{U}lfar Erlingsson, and Jay Ligatti.
-\newblock Control-flow integrity principles, implementations, and applications.
-\newblock {\em ACM Trans. Inf. Syst. Secur.}, 13(1):4:1--4:40, 2009.
-
 \bibitem{compCert_memory_model}
 Frédéric Besson, Sandrine Blazy, and Pierre Wilke.
 \newblock A concrete memory model for compcert.
 \newblock In Christian Urban and Xingyuan Zhang, editors, {\em Interactive
   Theorem Proving}, volume 9236 of {\em Lecture Notes in Computer Science},
   pages 67--83. Springer International Publishing, 2015.
+
+\bibitem{BRSS08}
+Erik Buchanan, Ryan Roemer, Hovav Shacham, and Stefan Savage.
+\newblock When good instructions go bad: Generalizing return-oriented
+  programming to {RISC}.
+\newblock In Paul Syverson and Somesh Jha, editors, {\em Proceedings of CCS
+  2008}, pages 27--38. ACM Press, October 2008.
 
 \bibitem{Kroll:2014:PSF:2708449.2708686}
 Joshua~A. Kroll, Gordon Stewart, and Andrew~W. Appel.
@@ -26,8 +28,7 @@ Xavier Leroy.
 \bibitem{Mccamant_evaluatingsfi}
 Stephen Mccamant and Greg Morrisett.
 \newblock Evaluating {SFI} for a {CISC} architecture.
-\newblock In {\em In 15th USENIX Security Symposium (2006)}, pages 209--224,
-  2006.
+\newblock In {\em In 15th USENIX Security Symposium}, pages 209--224, 2006.
 
 \bibitem{Sehr:2010:ASF:1929820.1929822}
 David Sehr, Robert Muth, Cliff Biffle, Victor Khimenko, Egor Pasko, Karl
@@ -35,6 +36,13 @@ David Sehr, Robert Muth, Cliff Biffle, Victor Khimenko, Egor Pasko, Karl
 \newblock Adapting software fault isolation to contemporary cpu architectures.
 \newblock In {\em Proceedings of the 19th USENIX Conference on Security},
   USENIX Security'10, pages 1--1. USENIX Association, 2010.
+
+\bibitem{S07}
+Hovav Shacham.
+\newblock The geometry of innocent flesh on the bone: Return-into-libc without
+  function calls (on the {x86}).
+\newblock In Sabrina De~Capitani~di Vimercati and Paul Syverson, editors, {\em
+  Proceedings of CCS 2007}, pages 552--61. ACM Press, October 2007.
 
 \bibitem{Wahbe:1993:ESF:173668.168635}
 Robert Wahbe, Steven Lucco, Thomas~E. Anderson, and Susan~L. Graham.
@@ -46,12 +54,5 @@ Bennet Yee, David Sehr, Gregory Dardyk, J.~Bradley Chen, Robert Muth, Tavis
   Ormandy, Shiki Okasaka, Neha Narula, and Nicholas Fullagar.
 \newblock Native client: A sandbox for portable, untrusted x86 native code.
 \newblock {\em Commun. ACM}, 53(1):91--99, 2010.
-
-\bibitem{Zeng:2011:CCI:2046707.2046713}
-Bin Zeng, Gang Tan, and Greg Morrisett.
-\newblock Combining control-flow integrity and static analysis for efficient
-  and validated data sandboxing.
-\newblock In {\em Proceedings of the 18th ACM Conference on Computer and
-  Communications Security}, CCS '11, pages 29--40. ACM, 2011.
 
 \end{thebibliography}

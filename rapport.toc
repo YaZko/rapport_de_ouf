@@ -1,70 +1,72 @@
 \contentsline {section}{\numberline {1}Introduction}{1}
-\contentsline {section}{\numberline {2}\textit {Software Fault Isolation}}{2}
+\contentsline {section}{\numberline {2}Software Fault Isolation}{2}
 \contentsline {subsection}{\numberline {2.1}Principle}{2}
 \contentsline {subsubsection}{\numberline {2.1.1}Code generator}{2}
 \contentsline {paragraph}{Confining memory accesses.}{3}
-\contentsline {paragraph}{Protection of sandboxing mechanisms.}{3}
-\contentsline {paragraph}{Controlled interactions with the protected program.}{3}
-\contentsline {subsubsection}{\numberline {2.1.2}Code verifier}{3}
-\contentsline {subsubsection}{\numberline {2.1.3}Pros and cons}{3}
-\contentsline {subsubsection}{\numberline {2.1.4}Implementations}{3}
-\contentsline {paragraph}{NativeClient, SFI for Google Chrome.}{3}
-\contentsline {subsection}{\numberline {2.2}SFI using CompCert}{3}
-\contentsline {subsubsection}{\numberline {2.2.1}CompCert the verified compiler}{3}
-\contentsline {paragraph}{CompCert.}{3}
-\contentsline {paragraph}{Memory model of CompCert.}{3}
-\contentsline {subsubsection}{\numberline {2.2.2}SFI with CompCert}{3}
-\contentsline {paragraph}{Cminor.}{3}
-\contentsline {paragraph}{Specification of the SFI transformation.}{3}
-\contentsline {paragraph}{Masking in CompCert.}{3}
-\contentsline {subsubsection}{\numberline {2.2.3}Evaluation of the approach}{3}
-\contentsline {subsection}{\numberline {2.3}Limits of SFI}{3}
-\contentsline {subsubsection}{\numberline {2.3.1}Return addresses}{3}
-\contentsline {subsubsection}{\numberline {2.3.2}Proposed solution}{3}
-\contentsline {section}{\numberline {3}Overview of the approach}{4}
-\contentsline {subsection}{\numberline {3.1}ROP attack}{4}
-\contentsline {subsubsection}{\numberline {3.1.1}The stack}{4}
-\contentsline {subsubsection}{\numberline {3.1.2}Buffer overflow}{4}
-\contentsline {subsection}{\numberline {3.2}Description of the approach}{6}
-\contentsline {subsubsection}{\numberline {3.2.1}Proposed solution}{7}
-\contentsline {paragraph}{Fixing return addresses locations and stack alignment.}{7}
-\contentsline {paragraph}{Detection of dangerous instructions.}{7}
-\contentsline {paragraph}{Securing dangerous statements.}{8}
-\contentsline {subsection}{\numberline {3.3}Security properties}{10}
-\contentsline {subsection}{\numberline {3.4}Analysis of the approach}{10}
-\contentsline {subsubsection}{\numberline {3.4.1}Conditions}{10}
-\contentsline {paragraph}{Stack modifications.}{11}
-\contentsline {paragraph}{Insecure libraries.}{11}
-\contentsline {paragraph}{Modules need the same offset.}{11}
-\contentsline {subsubsection}{\numberline {3.4.2}Discussion}{11}
-\contentsline {paragraph}{Architecture dependant.}{12}
-\contentsline {paragraph}{Memory consumption.}{12}
-\contentsline {section}{\numberline {4}Implementation}{13}
-\contentsline {subsection}{\numberline {4.1}Implementation}{13}
-\contentsline {subsubsection}{\numberline {4.1.1}CompCert stack}{13}
-\contentsline {subsubsection}{\numberline {4.1.2}Fixed stack frames size}{14}
-\contentsline {paragraph}{Fix the frames size.}{15}
-\contentsline {paragraph}{Choice of frames size.}{15}
-\contentsline {subsubsection}{\numberline {4.1.3}Stack alignment}{16}
-\contentsline {paragraph}{ASLR.}{16}
-\contentsline {paragraph}{Stack alignment.}{17}
-\contentsline {paragraph}{Alignment algorithm.}{18}
-\contentsline {subsubsection}{\numberline {4.1.4}Detection of memory write statements}{19}
-\contentsline {paragraph}{Clight implementation.}{19}
-\contentsline {paragraph}{Clight semantic.}{19}
-\contentsline {subsubsection}{\numberline {4.1.5}Securing memory write statements}{21}
-\contentsline {paragraph}{Distinguish stack and heap addresses.}{21}
-\contentsline {paragraph}{Check the property $a\nobreakspace {}mod\nobreakspace {}n=0$.}{22}
-\contentsline {paragraph}{Branchless check.}{23}
-\contentsline {subsection}{\numberline {4.2}Evaluation of the implementation}{25}
-\contentsline {subsubsection}{\numberline {4.2.1}Results}{25}
-\contentsline {subsubsection}{\numberline {4.2.2}Experimentations}{25}
-\contentsline {paragraph}{Efficiency.}{26}
-\contentsline {paragraph}{Relation between runtime checks and delay.}{27}
-\contentsline {paragraph}{Stack frames size.}{29}
-\contentsline {subsubsection}{\numberline {4.2.3}Discussion}{30}
-\contentsline {paragraph}{More tests.}{30}
-\contentsline {paragraph}{Protection of runtime checks.}{30}
-\contentsline {paragraph}{Ways of improvement.}{31}
-\contentsline {paragraph}{Transparency.}{33}
-\contentsline {section}{\numberline {5}Conclusion}{33}
+\contentsline {paragraph}{Protection of sandboxing mechanisms.}{4}
+\contentsline {paragraph}{Controlled interactions with the protected program.}{4}
+\contentsline {subsubsection}{\numberline {2.1.2}Code verifier}{4}
+\contentsline {subsubsection}{\numberline {2.1.3}Pros and cons}{5}
+\contentsline {subsection}{\numberline {2.2}SFI for other architectures}{5}
+\contentsline {subsubsection}{\numberline {2.2.1}SFI for CISC architectures}{5}
+\contentsline {subsubsection}{\numberline {2.2.2}NativeClient the implementation of SFI by Google}{6}
+\contentsline {paragraph}{NativeClient for x86-32.}{6}
+\contentsline {paragraph}{NativeClient for X86-64 and ARM.}{7}
+\contentsline {subsection}{\numberline {2.3}SFI using a certified compiler}{8}
+\contentsline {subsubsection}{\numberline {2.3.1}CompCert the verified compiler}{8}
+\contentsline {paragraph}{CompCert.}{8}
+\contentsline {paragraph}{Memory model of CompCert.}{9}
+\contentsline {subsubsection}{\numberline {2.3.2}SFI with CompCert}{9}
+\contentsline {paragraph}{Cminor.}{9}
+\contentsline {paragraph}{Specification of the SFI transformation.}{9}
+\contentsline {paragraph}{Masking in CompCert.}{10}
+\contentsline {paragraph}{SFI transformations}{10}
+\contentsline {subsubsection}{\numberline {2.3.3}Evaluation of the approach}{11}
+\contentsline {subsection}{\numberline {2.4}Limit of SFI}{12}
+\contentsline {section}{\numberline {3}Overview of the approach}{13}
+\contentsline {subsection}{\numberline {3.1}ROP attack}{13}
+\contentsline {subsubsection}{\numberline {3.1.1}The stack}{13}
+\contentsline {subsubsection}{\numberline {3.1.2}Buffer overflow}{13}
+\contentsline {subsection}{\numberline {3.2}Description of the approach}{15}
+\contentsline {subsubsection}{\numberline {3.2.1}Proposed solution}{16}
+\contentsline {paragraph}{Fixing return addresses locations and stack alignment.}{16}
+\contentsline {paragraph}{Detection of dangerous instructions.}{16}
+\contentsline {paragraph}{Securing dangerous statements.}{17}
+\contentsline {subsection}{\numberline {3.3}Security properties}{19}
+\contentsline {subsection}{\numberline {3.4}Analysis of the approach}{19}
+\contentsline {subsubsection}{\numberline {3.4.1}Conditions}{19}
+\contentsline {paragraph}{Stack modifications.}{20}
+\contentsline {paragraph}{Insecure libraries.}{20}
+\contentsline {paragraph}{Modules need the same offset.}{20}
+\contentsline {subsubsection}{\numberline {3.4.2}Discussion}{20}
+\contentsline {paragraph}{Architecture dependant.}{21}
+\contentsline {paragraph}{Memory consumption.}{21}
+\contentsline {section}{\numberline {4}Implementation}{22}
+\contentsline {subsection}{\numberline {4.1}Implementation}{22}
+\contentsline {subsubsection}{\numberline {4.1.1}CompCert stack}{22}
+\contentsline {subsubsection}{\numberline {4.1.2}Fixed stack frames size}{23}
+\contentsline {paragraph}{Fix the frames size.}{24}
+\contentsline {paragraph}{Choice of frames size.}{24}
+\contentsline {subsubsection}{\numberline {4.1.3}Stack alignment}{25}
+\contentsline {paragraph}{ASLR.}{25}
+\contentsline {paragraph}{Stack alignment.}{26}
+\contentsline {paragraph}{Alignment algorithm.}{27}
+\contentsline {subsubsection}{\numberline {4.1.4}Detection of memory write statements}{28}
+\contentsline {paragraph}{Clight implementation.}{28}
+\contentsline {paragraph}{Clight semantic.}{28}
+\contentsline {subsubsection}{\numberline {4.1.5}Securing memory write statements}{30}
+\contentsline {paragraph}{Distinguish stack and heap addresses.}{30}
+\contentsline {paragraph}{Check the property $a\nobreakspace {}mod\nobreakspace {}n=0$.}{31}
+\contentsline {paragraph}{Branchless check.}{32}
+\contentsline {subsection}{\numberline {4.2}Evaluation of the implementation}{34}
+\contentsline {subsubsection}{\numberline {4.2.1}Results}{34}
+\contentsline {subsubsection}{\numberline {4.2.2}Experimentations}{34}
+\contentsline {paragraph}{Efficiency.}{35}
+\contentsline {paragraph}{Relation between runtime checks and delay.}{36}
+\contentsline {paragraph}{Stack frames size.}{38}
+\contentsline {subsubsection}{\numberline {4.2.3}Discussion}{39}
+\contentsline {paragraph}{More tests.}{39}
+\contentsline {paragraph}{Protection of runtime checks.}{39}
+\contentsline {paragraph}{Ways of improvement.}{40}
+\contentsline {paragraph}{Transparency.}{42}
+\contentsline {section}{\numberline {5}Conclusion}{43}
