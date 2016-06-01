@@ -28,7 +28,7 @@
 \pagestyle{plain}
 
 \title{Software Fault Isolation using the CompCert compiler}
-\author{Alexandre \textsc{DANG}}
+\author{Alexandre \textsc{Dang}}
 \supervisorOne{Frédéric \textsc{Besson}}
 \team{Team CELTIQUE}
 
@@ -46,15 +46,25 @@
 
 \newpage
 \section{Introduction}
+IT projects regularly need to use external modules in their programs. However these modules can come from unknown sources and we don't have any guarantees that they don't contain any bugs or malicious code. Software Fault Isolation is an approach which wants to face this issue by verifying certain security properties during the execution of the dangerous modules.
 
+A rising interest for the techniques of Software Fault Isolation (SFI) has appeared in the field of cyber security. SFI is a mean to protect the memory of a program with software solutions. 
+The idea is that a protected program can load in its own memory space dangerous modules without them being able to compromise its execution.
+To make it happen, SFI isolates the dangerous modules in reserved areas of the memory called sandboxes. This operation is realised by a code generator that modifies the code of the dangerous modules in order to have them comply with the security properties defined by SFI. 
+Afterwards the modified code of the modules will go though a verifier that will check that the modifications introduced before are present and valid.
 
-\begin{itemize}
-	\item Secure malicious code through software solution
-	\item Usage in applications which use modules from unknown origin (browsers, computer clusters)
-	\item current appeal for SFI speed and small TCB
-	\item SFI is still incomplete, especially with ROP attack => our approach
-	\item  plan \cite{Wahbe:1993:ESF:173668.168635} 
-\end{itemize}
+SFI techniques are applicable in multiple fields. An implementation has already been made for Google Chrome~\cite{Yee:2010:NCS:1629175.1629203}\cite{Sehr:2010:ASF:1929820.1929822} called NativeClient. We can also imagine using SFI for critical systems that have to execute external modules.
+For example computer clusters or system kernels could require the use of SFI to safely execute external modules.
+
+SFI has multiple strong points which explains its current appeal. Firstly, we can note high performances due to the execution of the modules natively in the address space of the protected program. This trait is quite important since the most popular memory protection mechanisms nowadays use hardware solutions and suffer from great overheads. Another benefit of SFI is that it requires a relatively small \textit{Trusted Computing Base} (TCB). Indeed only the verifier needs to be in the TCB and not the code generator. Having a small TCB means that only a minor portion of the code (the verifier) needs to be trusted to have a correct implementation of SFI.
+
+However SFI has still difficulties to deal with the protection of the \texttt{ret} instruction that uses return addresses on the stack. A big part of modern attacks like \textit{Return Oriented Programming} attacks focus on deviating the control flow through return addresses. Therefore it is absolutely necessary to have a good protection for return addresses. The SFI solutions found in the literature are not easily adaptable or bring a lot of overhead to the compiled modules. \\
+Hence we propose a solution which is more flexible and faster to address this specific issue of SFI.
+The idea is to modify the stack structure to have an easy way to figure out the return addresses locations in the stack.
+We set the frames size to a constant value in order to have the return addresses separated by a fix offset. Afterwards we modify the dangerous code by adding runtime checks  which take advantages of the new stack layout to prevent any instruction to overwrite the return addresses. 
+
+This internship report will firstly present Software Fault Isolation, its principles, the existing implementations and especially a version using CompCert the certified compiler. CompCert will also be the compiler we chose to implement our solution to defend programs against ROP attacks. We will then present an overview of our approach with fixed frames size with a discussion of our idea. Afterwards we will explain in details the implementation we made of our approach with CompCert during the span of the internship. To conclude we will evaluate the different results obtained with our implementation and propose ideas to improve our solution in the future.
+
 
 
 \newpage
