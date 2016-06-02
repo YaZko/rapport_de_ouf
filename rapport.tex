@@ -6,6 +6,7 @@
 \usepackage{listings}
 \usepackage{hyphsubst}
 \usepackage{amsmath}
+\usepackage{enumitem}
 
 				  
 \lstdefinestyle{customc}{
@@ -929,12 +930,14 @@ For a random authorized location \texttt{0xfffff7a2} and a return address locati
 \begin{figure}[!ht]
 \centering
 \begin{lstlisting}[language=C]
+if (targeted_address > 0xff000000) {
 	temp_var = targeted_address & (n-1);
 	if (temp_var < 3) {
 		Error behaviour
 	} 
-	*targeted_address = value;
-	Continue execution...
+}
+*targeted_address = value;
+Continue execution...
 \end{lstlisting}
 \caption{Second test of the protection mechanism}
 \label{classic_check}
@@ -952,19 +955,37 @@ We wanted to limit the overhead introduced by our approach by trying another way
 Branchless code allows one to create code with the same behaviour as a classic \textit{if then else} but without creating any branch for the processor. In other words the processor will not need to execute different code depending of the condition, the code will be linear.\\
 The best way to understand it is to have an example and we show the branchless version of implementation of the protection mechanism in Figure~\ref{branchless}.
 
-The branchless code presented reproduces the second test which checks if the least significant bits of an address is smaller than 3. 
-The aim of this algorithm is that if the address contained in the variable \textit{targeted\_address} is an authorized location then the branchless algorithm from line~1 to line~5 should leave the value in \textit{targeted\_address} unchanged. 
-Otherwise if \textit{targeted\_address} is a return address then we want our program to crash, therefore at line~6 \textit{targeted\_address} should have the value 0. \\
-Branchless uses a lot of bit arithmetic which may be unfamiliar so we are going to go through every line of Figure~\ref{branchless} with two different initial value of \textit{targeted\_address}: one is a return address location which is illegal and the other is an authorized address:
+The branchless code is the code located from line~2 to line~6.
+The main idea of the branchless code is to create a mask from line~2 to line~5 which will be stored in \textit{temp\_var}. If the initial value of \textit{targeted\_address} is a return address location the mask should be full of 0 so that the masking operation line~6 gives us a null pointer. In the other case the mask should be full of 1 so that the masking operation keeps the value of \textit{targeted\_address}.
+The first condition line~1 is the same as before which checks if \textit{targeted\_address} is in the stack or the heap.
+Branchless uses a lot of bit arithmetic which may be unfamiliar so we are going to go through every line of branchless code with two different initial value of \textit{targeted\_address}: one is a return address location which is illegal and the other is an authorized address.
+
+
+For both case we have $n=2^8$ for the chosen frames size. 
+We start with an authorized address and we take the \textit{targeted\_address}~=~\texttt{0xfffff7a2}. Since we have a legal address our branchless operations should leave \textit{targeted\_address} unchanged.
+\begin{enumerate}[noitemsep]
+	\setcounter{enumi}{1}
+	\item We want to keep the least significant bits with a \textit{and} operator (\texttt{0101} \& \texttt{1100} = \texttt{0100})\\
+		\textit{temp\_var}~=~\texttt{0xfffff7a2}~\&~\texttt{0x000000ff}~=~\texttt{0x000000a2}
+	\item \textit{temp\_var}~=~\texttt{0x000000a2}~-~\texttt{0x00000003}~=~\texttt{0x0000009f}
+	\item A right shift bit operation (\texttt{0100} $\rightarrow$ \texttt{0010}) thirty-one times. If the value is negative then the new bits introduced on the left are equal to 1 else they are equal to 0. \\
+ \textit{temp\_var}~=~\texttt{0x0000009f}~$>>$~31~=~\texttt{0x00000000}
+	\item bits inversion (\texttt{0100} $\rightarrow$ \texttt{1011}) \\
+		\textit{temp\_var}~=~$\sim$\texttt{0x00000000}~=~\texttt{0xffffffff}
+	\item \textit{targeted\_address}~=~\texttt{0xffffffff}~\&~\texttt{0xfffff7a2}~=~\texttt{0xfffff7a2}
+\end{enumerate}
+The branchless operation is successful, the initial address was an authorized location, therefore \textit{targeted\_address} kept its value during the branchless and the assignment line~8 is successful.
 
 \begin{figure}[!ht]
 \centering
 \begin{lstlisting}
-temp_var = targeted_address & (n-1);
-temp_var = temp_var - 3;
-temp_var = temp_var >> 31;
-temp_var = ~temp_var;
-targeted_address = temp_var & targeted_address;
+if (targeted_address > 0xff000000) {
+	temp_var = targeted_address & (n-1);
+	temp_var = temp_var - 3;
+	temp_var = temp_var >> 31;
+	temp_var = ~temp_var;
+	targeted_address = temp_var & targeted_address;
+}
 *targeted_address = value;
 Continue execution...
 \end{lstlisting}
@@ -972,43 +993,20 @@ Continue execution...
 \label{branchless}
 \end{figure}
 
-\begin{enumerate}
-	\item We keep $n=2^8$ for the chosen frames size. Same as in the previous check we want to make our test on the least significant bits of \textit{targeted\_address}.
-		\begin{itemize}
-			\item the illegal execution, \textit{targeted\_address} is a return address location, we take \textit{targeted\_address}~=~\texttt{0xfffff700} which gives \textit{temp\_var}~=~\texttt{0x00000000}.
-			\item the safe execution, we take \textit{targeted\_address}~=~\texttt{0xfffff7a2} which gives \textit{temp\_var}~=~\texttt{0x000000a2}.
-		\end{itemize}
-	\item A simple subtraction.
-		\begin{itemize}
-			\item We have \textit{temp\_var}~=~\textit{temp\_var}~-~3~=~\texttt{0x00000000}~-~\texttt{0x00000003}=~\texttt{0xfffffffd} (signed representation)
-			\item \textit{temp\_var}~=~\textit{temp\_var}~-~3~=~\texttt{0x000000a2}~-~\texttt{0x00000003}~=~\texttt{0x0000009f}
-		\end{itemize}
-	\item We make a right shift bit operation (\texttt{0100} $\rightarrow$ \texttt{0010}) thirty-one times. If the value is negative then the new bits introduced on the left are equal to 1 else they are equal to 0.
-		\begin{itemize}
-			\item \textit{temp\_var} = \textit{temp\_var} $>>$ 31 = \texttt{0xfffffffd} $>>$ 31 = \texttt{0xffffffff} (because \textit{temp\_var} was negative)
-			\item \textit{temp\_var} = \textit{temp\_var} $>>$ 31 = \texttt{0x0000009f} $>>$ 31 = \texttt{0x00000000}
-		\end{itemize}
-	\item We inverse the value of \textit{temp\_var} (\texttt{0100} $\rightarrow$ \texttt{1011})
-		\begin{itemize}
-			\item \textit{temp\_var} = $\sim$\textit{temp\_var} = $\sim$\texttt{0xffffffff} = \texttt{0x00000000}
-			\item \textit{temp\_var} = $\sim$\textit{temp\_var} = $\sim$\texttt{0x00000000} = \texttt{0xffffffff}
-		\end{itemize}
-	\item Classic \textit{and} operator (\texttt{0101} \& \texttt{1100} = \texttt{0100})
-		\begin{itemize}
-			\item \textit{targeted\_address} = \textit{temp\_var} \& \textit{targeted\_address} = \texttt{0x00000000} \& \texttt{0xfffff700} = \texttt{0x00000000}
-			\item \textit{targeted\_address} = \textit{temp\_var} \& \textit{targeted\_address} = \texttt{0xffffffff} \& \texttt{0xfffff7a2} = \texttt{0xfffff7a2}
-		\end{itemize}
-	\item We write on the location we just calculated in \textit{temp\_var}.
-		\begin{itemize}
-			\item \textit{targeted\_address} was the location of a returned address, it was an illegal behaviour.\\
-			We write to the memory location \texttt{0x00000000} which is a protected area. The operation makes the program crash which is what we wanted.
-			\item \textit{targeted\_address} was an authorized location. We kept the initial value of \textit{targeted\_address}. \\
-				It means that our operation did not change the behaviour of the initial program, the transformation is satisfactory.				
-		\end{itemize}
+We go through the case where \textit{targeted\_address} is a return address locations, we take \textit{targeted\_address} = \texttt{0xfffff700}. 
+The destination is illegal, the branchless operations should leave in \textit{targeted\_address} an illegal value to make the program crash.
+\begin{enumerate}[noitemsep]
+	\setcounter{enumi}{1}
+	\item \textit{temp\_var}~=~\texttt{0xfffff700}~\&~\texttt{0x000000ff}~=~\texttt{0x00000000}
+	\item \textit{temp\_var}~=~\texttt{0x00000000}~-~\texttt{0x00000003}~=~\texttt{0xfffffffd} (signed representation)
+	\item \textit{temp\_var}~=~\texttt{0xfffffffd}~$>>$~31~=~\texttt{0xffffffff}
+	\item \textit{temp\_var}~=~$\sim$\texttt{0xffffffff}~=~\texttt{0x00000000}
+	\item \textit{targeted\_address}~=~\texttt{0x00000000}~\&~\texttt{0xfffff7a2}~=~\texttt{0x00000000}
 \end{enumerate}
+The value of \textit{targeted\_address} at the end is zero. Hence the assignment line~8 will make the program crash since zero is a protected memory area. The initial address was a return address location which means that the illegal operation crashed as we wanted.
 
-This way we can notice that we got the same result as with the \textit{if then else} check but without creating any branch. In our case it is not possible to make two branchless instead of two \textit{if then else} since even heap addresses would go through the second check which we do not want. \\
-Unfortunately for us, the tests that we made showed that the branchless version of our approach was not faster than the classic version it was even slower. Those results will be discussed in details in the next section where we evaluate our implementation.
+This way we can notice that we got the same result as with the \textit{if then else} check but without creating any branch. In our case it is not possible to 
+replace the first \textit{if then else} condition because it would even force heap addresses to go through the second check which we do not want.
 
 \subsection{Evaluation of the implementation}
 \label{sub:evaluation_of_implem}

@@ -58,15 +58,15 @@
 \contentsline {paragraph}{Distinguish stack and heap addresses.}{30}
 \contentsline {paragraph}{Check the property $a\nobreakspace {}mod\nobreakspace {}n=0$.}{31}
 \contentsline {paragraph}{Branchless check.}{32}
-\contentsline {subsection}{\numberline {4.2}Evaluation of the implementation}{34}
+\contentsline {subsection}{\numberline {4.2}Evaluation of the implementation}{33}
 \contentsline {subsubsection}{\numberline {4.2.1}Results}{34}
-\contentsline {subsubsection}{\numberline {4.2.2}Experimentations}{34}
+\contentsline {subsubsection}{\numberline {4.2.2}Experimentations}{35}
 \contentsline {paragraph}{Efficiency.}{35}
-\contentsline {paragraph}{Relation between runtime checks and delay.}{36}
-\contentsline {paragraph}{Stack frames size.}{38}
-\contentsline {subsubsection}{\numberline {4.2.3}Discussion}{39}
-\contentsline {paragraph}{More tests.}{39}
-\contentsline {paragraph}{Protection of runtime checks.}{39}
-\contentsline {paragraph}{Ways of improvement.}{40}
-\contentsline {paragraph}{Transparency.}{42}
+\contentsline {paragraph}{Relation between runtime checks and delay.}{37}
+\contentsline {paragraph}{Stack frames size.}{39}
+\contentsline {subsubsection}{\numberline {4.2.3}Discussion}{40}
+\contentsline {paragraph}{More tests.}{40}
+\contentsline {paragraph}{Protection of runtime checks.}{41}
+\contentsline {paragraph}{Ways of improvement.}{41}
+\contentsline {paragraph}{Transparency.}{41}
 \contentsline {section}{\numberline {5}Conclusion}{43}
