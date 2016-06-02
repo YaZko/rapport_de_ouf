@@ -534,11 +534,11 @@ By working with these tools we hope that eventually we will be able to prove som
 \begin{enumerate}
 	\item \textbf{Fixed stack frames size}
 		\begin{itemize}
-			\item Return addresses locations are all separated by a constant offset bigger or equal to any frame of the stack
+			\item Return addresses locations are all separated by a constant offset $n$ bigger or equal to any frame of the stack
 		\end{itemize}
 	\item \textbf{Stack alignment}
 		\begin{itemize}
-			\item The first return address location of the program has its least significant bits equal to 0
+			\item The first return address location $c$ of the program verifies $c~mod~n=0$
 		\end{itemize}
 	\item \textbf{Detection of memory write statements}
 		\begin{itemize}
@@ -627,14 +627,11 @@ We are going to present in the following section the implementation we made base
 \section{Implementation}
 \label{sec:implementation}
 
-For the implementation we work with the compiler CompCert. CompCert already had an implementation of SFI presented earlier. Thus if we could combine our approach with the SFI, any program compiled with CompCert would have strong security guarantees. Furthermore CompCert is written with Coq the proof assistant, we eventually hope that we will be able to prove these security properties. In this section we are going explain in details how we implemented the approach and the different choices we did during the process. Afterwards we will discuss these choices and evaluate the results and performances obtained.
+For the implementation we work with the compiler CompCert. CompCert already has an implementation of SFI presented earlier. Thus if we could combine our approach with the SFI, any program compiled with CompCert would have strong security guarantees. Furthermore CompCert is written with the Coq proof assistant, our implementation then paves the way for a formal proof of security properties. In this section we explain in details how to enforce our approach and the different choices we made during the process.
 
-\subsection{Implementation}
-\label{sub:Implementation}
 	Our approach is separated in four phases: ``Fixed stack frames size'', ``Stack alignment'', ``Detection of memory write statements'' and ``Evaluation of the implementation''. We are going to detail the implementation of these phases in the following sections. These transformations are deeply linked to the stack layout, hence to have a better understanding we are going to start by introducing the CompCert stack structure.
 
-\subsubsection{CompCert stack}
-\label{ssub:CompCert stack}
+\subsection{CompCert stack}
 	The layout of the stack is dependent of the architecture and the compiler/interpreter used. For the sake of comprehension of the future sections we describe here the stack layout of x86-32 in CompCert.
 The stack layout of CompCert x86-32 is pictured in Figure~\ref{stack_layout}.
 First of all we can notice that the stack grows downwards, it means that the stack grows from the highest addresses to the low ones.
@@ -672,11 +669,10 @@ When returning from a function, the return routine is pretty much the opposite:
 \end{enumerate}
 
 
-\subsubsection{Fixed stack frames size}
-\label{sub:Fixed stack frames size}
+\subsection{Fixed stack frames size}
 During this phase we want to ensure these two properties:
 \begin{itemize}
-	\item Return addresses locations are all separated by a constant offset bigger or equal to any frames of the stack
+	\item Return addresses locations are all separated by a constant offset $n$ bigger or equal to any frames of the stack
 \end{itemize}
 
 \paragraph{Fix the frames size.}
@@ -684,7 +680,28 @@ During this phase we want to ensure these two properties:
 
 Fortunately in the function call routine of CompCert the return addresses are always at the top of their frames.
 This particularity makes the task easier, indeed, since the location of the return address is fixed in the stack we can simply fix the size of the frames to have a constant offset between the return addresses. \\
-To fix the size of stack we had to find the description of the stack in CompCert. Then we just had to put a constant in the attribute \textit{size} of the stack and readjust the alignment of the different parts of the frames. We told CompCert to keep the return address of the stack as the first location in the frame and that all the extra space introduced by the fixed size will be taken for  \textit{stack data and locals}. The remaining parts of the frame keep the same size as before.
+To modify the stack layout of CompCert we just need to modify the record describing the frames presented Figure~\ref{frame_record}. In our case the record has different fields like the size of the whole frame and the offset of the different data of the stack. Hence we give to the field it \textit{fe\_size} line ~2 a constant $fe\_size=n$ which will be a power of two bigger than its previous value. We also need to keep the return address at the bottom of the frame (the stack grows downwards). Thus we have $fe\_ofs\_retaddr=n-4$ line~4 because the return address is four bytes long. The locals and stack data will then naturally fill the extra space left by the shifted return address like shown Figure~\ref{frame_transform}.
+
+\begin{figure}[!ht]
+\centering
+\begin{lstlisting}[language=Caml]
+Record frame_env : Type := mk_frame_env {
+  fe_size: Z;
+  fe_ofs_link: Z;
+  fe_ofs_retaddr: Z;
+  fe_ofs_local: Z;
+  fe_ofs_int_callee_save: Z;
+  fe_num_int_callee_save: Z;
+  fe_ofs_float_callee_save: Z;
+  fe_num_float_callee_save: Z;
+  fe_stack_data: Z
+}.
+\end{lstlisting}
+\caption{CompCert x86-32 frame record}
+\label{frame_record}
+\end{figure}
+
+In Figure~\ref{frame_transform}, we present the transformation of the CompCert frame to a new frame with a fixed size equal to $n$. We can see that the stack data and locals part have increased and filled the empty space further in the bottom.
 
 \begin{figure}[!ht]
 \centering
@@ -693,13 +710,10 @@ To fix the size of stack we had to find the description of the stack in CompCert
 \label{frame_transform}
 \end{figure}
 
-In Figure~\ref{frame_transform}, we present the transformation of the CompCert frame to a new frame with a fixed size equal to $n$. We can see that the stack data and locals part have increased and push the other parts further in the bottom.
-
-
 \paragraph{Choice of frames size.}
 \label{par:Choice of frames size}
 
-We chose to limit the choice of the frames size to powers of two. Indeed, since addresses are written in binary having a power of two as constant offset will ease the runtime checks implementation. Indeed by using powers of two, all the return addresses will have the same least significant bits. For example if the first return address location is \texttt{0xffffff910} (in hexadecimal) and our constant frame size is $2^8 = \texttt{0100}$ (in hexadecimal). Then all the following return addresses locations will be \texttt{0xfffff810} (the stack grow downwards), \texttt{0xfffff710}, \texttt{0xfffff610}\dots And their least significant bits are actually always equal to \texttt{10}. This particularity will help during the phase of runtime checks that we will explain in Section~\ref{ssub:implem_check_address}.
+We chose to limit the choice of the frames size to powers of two. Indeed, since addresses are written in binary having a power of two as constant offset will ease the runtime checks implementation. By using powers of two, all the return addresses will have the same least significant bits. For example if the first return address location is \texttt{0xffffff910} (in hexadecimal) and our constant frame size is $2^8 = \texttt{0100}$ (in hexadecimal). Then all the following return addresses locations will be \texttt{0xfffff810} (the stack grow downwards), \texttt{0xfffff710}, \texttt{0xfffff610}\dots And their least significant bits are actually always equal to \texttt{10}. This particularity will help during the phase of runtime checks that we will explain in Section~\ref{sub:implem_check_address}.
 
 To prevent having compiled programs with too small stack frame, we added in CompCert a check. This test verifies that the chosen size is bigger than any dynamically calculated one. If not, the compilation fails. This way the chosen size corresponds to the smallest power of two which is bigger or equal to any dynamically calculated frames size of the program.
 
@@ -719,12 +733,11 @@ Hence all the return addresses have the particularity of always having the same 
 \label{stack_transform}
 \end{figure}
 
-\subsubsection{Stack alignment}
-\label{ssub:Stack alignment}
+\subsection{Stack alignment}
 
 The implementation in this section has to do a transformation that makes the following property true:
 \begin{itemize}
-	\item The first return address location of the program has its least significant bits equal to 0
+	\item The first return address location $c$ of the program verifies $c~mod~n=0$
 \end{itemize}
 
 \paragraph{ASLR.}
@@ -743,18 +756,14 @@ Since we have to modify the stack structure we did our transformation at the ass
 By creating a separate artificial \textit{main} function we avoid taking the risk of bugging the prelude or the program's \textit{main} function.\\
 This approach has one definite advantage over the others solutions listed before. 
 By introducing an artificial \textit{main} we make a clear separation with the code of the program like the original \textit{main} and the prelude. Combining the fact that the original \textit{main} and the prelude might have complicated behaviour and that we do the transformation at a low level.
-It is much safer to create a whole new function which can help us avoid introducing bugs in the assembly. The biggest downside is that we have to implement the whole function routine and the call to the original \textit{main} by ourselves in ASM instead of relying on CompCert to do the work.
+It is much safer to create a whole new function which can help us avoid introducing bugs in the assembly. Hence the whole artificial \textit{main} function needs to be written by hand in ASM. The code includes the function routine and the call to the original \textit{main} of the program.
 
 
 Figure~\ref{stack_align} represents the stack alignment transformation. The left stack is CompCert stack with fixed frames size equal to $n=2^8$ like we had in the previous section. From this stack we show the consequences of our operation. We insert before the \textit{main} function of the program an artificial \textit{main}. Thus the frame of this artificial \textit{main} is the first frame of the whole stack. The artificial \textit{main} objective is to align the stack in order to have the next return address location $a$ equal to $a~mod~n=0$. \\
-We can see on the left stack the effect of the transformation. The return address of \textit{main} was previously at the address \texttt{0xfffff910} and is now at \texttt{0xfffff700}. Since the frames size remained constant we now have all the following return addresses locations verifying $a~mod~n=0$. This was the objective of the whole stack transformation which is now completed.
+We can see on the left stack that the return address of \textit{main} was previously at the address \texttt{0xfffff910}. After the stack alignment transformation (right stack) it is located at the address \texttt{0xfffff700}. Since the frames size remain constant we now have all the following return addresses locations verifying $a~mod~n=0$. This was the objective of the whole stack transformation which is now completed.
 The downside of this implementation can be seen clearly on the Figure~\ref{stack_align}. Indeed all the return addresses locations verify $a~mod~n=0$ except the return address of the artificial \textit{main} we introduced.
 Since our approach aims to protect the locations verifying $a~mod~n=0$, this return address is vulnerable.
-Nevertheless, to reach this location an attacker would need to either know the exact location either overwrite the whole stack.
-\begin{itemize}
-	\item To pinpoint the location of vulnerable return address is really difficult, it would requires a lot of tries and fails or luck. Furthermore, nowadays most of the systems have a security feature called ASLR which inserts randomness in the memory addresses like the stack location. It means that every time a program is executed the location of this return address will be different which complicates the attack. Another possibility is to add in our runtime checks an extra condition to protect this specific return address.
-	\item The other way to reach this unprotected return address is prevented by our implementation. The attacker would need to overwrite other frames return address to reach the vulnerable one. In this case our approach will make the program crash before it can arrive at the artificial \textit{main} frame.
-\end{itemize}
+Nevertheless, to reach this location an attacker would need to either know the exact location either overwrite the whole stack. Both ways are difficult to implement due to ASLR and the fact that we protected the stack from being overwritten at the return address location. We can also come up with a more robust implementation of the artificial \textit{main}. Since we build the ASM code by hand we are not forced to follow the usual function routine and we can have a different and robust frame structure for the artificial \textit{main}.
 
 \begin{figure}[!ht]
 \centering
@@ -767,7 +776,7 @@ Nevertheless, to reach this location an attacker would need to either know the e
 \label{par:Alignment algorithm}
 We present in Figure~\ref{align_algo}, the algorithm used to calculate the right size in order to have the next return addresses aligned even with ASLR. The algorithm is written in pseudo assembly code.
 
-The easiest way to understand it is to go through it with an example. On the previous examples Figure~\ref{stack_transform} and Figure~\ref{stack_align} our stack started at the value \texttt{0xfffff910}. Hence for the continuity we will keep this value. 
+The easiest way to understand it is to go through it with an example. On the previous examples Figure~\ref{stack_transform} and Figure~\ref{stack_align} our stack starts at the value \texttt{0xfffff910}. Hence for the continuity of the examples we keep this value. 
 In Figure~\ref{stack_align} we want to have our next frame starting at the address \texttt{0xfffff700}. 
 We go through the different lines of Figure~\ref{align_algo} to explain the algorithm.
 \textit{next\_frame} corresponds to the value of the stack pointer which gives the starting address of the following frame.
@@ -785,7 +794,8 @@ The aim of the alignment algorithm is to verify the property $\textit{next\_fram
 	\item We call the original \textit{main} function, its frame will start at the location stored in \textit{next\_frame}~$=$~\texttt{0xfffff700}
 \end{enumerate}
 
-A small remark on the example is that our algorithm only works if the last bit of the first value of \textit{next\_frame} = \texttt{0xfffff840} is \texttt{0}. However this particularity is already present in all compilers since it improves the speed of execution and then our algorithm works with all standard addresses.
+A small remark on the example is that our algorithm only works if the last bit of the first value of \textit{next\_frame} = \texttt{0xfffff840} is \texttt{0}. However this particularity is not an issue because all compilers follow this rule since it improves the speed of execution due to alignment property.
+
 \begin{figure}[!ht]
 \centering
 \begin{lstlisting}
@@ -802,8 +812,7 @@ call	main
 \label{align_algo}
 \end{figure}
 
-\subsubsection{Detection of memory write statements}
-\label{ssub:Detection of memory write statements}
+\subsection{Detection of memory write statements}
 
 \paragraph{Clight implementation.}
 \label{par:Clight implementation}
@@ -813,7 +822,7 @@ This choice is explained by the fact that Clight is a high-level language in the
 Indeed, doing our transformations at a high-level is much easier since all the complex compilation operations are done later in the process.
 For example by using Clight we do not need to bother with low-level objects like registers which if misused can modify the program unexpectedly.
 Furthermore Clight is a compilation step placed before any optimization of CompCert.
-This means that our implementation can be optimized automatically by CompCert which can improve our performances.
+This means that our implementation can be optimized automatically by CompCert thus improving our performance.
 
 \paragraph{Clight semantic.}
 \label{par:Clight semantic}
@@ -859,30 +868,33 @@ Inductive statement : Type :=
 \label{clight_statements}
 \end{figure}
 
-In Figure~\ref{clight_statements}, we have exposed all the Clight statements. Among them we are going to focus on the ones that change the state of the memory. When looking at the semantic given to these statements, only four of them can change the state of the memory: \textit{Sassign}, \textit{Sbuiltin}, \textit{Sreturn} and \textit{Sskip}.
+In Figure~\ref{clight_statements}, we have exposed all the Clight statements. Among them we are going to focus on the ones that change the state of the memory. When looking at the semantic given to these statements, only four of them can change the state of the memory: \textit{Sassign}, \textit{Sbuiltin}, \textit{Sreturn}.
 
 \begin{itemize}
 	\item \textbf{\textit{Sassign}}, are used to assign value to variables, it could be considered as an equivalent of ``='' in C. These statements will be targeted by our approach.
 	\item \textbf{\textit{Sbuiltin}}, are used to call builtin functions, which are functions created by CompCert that will be expanded later in the compilation. These statements call functions we trust, that is why we will not consider them as dangerous. We could also look at the builtin functions and modify their code to make them safe.
 	\item \textbf{\textit{Sreturn}}, these statements invoke the function call routine. They are also trusted statements, we will not need to add runtime checks on them.
-	\item \textbf{\textit{Sskip}}, in certain cases these statements are used to pop the stack. This does not endanger return addresses, we will not concern ourselves with them.
+	\item \textbf{\textit{Sset}}, could have been problematic. However they are only used to set value to temporary variables which means that they can't freely access the memory.
+	\item The other statements are all kind of control flow statements, they do not change the memory state.
 \end{itemize}
 
 Among all the statements, our security checks will only apply to the \textit{Sassign} statements.
-Furthermore we can limit ourselves to \textit{Sassign} statements whose left expression can write directly in the memory (``Sassign left\_expr right\_expr'' $\leftrightarrow$ ``left\_expr = right\_expr''). The left expressions targeted are then mostly pointers dereference. To be sure that we have all the dangerous instructions, we reiterate the same approach and we take a look at the semantic of the left expressions in Clight.\\
-After checking the semantic of the left expressions, only two types of expressions are able to reference a location in the memory.
+Furthermore we can limit ourselves to \textit{Sassign} statements whose left expression can write directly in the memory. Left expressions are the expressions explicitly on the left of the ``='' symbol, they are the only expressions which enable us to write in the memory (``Sassign left\_expr right\_expr'' $\leftrightarrow$ ``left\_expr = right\_expr''). The left expressions targeted are then mostly pointers dereference. To be sure that we have all the dangerous instructions, we reiterate the same approach and we take a look at the semantic of the left expressions in Clight.\\
+After checking the semantic of the left expressions, only two types of left expressions are able to reference a location in the memory.
 
 \begin{itemize}
 	\item \textbf{\textit{Ederef}}, as we predicted these expressions dereference pointers and will be targeted by our approach.
 	\item \textbf{\textit{Efield}}, they refer to fields of structure and can also point to locations in the memory. These expressions will also be secured with runtime checks.
+	\item \textbf{\textit{Evar}} are the last left expressions possible. \textit{Evar} are tied down to a location in the memory. They can't reach return addresses locations hence they are not threats.
+	\item The other expressions are not left expressions which means they do not write in the memory and they are not dangerous in our case. Unary operators \textit{Eunop}, binary operators \textit{Ebinop}, constants \textit{Econst\_int} \textit{Econst\_float} are examples of such expressions.
 \end{itemize}
 
 We finally have defined the profile of the dangerous statements that have to be targeted by our approach. To sum it up, the targeted statements are all the \textit{Sassign} whose left expression is either \textit{Ederef} or \textit{Efield}.
 
 Now that we can detect the dangerous statements we will now add the runtime checks in the Clight code which will terminate our implementation.
 
-\subsubsection{Securing memory write statements}
-\label{ssub:implem_check_address}
+\subsection{Securing memory write statements}
+\label{sub:implem_check_address}
 We want to add a protection mechanism which prevents any dangerous statement from writing on a return address location. These return addresses locations have two special traits:
 \begin{enumerate}
 	\item they only exist in the memory area of the stack
@@ -895,37 +907,9 @@ If a statement try to write on an address with these two properties then it is a
 A program can only use the stack and the heap to store data during runtime. Since return addresses are only present in the stack we need a way to differentiate stack and heap addresses.
 In x86 architecture, the stack usually grows downwards in direction of the heap. Therefore the addresses of the stack occupy the high addresses and the heap the low ones. 
 The idea is to divide the memory space for the program data into two distinct part. The high addresses for the stack and the low for the heap. \\
-We defined the clear separation at the address \texttt{0xff000000}. Every address bigger than \texttt{0xff000000} is considered as part of the stack. Reciprocally every address smaller is part of the heap.
-To ensure that either the stack or the heap grows too much and exceeds their designed area we want to put a guard area in the memory. The idea is to define a specific area in the memory, for example [\texttt{0xee000000 - \texttt{0xff000000}}], where it is forbidden to write. If an instruction writes illegally in the guard area the program will detect it and will crash.\\
-The principle is represented in Figure~\ref{guard}. Indeed we can see that the stack and the heap are clearly separated by the guard area located between [\texttt{0xee000000 - \texttt{0xff000000}}]. Thus we are sure that every address above \texttt{0xff000000} are part of the stack.
+We defined the clear separation at the address \texttt{0xff000000}. Every address bigger than \texttt{0xff000000} is considered as part of the stack. Reciprocally every address smaller is part of the heap. However this assumption is not always true, in extreme cases the stack or the heap might overflow over this limit. To ensure that our criteria becomes a truth we propose a solution in the future works section Chapter~\ref{par:guard_area}.
 
-\begin{figure}[!ht]
-\centering
-\includegraphics[scale=0.6]{images/guard.pdf}
-\caption{Guard area for the memory}
-\label{guard}
-\end{figure}
-
-To detect the write in the guard one possible way is to initialize the area with 0 for example. If we detect a bit in the guard area with the value 1 then we know that the guard has been corrupted and we make the program crash. Since our approach protects against ROP attacks, which takes effect when returning from a function, it is adequate to check the integrity of the guard area at the end of each function before returning.
-To be honest the guard area has not been implemented yet. Most of the programs do not have a stack or a heap which grows enough to exceed the limit of \texttt{0xff000000} so we were able to do satisfactory tests nevertheless. This guard area is necessary for our implementation to be complete and we hope that we will be able to do it during the remaining time of the internship.
-
-\paragraph{Check the property $a~mod~n=0$.}
-\label{par:Classic check}
- 
-The second step of the runtime check is to see if the targeted address location $a$ verifies $a~mod~n=0$.
-The algorithm used is represented in Figure~\ref{classic_check} with pseudo Clight.
-\begin{itemize}
-	\item At line~1 we reduce the targeted address to its $log_2(n)$ least significant bits (8 if $n=2^8)$.
-Since $n$ is a power of two just comparing the least significant bits to $0$ is equivalent to checking if the address verifies $a~mod~n=0$.
-For example we know that the return addresses locations of our previous example Figure~\ref{stack_align} were \texttt{0xfffff700}, \texttt{0xfffff600}, \texttt{0xfffff500}\dots
-We can notice that we only need to check if the last eight bits (the last two digit in hexadecimal \texttt{00} in our example) of an address is equal to 0.
-If it is we know for sure that the targeted location is a return address.\\
-For a random authorized location \texttt{0xfffff7a2} and a return address location \texttt{0xfffff700} with $n=2^8$, we would have to compare \texttt{0x000000a2}(authorized) and \texttt{0x00000000}(unauthorized) with $0$. 
-	\item Line~2 we actually see that we do not compare the previous calculated value with 0 but 3. The reason is that return addresses are four bytes long.
-		It means that the space taken by a return address located at \texttt{0xfffff700} would be [\texttt{0xfffff700}~-~\texttt{0xffff703}]. It is logical for us to protect the whole return address space, that is why we check if the targeted address least significant bits are smaller than 3.
-	\item Line~3 is executed when there is an illegal behaviour. Currently our error behaviour is to make the program crash by trying to write over some protected memory located at the address 0 which triggers a \textit{Segmentation fault}.
-	\item Finally line~5 if we successfully pass the verification we are allowed to write on the dereferenced pointer \textit{temp\_var}.
-\end{itemize}
+Figure~\ref{classic_check} presents an implementation of our runtime checks. The condition line~1 is the branch which separated addresses from the stack or the heap. Heap addresses can't be return addresses location therefore they do not continue the verification process.
 
 \begin{figure}[!ht]
 \centering
@@ -939,12 +923,29 @@ if (targeted_address > 0xff000000) {
 *targeted_address = value;
 Continue execution...
 \end{lstlisting}
-\caption{Second test of the protection mechanism}
+\caption{Runtime checks}
 \label{classic_check}
 \end{figure}
 
+\paragraph{Check the property $a~mod~n=0$.}
+\label{par:Classic check}
+The second step of the runtime check is to see if the targeted address location $a$ verifies $a~mod~n=0$. It corresponds to the code from line~2 to to line~4 of Figure~\ref{classic_check}.
+\begin{itemize}
+	\item At line~2 we reduce the targeted address to its $log_2(n)$ least significant bits (8 if $n=2^8)$.
+Since $n$ is a power of two just comparing the least significant bits to $0$ is equivalent to checking if the address verifies $a~mod~n=0$.
+For example we know that the return addresses locations of our previous example Figure~\ref{stack_align} were \texttt{0xfffff700}, \texttt{0xfffff600}, \texttt{0xfffff500}\dots
+We can notice that we only need to check if the last eight bits (the last two digit in hexadecimal \texttt{00} in our example) of an address is equal to 0.
+If it is we know for sure that the targeted location is a return address.\\
+For a random authorized location \texttt{0xfffff7a2} and a return address location \texttt{0xfffff700} with $n=2^8$, we would have to compare \texttt{0x000000a2}(authorized) and \texttt{0x00000000}(unauthorized) with $0$. 
+	\item Line~3 we actually see that we do not compare the previous calculated value with 0 but 3. The reason is that return addresses are four bytes long.
+		It means that the space taken by a return address located at \texttt{0xfffff700} would be [\texttt{0xfffff700}~-~\texttt{0xffff703}]. It is logical for us to protect the whole return address space, that is why we check if the targeted address least significant bits are smaller than 3.
+	\item Line~4 is executed when there is an illegal behaviour. Currently our error behaviour is to make the program crash by trying to write over some protected memory located at the address 0 which triggers a \textit{Segmentation fault}.
+	\item Finally line~7 if we successfully pass the verification we are allowed to write on the dereferenced pointer \textit{temp\_var}.
+\end{itemize}
+
+
 Currently our protection mechanism use two \textit{if \dots then \dots else} operation in a row to protect the return addresses. The first to check if the address is in the stack and the second to check the equality $a~mod~n=0$.
-However, this kind of control-flow operations are usually quite expensive for the processor. Furthermore we might have to inject our protection mechanism a considerable number of times for a program using a lot of pointer operations.
+Considering that we might inject our protection mechanism a considerable number of times for a program using a lot of pointer operations. We wanted to try another possible implementation that may improve the performance our runtime checks.
 Hence we present in the next section an alternative to the classic \textit{if then else} called branchless statement.
 
 \paragraph{Branchless check.}
@@ -956,9 +957,9 @@ Branchless code allows one to create code with the same behaviour as a classic \
 The best way to understand it is to have an example and we show the branchless version of implementation of the protection mechanism in Figure~\ref{branchless}.
 
 The branchless code is the code located from line~2 to line~6.
-The main idea of the branchless code is to create a mask from line~2 to line~5 which will be stored in \textit{temp\_var}. If the initial value of \textit{targeted\_address} is a return address location the mask should be full of 0 so that the masking operation line~6 gives us a null pointer. In the other case the mask should be full of 1 so that the masking operation keeps the value of \textit{targeted\_address}.
+The main idea of the branchless code is to create a mask from line~2 to line~5 which will be stored in \textit{temp\_var}. If the initial value of \textit{targeted\_address} is a return address location the mask should be full of 0 so that the masking operation line~6 gives us a null pointer. In the other case the mask should be full of 1 so that the masking operation line~6 keeps the value of \textit{targeted\_address}.
 The first condition line~1 is the same as before which checks if \textit{targeted\_address} is in the stack or the heap.
-Branchless uses a lot of bit arithmetic which may be unfamiliar so we are going to go through every line of branchless code with two different initial value of \textit{targeted\_address}: one is a return address location which is illegal and the other is an authorized address.
+Branchless uses a lots of bit arithmetic and low level properties of two's complement representation of negative numbers. We are going to go through every line of branchless code with two different initial value of \textit{targeted\_address}: one is a return address location which is illegal and the other is an authorized address.
 
 
 For both case we have $n=2^8$ for the chosen frames size. 
@@ -1007,16 +1008,14 @@ The value of \textit{targeted\_address} at the end is zero. Hence the assignment
 
 This way we can notice that we got the same result as with the \textit{if then else} check but without creating any branch. In our case it is not possible to 
 replace the first \textit{if then else} condition because it would even force heap addresses to go through the second check which we do not want.
+\newpage
 
-\subsection{Evaluation of the implementation}
-\label{sub:evaluation_of_implem}
-Now that our implementation is finished we are going to show the different results we obtained during the internship.
+\section{Evaluation of the implementation}
+We will show first in this section that our implementation is effective. 
+Afterwards we will present different benchmarks we did to measure the cost of our transformations on different criteria like speed or size of the programs.
+To conclude we will discuss multiple ideas to improve the current approach.
 
-We will show first that our implementation is effective. 
-Afterwards we will show different benchmarks we did to measure the cost of our transformations on different criteria like speed or size of the programs.
-To conclude we will present multiple ideas on how our approach can still be improved.
-
-\subsubsection{Results}
+\subsection{Evaluation of security}
 For the example we are going to confront the buffer overflow presented Figure~\ref{buffer_overflow_code} with our implementation. We modified the code of the buffer overflow a little to simplify the test. To make things easier we just added the function \textit{strcpy} in the program's code instead of calling it from another library. This way the vulnerable code of \textit{strcpy} will be compiled with our transformation and be secured instead of compiling the whole external library.
 
 
@@ -1055,6 +1054,10 @@ Segmentation fault (core dumped)
 \label{output_weak}
 \end{figure}
 
+
+\paragraph{Fixed stack frames without protection (Figure~\ref{output_weak}).}
+\label{par:Fixed stack frames without protection.}
+
 Like in Figure~\ref{output_buffer} we can see that we have printed \textit{Argh, we got hacked!} which means we managed to execute the function \textit{evil\_code}. The buffer overflow is successful, we can see that we needed to change the input for the attack to work. Indeed since we changed the compiler and the stack layout the input had to be different to manage the attack. 
 
 \begin{figure}[!ht]
@@ -1080,7 +1083,10 @@ Segmentation fault (core dumped)
 \label{output_protected}
 \end{figure}
 
-For the sake of the example, we added in the error behaviour a statement which calls  ``\textit{printf(Address: \%p, tmp)}''. In \textit{tmp} we stored the value of the address for which the protection mechanism triggered the error behaviour.
+\paragraph{Complete implementation with protection (Figure~\ref{output_protected}).}
+\label{par:Complete implementation with protection}
+
+For the sake of the example, we enriched the error behaviour statement which now calls  ``\textit{printf(Address:~\%p,~tmp)}'' before crashing. In \textit{tmp} we stored the value of the address for which the protection mechanism triggered the error behaviour.
 First of all we can see that we made the program crashed before \textit{evil\_code} was executed. Our implementation successfully does what we aimed for, we made the program crash on a dangerous program.
 Furthermore we can even see the address on which the program tried to write and was not allowed to. In this example our protection mechanism crashed when the program tried to write on the address $a=\texttt{0xffa2b0c0}$. 
 Since the frames size is $n=2^6$ all our return addresses location should have their least six significant bits equal to 0.
@@ -1088,28 +1094,24 @@ We check that $a=\texttt{0xffa2b0c0}$ is effectively a return address. First of 
 Both the conditions are fulfilled which means that $a$ is a return address location and that our mechanism properly worked.
 
 
-\subsubsection{Experimentations}
+\subsection{Evaluation of performance}
 
-We mentioned it earlier, we also want to measure the impacts that our transformation may bring in terms of memory and efficiency.
+As mentioned earlier, we also want to measure the impacts that our transformation may bring in terms of memory and efficiency.
 We made some experimentations in order to figure out these questions.
 Furthermore we also had to verify which implementation was the most efficient between the branchless and the classic \textit{if then else}.
 For our different experimentations we had 74 different C programs which were present within the CompCert project for testing purposes.
 The performances of our approach are compared with the original CompCert project whose performances are similar to \texttt{gcc -O1}~\cite{Leroy:2009:FVR:1538788.1538814}.
+The machine used for the benchmarks possesses four 64 bits processors Intel Xeon E5 with a capacity of 2.80GHz and 8GB of memory. The operating system of the machine is Fedora 23.
 For all our executables compiled with fixed frames size we chose the smallest size possible for the programs to be able to run correctly. Our script just try to compile every program with an incrementing frames size until it manages to complete the compilation process.
 
-\paragraph{Efficiency.}
+
+\subsubsection{Efficiency}
+\label{ssub:Efficiency}
+
 We wanted to measure the efficiency of our different transformations and compare them to the original CompCert. During our test we measured four different implementations: the original CompCert, our transformation just with fixed frames size, with fixed frame size and classic \textit{if then else} runtime checks and the branchless version.
 To calculate the execution time we used the Unix utility \textit{time}.
-The results are presented in the following graph Figure~\ref{time_graph}.
+The results are presented in the following graph Figure~\ref{time_percentage_graph}.
 For more relevant results we removed from all the tested programs the ones whose execution time was too short because the Unix utility \textit{time} imprecision could impact the result greatly.
-Figure~\ref{time_percentage_graph} is almost the same but we represented the execution time percentage compared to the original CompCert.
-
-\begin{figure}[!ht]
-\centering
-\includegraphics[width=1\textwidth]{images/time_graph.pdf}
-\caption{Execution time of tested programs}
-\label{time_graph}
-\end{figure}
 
 \begin{figure}[!ht]
 \centering
@@ -1130,14 +1132,14 @@ The issue with branch like \textit{if then else} is that the processors try to m
 If the prediction is right everything is fine, however if the prediction is wrong the whole pipeline might need to be flushed to execute the program correctly. This pipeline flush slows down the execution greatly which is why \textit{if then else} are considered slow instructions.
 However in our implementations these predictions are certainly correct most of the time which would explain that the branching introduces less overhead than the branchless version.
 
-Overall, our implementations are quite slow and some of our test programs even present up to 230\% overhead for the classic \textit{if then else} version. Even if the average is comprised between 100\% and 150\% this is still high. Nevertheless there are still ways to improve our implementations that we will present Section~\ref{ssub:discussion}.
+Overall, our implementations are quite slow and some of our test programs even present up to 230\% overhead for the classic \textit{if then else} version. Even if the average is comprised between 100\% and 150\% this is still high. Nevertheless there are still ways to improve our implementations that we will present Section~\ref{par:improvement}.
 
 
+\subsubsection{Relation between runtime checks and delay}
 
-\paragraph{Relation between runtime checks and delay.}
 The previous test shows that the implementation which added runtime checks are slower than the one with fixed frames size without protection. We suspect that the number of runtime checks is related to the amount of delay introduced by our transformation. To verify this hypothesis we first calculated the number of runtime checks that was executed by each implementation.
 We also separated the runtime checks for addresses of the stack and the heap. Indeed in our implementations addresses from the heap only need to go through one conditional jump whereas for the stack we also check the equality $a~mod~n=0$.
-Figure~\ref{occurence_graph} presents the number of time our runtime checks are executed. We narrowed the results to the programs which had a significant amount of runtime checks. 
+Figure~\ref{occurence_graph} presents the number of time our runtime checks are executed. We selected the results of the programs which had a significant amount of runtime checks. 
 Most of the programs which have not been represented had no runtime checks added because they did not contain any dangerous instructions.
 The number of occurrences are on a logarithm axis since the values had big gaps between them.
 
@@ -1149,7 +1151,7 @@ The number of occurrences are on a logarithm axis since the values had big gaps 
 \end{figure}
 
 First of all most of the programs write in the stack, only two of them write in the heap and most of them do not execute any dangerous instructions. Also some of the programs that had overheads in the previous figures also executes a lot runtime checks.
-Especially we can notice that the program which had the most overhead \textit{sha3} in Figure~\ref{time_graph} is also the one which executed the most runtime checks $4,5*10^8$. \\
+Especially we can notice that the program which had the most overhead \textit{sha3} compared to the version without protection is also the one which executed the biggest number of runtime checks $4,5*10^8$. \\
 Following this observation we wanted to correlate the overhead introduced with the number of runtime checks executed.
 We drew another graph Figure~\ref{correlation_graph} representing the percentage of delay introduced in each program depending of the number of runtime checks added. Like before the number of runtime checks axis uses a logarithmic scale to include all obtained values.
 
@@ -1161,13 +1163,15 @@ We drew another graph Figure~\ref{correlation_graph} representing the percentage
 \end{figure}
 For this graph we selected only programs that had a significant amount of execution time so the percentage of overhead calculated is not too biased due to the precision of our tool (\textit{time} Unix utility). 
 Furthermore among these programs we only selected the one which had executed some runtime checks during their runtime. 
-After the selection we were only left with seven programs which is a bit little to make a graph but the results are presented Figure~\ref{correlation_graph}.
+After the selection we were only left with seven programs to make a graph, the results are presented Figure~\ref{correlation_graph}.
 
 We effectively see the percentage of overhead increasing with the number of runtime checks executed.
 Despite of the low number of measures, Figure~\ref{correlation_graph} presents the expected characteristic and confirm our hypothesis that the runtime checks impact the most the execution time of the programs.
 
 
-\paragraph{Stack frames size.}
+\subsubsection{Stack frames size}
+\label{ssub:Stack frames size}
+
 Another figure we thought would be interesting was to see the distribution of the minimal frames size necessary for the programs to run. These data are represented Figure~\ref{frame_size_graph}.
 
 \begin{figure}[!ht]
@@ -1181,8 +1185,7 @@ This gives us an idea about the size of the stack in the protected implementatio
 A more interesting graph related to memory consumption would be the comparison of the stack maximum growth between our implementations and the original CompCert. 
 %Unfortunately we did not find the time for this experimentation during the span of the internship and we hope to do it during the remaining month.
 
-\subsubsection{Discussion}
-\label{ssub:discussion}
+\subsection{Discussion}
 
 In this section we are going to talk about some points that our implementation is still lacking and also ways to improve our implementation that we could explore in the future.
 
@@ -1192,21 +1195,35 @@ Our implementation protect return addresses by modifying the stack layout of the
 However we only tested our implementation with simple buffer overflows, to show that our approach is correct it would be interesting to pit our protection mechanisms against more complicated ROP attacks. Otherwise we used CompCert so that eventually we will prove the security properties of our approach . This would be an even more convincing way to affirm the benefits of our approach.
 
 %Another test that is lacking was mentioned before. To have an idea of the impacts of our implementation of the memory consumption it would be interesting to compare the stack growth of a normal program with one compiled with our modified CompCert compiler.
+\paragraph{Guard area between the stack and the heap}
+\label{par:guard_area}
+To ensure that either the stack or the heap grows too much and exceeds their designed area we want to put a guard area in the memory. The idea is to define a specific area in the memory, for example [\texttt{0xee000000 - \texttt{0xff000000}}], where it is forbidden to write. If an instruction writes illegally in the guard area the program will detect it and will crash.\\
+The principle is represented in Figure~\ref{guard}. Indeed we can see that the stack and the heap are clearly separated by the guard area located between [\texttt{0xee000000 - \texttt{0xff000000}}]. Thus we are sure that every address above \texttt{0xff000000} are part of the stack.
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[scale=0.6]{images/guard.pdf}
+\caption{Guard area for the memory}
+\label{guard}
+\end{figure}
+
+To detect the write in the guard one possible way is to initialize the area with 0 for example. If we detect a bit in the guard area with the value 1 then we know that the guard has been corrupted and we make the program crash. Since our approach protects against ROP attacks, which takes effect when returning from a function, it is adequate to check the integrity of the guard area at the end of each function before returning.
+To be honest the guard area has not been implemented yet. Most of the programs do not have a stack or a heap which grows enough to exceed the limit of \texttt{0xff000000} so we were able to do satisfactory tests nevertheless. This guard area is necessary for our implementation to be complete and we hope that we will be able to do it during the remaining time of the internship.
 
 \paragraph{Protection of runtime checks.}
 \label{par:Protection of runtime checks}
 Actually in our implementation we protect return addresses with runtime checks but we never protect these runtime checks. As in SFI we also need to prevent malicious instructions to avoid going through these checks. Therefore we need to make sure that is not possible for a program to freely jump in the code. This way an attacker would be able to bypass the security measures we established.
 In the C language the only expression that could allow such operations would be function pointers. Function pointers allow one to execute the code addressed by the pointer.
 The simplest solution would be to totally forbid the usage of function pointers which would solve our issue.
-We could also redo the ideas of SFI~\cite{Mccamant_evaluatingsfi} like creating memory chunks and aligning them in order to render the runtime checks atomic. This idea is similar to our approach, it would need to transform the structure on the memory for the code and then perform runtime checks to make sure we only jump to authorized locations.
+We could also adapt ideas of SFI~\cite{Mccamant_evaluatingsfi} like creating memory chunks and aligning them in order to render the runtime checks atomic. This idea is similar to our approach, it would need to transform the structure on the memory for the code and then perform runtime checks to make sure we only jump to authorized locations.
 
 \paragraph{Ways of improvement.}
-\label{par:Ways of improvement.}
+\label{par:improvement}
 We saw in the earlier section that our implementation was relatively slow compared to the original CompCert. Furthermore the amount of overhead was dependent of the number of runtime checks executed.
 The idea would be to reduce the number of runtime checks effectively done.
 We can certainly narrow down the number of dangerous statements detected. For example Figure~\ref{harmless} presents some harmless C code that would be protected by our approach but does not present any vulnerability for a ROP attack. The pointer presented here points to an address of the heap so if the heap does not overflow on the stack it's not possible for the pointer \textit{bar} to write on a return address as it is.
 We can see clearly that the protection mechanism that will be introduced in this code is not necessary and will just slow down the program.
-To detect these kind of occurrences, it would be necessary to make a statistic analysis of the code and pinpoint the statements that present a vulnerability for ROP attacks.
+To detect these kind of occurrences, it would be necessary to make a static analysis of the code and pinpoint the statements that present a vulnerability for ROP attacks.
 If we could implement such static analyser \textcolor{green}{find ref maybe} the overhead from our implementation will be greatly reduced since we know the more we add runtime checks the more our program will slow down.
 
 \begin{figure}[!ht]

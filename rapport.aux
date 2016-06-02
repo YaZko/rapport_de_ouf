@@ -127,96 +127,96 @@
 \@writefile{toc}{\contentsline {paragraph}{Memory consumption.}{21}}
 \@writefile{toc}{\contentsline {section}{\numberline {4}Implementation}{22}}
 \newlabel{sec:implementation}{{4}{22}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Implementation}{22}}
-\newlabel{sub:Implementation}{{4.1}{22}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.1}CompCert stack}{22}}
-\newlabel{ssub:CompCert stack}{{4.1.1}{22}}
-\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces CompCert x86-32 stack layout}}{23}}
-\newlabel{stack_layout}{{13}{23}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}CompCert stack}{22}}
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces CompCert x86-32 stack layout}}{22}}
+\newlabel{stack_layout}{{13}{22}}
 \@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces CompCert function call routine}}{23}}
 \newlabel{call_routine}{{14}{23}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.2}Fixed stack frames size}{23}}
-\newlabel{sub:Fixed stack frames size}{{4.1.2}{23}}
-\newlabel{par:Fix the frames size}{{4.1.2}{24}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Fixed stack frames size}{23}}
+\newlabel{par:Fix the frames size}{{4.2}{24}}
 \@writefile{toc}{\contentsline {paragraph}{Fix the frames size.}{24}}
-\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces Transformation of CompCert frame}}{24}}
-\newlabel{frame_transform}{{15}{24}}
-\newlabel{par:Choice of frames size}{{4.1.2}{24}}
+\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces CompCert x86-32 frame record}}{24}}
+\newlabel{frame_record}{{15}{24}}
+\newlabel{par:Choice of frames size}{{4.2}{24}}
 \@writefile{toc}{\contentsline {paragraph}{Choice of frames size.}{24}}
-\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces Fixing the size of CompCert stack frames}}{25}}
-\newlabel{stack_transform}{{16}{25}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.3}Stack alignment}{25}}
-\newlabel{ssub:Stack alignment}{{4.1.3}{25}}
-\newlabel{par:ASLR}{{4.1.3}{25}}
+\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces Transformation of CompCert frame}}{25}}
+\newlabel{frame_transform}{{16}{25}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Stack alignment}{25}}
+\newlabel{par:ASLR}{{4.3}{25}}
 \@writefile{toc}{\contentsline {paragraph}{ASLR.}{25}}
-\newlabel{par:Stack alignment}{{4.1.3}{26}}
-\@writefile{toc}{\contentsline {paragraph}{Stack alignment.}{26}}
-\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces Aligning CompCert stack frames}}{27}}
-\newlabel{stack_align}{{17}{27}}
-\newlabel{par:Alignment algorithm}{{4.1.3}{27}}
+\newlabel{par:Stack alignment}{{4.3}{25}}
+\@writefile{toc}{\contentsline {paragraph}{Stack alignment.}{25}}
+\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces Fixing the size of CompCert stack frames}}{26}}
+\newlabel{stack_transform}{{17}{26}}
+\@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces Aligning CompCert stack frames}}{27}}
+\newlabel{stack_align}{{18}{27}}
+\newlabel{par:Alignment algorithm}{{4.3}{27}}
 \@writefile{toc}{\contentsline {paragraph}{Alignment algorithm.}{27}}
-\@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces Alignment algorithm}}{28}}
-\newlabel{align_algo}{{18}{28}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.4}Detection of memory write statements}{28}}
-\newlabel{ssub:Detection of memory write statements}{{4.1.4}{28}}
-\newlabel{par:Clight implementation}{{4.1.4}{28}}
+\@writefile{lof}{\contentsline {figure}{\numberline {19}{\ignorespaces Alignment algorithm}}{28}}
+\newlabel{align_algo}{{19}{28}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Detection of memory write statements}{28}}
+\newlabel{par:Clight implementation}{{4.4}{28}}
 \@writefile{toc}{\contentsline {paragraph}{Clight implementation.}{28}}
-\newlabel{par:Clight semantic}{{4.1.4}{28}}
-\@writefile{toc}{\contentsline {paragraph}{Clight semantic.}{28}}
-\@writefile{lof}{\contentsline {figure}{\numberline {19}{\ignorespaces Clight statements}}{29}}
-\newlabel{clight_statements}{{19}{29}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.5}Securing memory write statements}{30}}
-\newlabel{ssub:implem_check_address}{{4.1.5}{30}}
-\newlabel{par:Distinguish stack or heap}{{4.1.5}{30}}
-\@writefile{toc}{\contentsline {paragraph}{Distinguish stack and heap addresses.}{30}}
-\@writefile{lof}{\contentsline {figure}{\numberline {20}{\ignorespaces Guard area for the memory}}{31}}
-\newlabel{guard}{{20}{31}}
-\newlabel{par:Classic check}{{4.1.5}{31}}
+\newlabel{par:Clight semantic}{{4.4}{29}}
+\@writefile{toc}{\contentsline {paragraph}{Clight semantic.}{29}}
+\@writefile{lof}{\contentsline {figure}{\numberline {20}{\ignorespaces Clight statements}}{29}}
+\newlabel{clight_statements}{{20}{29}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Securing memory write statements}{30}}
+\newlabel{sub:implem_check_address}{{4.5}{30}}
+\newlabel{par:Distinguish stack or heap}{{4.5}{31}}
+\@writefile{toc}{\contentsline {paragraph}{Distinguish stack and heap addresses.}{31}}
+\@writefile{lof}{\contentsline {figure}{\numberline {21}{\ignorespaces Runtime checks}}{31}}
+\newlabel{classic_check}{{21}{31}}
+\newlabel{par:Classic check}{{4.5}{31}}
 \@writefile{toc}{\contentsline {paragraph}{Check the property $a\nobreakspace  {}mod\nobreakspace  {}n=0$.}{31}}
-\@writefile{lof}{\contentsline {figure}{\numberline {21}{\ignorespaces Second test of the protection mechanism}}{32}}
-\newlabel{classic_check}{{21}{32}}
-\newlabel{par:Branchless check}{{4.1.5}{32}}
+\newlabel{par:Branchless check}{{4.5}{32}}
 \@writefile{toc}{\contentsline {paragraph}{Branchless check.}{32}}
 \@writefile{lof}{\contentsline {figure}{\numberline {22}{\ignorespaces Branchless version of the second check}}{33}}
 \newlabel{branchless}{{22}{33}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Evaluation of the implementation}{33}}
-\newlabel{sub:evaluation_of_implem}{{4.2}{33}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.1}Results}{34}}
-\@writefile{lof}{\contentsline {figure}{\numberline {23}{\ignorespaces Output from vulnerable CompCert executable}}{34}}
-\newlabel{output_weak}{{23}{34}}
 \citation{Leroy:2009:FVR:1538788.1538814}
-\@writefile{lof}{\contentsline {figure}{\numberline {24}{\ignorespaces Output from protected CompCert executable}}{35}}
-\newlabel{output_protected}{{24}{35}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.2}Experimentations}{35}}
-\@writefile{toc}{\contentsline {paragraph}{Efficiency.}{35}}
-\@writefile{lof}{\contentsline {figure}{\numberline {25}{\ignorespaces Execution time of tested programs}}{36}}
-\newlabel{time_graph}{{25}{36}}
-\@writefile{lof}{\contentsline {figure}{\numberline {26}{\ignorespaces Execution time percentages compared to the original CompCert}}{37}}
-\newlabel{time_percentage_graph}{{26}{37}}
-\@writefile{toc}{\contentsline {paragraph}{Relation between runtime checks and delay.}{37}}
-\@writefile{lof}{\contentsline {figure}{\numberline {27}{\ignorespaces Number of runtime checks executed per program}}{38}}
-\newlabel{occurence_graph}{{27}{38}}
-\@writefile{lof}{\contentsline {figure}{\numberline {28}{\ignorespaces Evolution of the overhead percentage depending of the number of runtime checks executed}}{39}}
-\newlabel{correlation_graph}{{28}{39}}
-\@writefile{toc}{\contentsline {paragraph}{Stack frames size.}{39}}
-\@writefile{lof}{\contentsline {figure}{\numberline {29}{\ignorespaces Distribution of the minimum frames size among 74 test programs}}{40}}
-\newlabel{frame_size_graph}{{29}{40}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.3}Discussion}{40}}
-\newlabel{ssub:discussion}{{4.2.3}{40}}
-\newlabel{par:More tests}{{4.2.3}{40}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Evaluation of the implementation}{34}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Evaluation of security}{34}}
+\newlabel{par:Fixed stack frames without protection.}{{5.1}{34}}
+\@writefile{toc}{\contentsline {paragraph}{Fixed stack frames without protection (Figure\nobreakspace  {}23\hbox {}).}{34}}
+\newlabel{par:Complete implementation with protection}{{5.1}{34}}
+\@writefile{toc}{\contentsline {paragraph}{Complete implementation with protection (Figure\nobreakspace  {}24\hbox {}).}{34}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Evaluation of performance}{34}}
+\@writefile{lof}{\contentsline {figure}{\numberline {23}{\ignorespaces Output from vulnerable CompCert executable}}{35}}
+\newlabel{output_weak}{{23}{35}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.1}Efficiency}{35}}
+\newlabel{ssub:Efficiency}{{5.2.1}{35}}
+\@writefile{lof}{\contentsline {figure}{\numberline {24}{\ignorespaces Output from protected CompCert executable}}{36}}
+\newlabel{output_protected}{{24}{36}}
+\@writefile{lof}{\contentsline {figure}{\numberline {25}{\ignorespaces Execution time percentages compared to the original CompCert}}{37}}
+\newlabel{time_percentage_graph}{{25}{37}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.2}Relation between runtime checks and delay}{37}}
+\@writefile{lof}{\contentsline {figure}{\numberline {26}{\ignorespaces Number of runtime checks executed per program}}{38}}
+\newlabel{occurence_graph}{{26}{38}}
+\@writefile{lof}{\contentsline {figure}{\numberline {27}{\ignorespaces Evolution of the overhead percentage depending of the number of runtime checks executed}}{39}}
+\newlabel{correlation_graph}{{27}{39}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.3}Stack frames size}{39}}
+\newlabel{ssub:Stack frames size}{{5.2.3}{39}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Discussion}{39}}
+\newlabel{par:More tests}{{5.3}{39}}
+\@writefile{lof}{\contentsline {figure}{\numberline {28}{\ignorespaces Distribution of the minimum frames size among 74 test programs}}{40}}
+\newlabel{frame_size_graph}{{28}{40}}
 \@writefile{toc}{\contentsline {paragraph}{More tests.}{40}}
+\newlabel{par:guard_area}{{5.3}{40}}
+\@writefile{toc}{\contentsline {paragraph}{Guard area between the stack and the heap}{40}}
 \citation{Mccamant_evaluatingsfi}
-\newlabel{par:Protection of runtime checks}{{4.2.3}{41}}
+\@writefile{lof}{\contentsline {figure}{\numberline {29}{\ignorespaces Guard area for the memory}}{41}}
+\newlabel{guard}{{29}{41}}
+\newlabel{par:Protection of runtime checks}{{5.3}{41}}
 \@writefile{toc}{\contentsline {paragraph}{Protection of runtime checks.}{41}}
-\newlabel{par:Ways of improvement.}{{4.2.3}{41}}
+\newlabel{par:improvement}{{5.3}{41}}
 \@writefile{toc}{\contentsline {paragraph}{Ways of improvement.}{41}}
-\@writefile{lof}{\contentsline {figure}{\numberline {30}{\ignorespaces Example of harmless C code }}{41}}
-\newlabel{harmless}{{30}{41}}
-\newlabel{par:Transparency}{{4.2.3}{41}}
-\@writefile{toc}{\contentsline {paragraph}{Transparency.}{41}}
+\@writefile{lof}{\contentsline {figure}{\numberline {30}{\ignorespaces Example of harmless C code }}{42}}
+\newlabel{harmless}{{30}{42}}
+\newlabel{par:Transparency}{{5.3}{42}}
+\@writefile{toc}{\contentsline {paragraph}{Transparency.}{42}}
 \citation{Kroll:2014:PSF:2708449.2708686}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Conclusion}{43}}
-\newlabel{sec:Conclusion}{{5}{43}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Conclusion}{43}}
+\newlabel{sec:Conclusion}{{6}{43}}
 \bibdata{ref}
 \bibcite{compCert_memory_model}{1}
 \bibcite{BRSS08}{2}
