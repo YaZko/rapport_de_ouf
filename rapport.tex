@@ -71,7 +71,6 @@ We set the frames size to a constant value in order to have the return addresses
 This internship report will firstly present Software Fault Isolation, its principles, the existing implementations and especially a version using CompCert the certified compiler. CompCert will also be the compiler we chose to implement our solution to defend programs against ROP attacks. We will then present an overview of our approach with fixed frames size with a discussion of our idea. Afterwards we will explain in details the implementation we made of our approach with CompCert during the span of the internship. To conclude we will evaluate the different results obtained with our implementation and propose ideas to improve our solution in the future.
 
 
-
 \newpage
 \section{Software Fault Isolation}
 \label{sec:sfi}
@@ -435,7 +434,6 @@ These frames are constructed dynamically depending of the function, hence the lo
 As it is we do not have enough information to correctly protect return addresses since we do not know precisely where they are located.
 
 Several solutions exists against this issue. We could for example add a lot of meta-data during the compilation to have extra information and then effectively protect the return addresses. Another solution is to create a second stack called \textit{shadow stack}. We would then have complete control over the \textit{shadow stack} which allows us defend against ROP attacks.
-\textcolor{green}{maybe expose the cons of these approaches from our point of view}
 
 Our solution is to modify the current stack structure to be able to know the return addresses locations easily. The main idea is to fix a constant offset $n$ between return addresses allowing us to exactly know where a return address is located relative to the others. We will explain thoroughly the approach that we want to apply in the following section.
 
@@ -1112,6 +1110,8 @@ We wanted to measure the efficiency of our different transformations and compare
 To calculate the execution time we used the Unix utility \textit{time}.
 The results are presented in the following graph Figure~\ref{time_percentage_graph}.
 For more relevant results we removed from all the tested programs the ones whose execution time was too short because the Unix utility \textit{time} imprecision could impact the result greatly.
+The histogram Figure\ref{time_percentage_graph} shows the percentage of overhead measured by three different implementations compared to the original CompCert compiler for multiple programs.
+The three implementations are ``Fixed frames size'' which is our implementation with modified stack layout but without adding any protection. There is also ``Secure'' which is the implementation with classic \textit{if then else} runtime checks. The last one ``Branchless'' is the version with branchless checks.
 
 \begin{figure}[!ht]
 \centering
@@ -1120,28 +1120,13 @@ For more relevant results we removed from all the tested programs the ones whose
 \label{time_percentage_graph}
 \end{figure}
 
-We notice that the fixed size frames without protection has usually the same execution time than the original CompCert. 
-We deduce that only the protection mechanism introduces overhead during the runtime.
-Only in the programs \textit{spectral} and \textit{floats} we had a strange overhead which were clearly superior to the protected versions. 
-Since the fixed frames size version is only a reduced version of the protected ones it seems very strange. We suspect that this overhead is due to some kind of misalignment of the addresses, more investigations would be needed to determine the exact reason of this phenomenon.
+\paragraph{Fixed frames size performance.}
+\label{par:Fixed frames size}
+We notice first that 17 out of the 23 programs an efficiency comparable to the original CompCert (100) for ``Fixed frames size''. This result was expected, our transformation concerning the stack layout does not involve any extra code it just changes the structure of the memory. However we still have 6 unexpected results, some are faster and some are slower. \textit{spectral} implementation even performs three times slower than the ones with extra code for protection, which seems strange. We suspect for this mysterious cases that it is due to some special alignment in the memory or location to the processor that influence the performance. More investigations would be needed to determine the exact reason of this phenomenon.
 
-As for the comparison between the \textit{if then else} and the branchless implementations we were disappointed by the results displayed by the branchless version. Indeed the branchless is slower than the classic \textit{if then else} for most programs. \\
-Actually what can makes branching instructions expensive in term of time is due to instructions pipelining. 
-The modern processors usually put in their pipelines a dozen of instructions ahead of the executed one. 
-The issue with branch like \textit{if then else} is that the processors try to make a prediction on the branch that is going to be executed and start pipelining the predicted branch.
-If the prediction is right everything is fine, however if the prediction is wrong the whole pipeline might need to be flushed to execute the program correctly. This pipeline flush slows down the execution greatly which is why \textit{if then else} are considered slow instructions.
-However in our implementations these predictions are certainly correct most of the time which would explain that the branching introduces less overhead than the branchless version.
-
-Overall, our implementations are quite slow and some of our test programs even present up to 230\% overhead for the classic \textit{if then else} version. Even if the average is comprised between 100\% and 150\% this is still high. Nevertheless there are still ways to improve our implementations that we will present Section~\ref{par:improvement}.
-
-
-\subsubsection{Relation between runtime checks and delay}
-
-The previous test shows that the implementation which added runtime checks are slower than the one with fixed frames size without protection. We suspect that the number of runtime checks is related to the amount of delay introduced by our transformation. To verify this hypothesis we first calculated the number of runtime checks that was executed by each implementation.
-We also separated the runtime checks for addresses of the stack and the heap. Indeed in our implementations addresses from the heap only need to go through one conditional jump whereas for the stack we also check the equality $a~mod~n=0$.
-Figure~\ref{occurence_graph} presents the number of time our runtime checks are executed. We selected the results of the programs which had a significant amount of runtime checks. 
-Most of the programs which have not been represented had no runtime checks added because they did not contain any dangerous instructions.
-The number of occurrences are on a logarithm axis since the values had big gaps between them.
+\paragraph{\textit{if then else} and branchless comparison.}
+\label{par:ifthenelsevsbranchless}
+As for the comparison between the \textit{if then else} and the branchless implementations we were disappointed by the results displayed by the branchless version. Indeed the branchless is clearly faster than the classic \textit{if then else} for only three programs in Figure~\ref{time_percentage_graph}. It is distinctly slower for 5 programs and for the rest the performance are similar. However to really compare the two implementations of our runtime checks we should only compare programs that contains a fair amount of them in their code, otherwise we would not really compare branchless and branching.
 
 \begin{figure}[!ht]
 \centering
@@ -1150,10 +1135,22 @@ The number of occurrences are on a logarithm axis since the values had big gaps 
 \label{occurence_graph}
 \end{figure}
 
-First of all most of the programs write in the stack, only two of them write in the heap and most of them do not execute any dangerous instructions. Also some of the programs that had overheads in the previous figures also executes a lot runtime checks.
-Especially we can notice that the program which had the most overhead \textit{sha3} compared to the version without protection is also the one which executed the biggest number of runtime checks $4,5*10^8$. \\
-Following this observation we wanted to correlate the overhead introduced with the number of runtime checks executed.
-We drew another graph Figure~\ref{correlation_graph} representing the percentage of delay introduced in each program depending of the number of runtime checks added. Like before the number of runtime checks axis uses a logarithmic scale to include all obtained values.
+Figure~\ref{occurence_graph} presents the number of time our runtime checks are executed. We only selected the programs which results had a significant amount of runtime checks. This graph also separates two cases, tested addresses which were in the heap and addresses from the stack. Indeed in our implementations addresses from the heap only need to go through one conditional jump whereas for the stack we also check the equality $a~mod~n=0$.
+Most of the programs which have not been represented had no runtime checks at all because they did not contain any dangerous instructions.
+The number of occurrences are on a logarithm axis since the values had big gaps between them.
+
+To compare the branchless and \textit{if then else} we will limit ourselves to the programs which executed more than $1*10^8$ runtime checks which gives us the programs \textit{sha1}, \textit{sha3} and \textit{aes}. In Figure~\ref{time_percentage_graph} these three programs branchless version are distinctly slower than the \textit{if then else} version (only 5 programs out of 23 show this particularity). Even though the number of programs analysed is low there is a high possibility that for our implementation the branchless runtime checks are actually slower than the \textit{if then else} one.\\
+What can makes branching instructions expensive in term of time is due to instructions pipelining. 
+The modern processors usually put in their pipelines a dozen of instructions ahead of the executed one. 
+The issue with branch like \textit{if then else} is that the processors try to make a prediction on the branch that is going to be executed and start pipelining the predicted branch.
+If the prediction is right everything is fine, however if the prediction is wrong the whole pipeline might need to be flushed to execute the program correctly. This pipeline flush slows down the execution greatly which is why \textit{if then else} are considered slow instructions.
+However in our implementations these predictions are certainly correct most of the time which would explain that branching introduces less overhead than the branchless version.
+
+\paragraph{Relation between runtime checks and delay.}
+
+The previous tests show that generally the implementations with runtime checks are slower than the one with fixed frames size without protection. We suspect that the number of runtime checks is related to the amount of delay introduced by our transformation. 
+Especially the three programs cited earlier \textit{sha1}, \textit{sha3} and \textit{aed} which have the most amount of runtime checks shows Figure~\ref{time_percentage_graph} slower execution than ``Fixed frames size''. \\
+To try to find a correlation we drew another graph Figure~\ref{correlation_graph} representing the percentage of delay introduced in each program depending of the number of runtime checks added. Like before the number of runtime checks axis uses a logarithmic scale to include all obtained values.
 
 \begin{figure}[!ht]
 \centering
@@ -1161,13 +1158,12 @@ We drew another graph Figure~\ref{correlation_graph} representing the percentage
 \caption{Evolution of the overhead percentage depending of the number of runtime checks executed}
 \label{correlation_graph}
 \end{figure}
-For this graph we selected only programs that had a significant amount of execution time so the percentage of overhead calculated is not too biased due to the precision of our tool (\textit{time} Unix utility). 
-Furthermore among these programs we only selected the one which had executed some runtime checks during their runtime. 
+
+The implementation chosen for the overhead is the protected one with \textit{if then else} runtime checks since we concluded earlier that branchless are generally slower.
+For this graph we selected only programs that had a significant amount of execution time so the percentage of overhead calculated is not too biased due to the precision of our tool (\textit{time} Unix utility). Furthermore among these programs we only selected the one which had executed some runtime checks during their runtime. 
 After the selection we were only left with seven programs to make a graph, the results are presented Figure~\ref{correlation_graph}.
 
-We effectively see the percentage of overhead increasing with the number of runtime checks executed.
-Despite of the low number of measures, Figure~\ref{correlation_graph} presents the expected characteristic and confirm our hypothesis that the runtime checks impact the most the execution time of the programs.
-
+We effectively see the percentage of overhead increasing with the number of runtime checks executed in our measures (purple cross). To find the correlation we try to find a relation which corresponds the most to the measures taken. The relation found is the blue curve and is represented by $y=100+x/(1.10^8)$. Even though we have a relatively low amount of points we can see that the blue curves matches their behaviour nicely. We have found a linear relation between the percentage of overhead and the number of runtime checks. Thus we can affirm that the overhead introduced is directly related to the number of runtime checks executed.
 
 \subsubsection{Stack frames size}
 \label{ssub:Stack frames size}
@@ -1219,8 +1215,8 @@ We could also adapt ideas of SFI~\cite{Mccamant_evaluatingsfi} like creating mem
 
 \paragraph{Ways of improvement.}
 \label{par:improvement}
-We saw in the earlier section that our implementation was relatively slow compared to the original CompCert. Furthermore the amount of overhead was dependent of the number of runtime checks executed.
-The idea would be to reduce the number of runtime checks effectively done.
+We saw in the earlier section that our implementation was relatively slow compared to the original CompCert. Furthermore the amount of is dependent of the number of runtime checks executed.
+The idea would be to either reduce the number of runtime checks effectively done or to improve the efficiency of our runtime checks.
 We can certainly narrow down the number of dangerous statements detected. For example Figure~\ref{harmless} presents some harmless C code that would be protected by our approach but does not present any vulnerability for a ROP attack. The pointer presented here points to an address of the heap so if the heap does not overflow on the stack it's not possible for the pointer \textit{bar} to write on a return address as it is.
 We can see clearly that the protection mechanism that will be introduced in this code is not necessary and will just slow down the program.
 To detect these kind of occurrences, it would be necessary to make a static analysis of the code and pinpoint the statements that present a vulnerability for ROP attacks.
@@ -1238,6 +1234,9 @@ void foo(){
 \label{harmless}
 \end{figure}
 
+\hfill \break
+Another way is to improve the performance of our runtime checks. We tried to use a branchless implementation unsuccessfully. However another solution is to use a superoptimizer that can give us a super efficient assembly code equivalent to the C code used as input. If it finds a super effective assembly version of our runtime checks we could create a native function \textit{runtime\_check} in Cminor which will be expanded during the ASM compilation step.
+
 \paragraph{Transparency.}
 \label{par:Transparency}
 Our approach should leave safe programs behaviour unchanged. We do not want our implementation to change harmless programs in any way. Our runtime checks are transparent since the error behaviour is only triggered during illegal executions, otherwise the code executed will stay the same. The other modifications were done at the stack level, the stack does not exist at the level of the C language.
@@ -1254,9 +1253,9 @@ Even though SFI has many strong points it can be considered lacking when it come
 
 Therefore we propose a solution which is reliable and relatively efficient to protect return addresses from being corrupted. Our idea is to modify the structure of the stack in order to have an easy way to know the locations of all the return addresses. Afterwards we add runtime checks before the instructions that can compromise the integrity of the return addresses. These runtime checks take advantage of the new stack layout to forbid any illicit write on the return addresses locations.
 
-We did an implementation of our approach with the compiler CompCert for the x86-32 architecture. Even though the implementation is not totally completed, the main work has been carried out and it successfully blocked programs containing simple buffer overflows. The different experimentations show that our transformations diminish the efficiency of our compiled modules proportionally to the number of runtime checks. We estimate that each runtime checks adds an average overhead of \textcolor{green}{number}. Thus the diminution of the efficiency varies greatly depending of the number of dangerous instructions that has to be tested in the compiled code.
+We did an implementation of our approach with the compiler CompCert for the x86-32 architecture. Even though the implementation is not totally completed, the main work has been carried out and it successfully blocked programs containing simple buffer overflows. The different experimentations show that our transformations diminish the efficiency of our compiled modules depending of the number of runtime checks. Thus the diminution of the efficiency varies greatly depending of the number of dangerous instructions that has to be tested in the compiled code.
 
-However our implementation still has ways of improvement by optimizing the runtime checks efficiency or by reducing the number of runtime checks added. For example, by using static analysis we could refine our detection of dangerous instructions and narrow down the previous selection which could improve our performances greatly.
+However our implementation still has ways of improvement by optimizing the runtime checks efficiency or by reducing the number of runtime checks added. For example, by using static analysis we could refine our detection of dangerous instructions and narrow down the number of runtime checks required which could improve our performance greatly.
 
 
 \newpage
