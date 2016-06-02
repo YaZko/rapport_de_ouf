@@ -328,23 +328,23 @@ Thus we propose in the following section a more flexible and efficient solution 
 \section{Overview of the approach}
 \label{sec:Overview of the approach}
 	Many attacks on software aim at diverting the control flow of the targeted program. Among those, \textit{Returned Oriented Programming} (ROP) attacks specifically try to overwrite the return addresses.
-By doing so the attacked function will return to a malicious piece of code that will get executed.
+By doing so the attacked function returns to a malicious piece of code that will get executed.
 Stack overflow is an example of such ROP attacks.
 We propose a solution against ROP attacks which combined with SFI would protect from most of control-flow interference attacks.
-Inspired from SFI techniques we aim to prevent any overwriting of the return addresses. To do so we need to know these return addresses locations in the memory. Therefore our approach consists of modifying the stack structure in order to have a way to distinguish the return addresses locations. With this knowledge we will be able to put a mask, as in SFI, before every dangerous write instructions and prevent any ROP attack.
+Inspired from SFI techniques we aim to prevent any overwriting of the return addresses. To do so we need to know these return addresses locations in the memory. Therefore our approach consists in modifying the stack structure in order to have a way to distinguish the return addresses locations. With this knowledge we are able to put a mask, as in SFI, before every dangerous write instruction and prevent any ROP attack.
 
 
 \subsection{ROP attacks}
 \label{sub:rop_attack}
 
-	We want to protect our program against ROP attacks. These attacks are directed against the stack and especially the function return addresses located in the stack.
-We will begin by a short introduction about the mechanisms behind the stack. Then we will explain how ROP attacks work with the example of a classical buffer overflow.
+	We want to protect our program against ROP attacks. These attacks are directed against the stack and especially the return addresses located in the stack.
+We begin by a short introduction about the mechanisms behind the stack. Then we explain how ROP attacks work with the example of a classical buffer overflow.
 
 \subsubsection{The stack}
 \label{ssub:The stack}
 	The stack is a specific area of the memory of a program. The memory allocated to a program is divided among multiple areas like the stack (which we are going to detail), the heap (where we put dynamically allocated or global variables) and the code is also allocated in a specific area.
 The stack is composed of frames and each of them are related to a function being executed. Frames are piled up on the stack following the FIFO rule (\textit{First In First Out}). Explicitly, every time a function is called, a new frame is created and placed on the top of the stack. Reciprocally when a function terminates its frame will be popped out of the stack.
-Frames contain multiple kind of data related to their function like local variables, parameters of the function and return addresses. Return addresses indicates the point of execution to return to after a function terminates. When popping a frame the program is supposed to execute the code at the address matching the value contained in the return address.
+Frames contain multiple kind of data related to their function like local variables, parameters of the function and return addresses. Return addresses indicate the point of execution to return to when a function terminates. When popping a frame the program is supposed to execute the code at the address matching the value contained in the return address.
 ROP attacks aims at overwriting these return addresses which enables them to execute malicious code hidden in another part of the memory instead of continuing the normal flow of the program.
 
 \subsubsection{Buffer overflow}
@@ -352,7 +352,7 @@ ROP attacks aims at overwriting these return addresses which enables them to exe
 
 Stack overflows are the most popular ROP attacks \textcolor{green}{ref} . In Figure~\ref{buffer_overflow_code} we can see an example of buffer overflow written in C.
 The goal of this code is to execute the function called \textit{evil\_code()} which just prints ``Argh, we got hacked!\textbackslash{n}'' line~6 of Figure~\ref{buffer_overflow_code}. The function \textit{evil\_code()} should not be executed in our program, we suppose it is never called.
-The code was compiled with \textit{gcc -m32 -fno-stack-protector} to remove all stack protections used by gcc. The output of the code of the successful buffer overflow can be seen in Figure~\ref{output_buffer}.
+The code was compiled with \textit{gcc -m32 -fno-stack-protector} to remove all stack protections used by gcc. The output of the code from the successful buffer overflow can be seen Figure~\ref{output_buffer}.
 \begin{figure}[!ht]
 \begin{lstlisting}
 void evil_code() {
@@ -372,23 +372,23 @@ void foo(char* input){
 \end{figure}
 
 We printed out the stack before and after the attack to have a better comprehension of the attack.
-We see in the Figure~\ref{output_buffer} the consequences of the buffer overflow in red. The stack was overwritten and the return address was modified to the address of \textit{evil\_code()} which code was successfully executed.
+We see Figure~\ref{output_buffer} the consequences of the buffer overflow in red. The stack was overwritten and the return address was modified to the address of \textit{evil\_code()} which code was successfully executed.
 
 The vulnerability resides in the function \textit{strcpy} line~8. \textit{strcpy} just copies characters one by one until it finds ``0''(which corresponds to the end of a string) in the source string. However our source string can contain many more characters than \textit{buf} is supposed to have. 
 Indeed \textit{buf} is declared line~6 as an array of 1 character and our source string is the argument that we give to the program.
-If the source string is bigger than the destination \textit{strcpy} will just continue to write the source string over others variables location in the stack and possibly reach the return address.
+If the source string is bigger than the destination then \textit{strcpy} just continues to write the source string over others variables location in the stack and possibly reach the return address.
 The variable \textit{input} has the value of the parameter we give to our program and is the string we are supposed to copy in \textit{buf}.
 After few tries and fails we found the correct parameter to successfully do the buffer overflow. This input can be seen on the first line of Figure~\ref{output_buffer} which is \textit{python -c 'print 13*"a"+"\textbackslash{x7b}\textbackslash{x84}\textbackslash{x04}\textbackslash{x08}}` or \textit{aaaaaaaaaaaaa\textbackslash{x7b}\textbackslash{x84}\textbackslash{x04}\textbackslash{x08}}\\
-In our example we filled the stack with ``a'' which corresponds to ``61'' in ASCII until we reached the return address.
+In our example we filled the stack with ``a'' (which corresponds to ``61'' in ASCII) until we reached the return address.
 We can see the consequence of the attack in the output Figure~\ref{output_buffer}, where the stack is full of ``61'' after executing \textit{strcpy}.
 When we reached the return address we overwrote it with the address of \textit{evil\_code} which was \texttt{0x0804847b} given on the second line of Figure~\ref{output_buffer}.
-This way, the next instruction that will be executed after \textit{foo} finishes will be the function \textit{evil\_code}.
+This way, the next instruction that is executed after \textit{foo} finishes is the function \textit{evil\_code}.
 At the end of the program we can see that we get a \textit{Segmentation fault (core dumped)}, which is normal because we messed up the stack when we overwrote is with ``a''. But since we managed to execute \textit{evil\_code} the attack is still successful. \hfill \break
 
 Even though the buffer overflow was a basic one, it still happens to see the usage of vulnerable functions like \textit{strcpy} in the industry.
-Furthermore there are much more sophisticated ROP attacks which are much more effective as witnessed by security vulnerability reports.
+Furthermore there exist much more sophisticated ROP attacks which are very effective as witnessed by security vulnerability reports.
 Before, classic ROP attacks tried to execute some malicious code that was inserted manually in the stack or in the heap. But nowadays most system render their stack and their heap non executable which prevents the classic ROP attacks.
-However modern ROP attacks are now able to create malicious code from different pieces found in the program or in the libraries used. The most famous one is called \textit{return-to-libc}~\cite{BRSS08}\cite{S07} attack which pieces of code from the \textit{libc} library to create malicious code. Then the attacker still try to deviate the control flow of the program through return addresses to the malicious code just assembled with \textit{libc} code.
+However modern ROP attacks are now able to create malicious code from different pieces found in the program or in the libraries used. The most famous one is called \textit{return-to-libc}~\cite{BRSS08}\cite{S07} attack which uses pieces of code from the \textit{libc} library to create malicious code. Then the attacker still try to deviate the control flow of the program through return addresses to execute the malicious code just assembled with \textit{libc} code.
 
 \begin{figure}[!ht]
 \textcolor{gray}{terminal\$~} ./buffer \$(python -c 'print 13*"a"+"\textbackslash{x7b}\textbackslash{x84}\textbackslash{x04}\textbackslash{x08}"') \\
@@ -428,16 +428,16 @@ Segmentation fault (core dumped)
 
 \subsection{Description of the approach}
 \label{sub:Description of the approach}
-	We want to protect programs against ROP attacks like the buffer overflow seen previously. We want to prevent any return address from being overwritten illegally. The only moment they should be written over is during a function call routine.
-We want to be able to add runtime checks in the code like SFI, therefore we need to be able to check if an address is the location of a return address. 
+	We want to protect programs against ROP attacks like the buffer overflow seen previously. For that, we need to prevent any return address from being overwritten illegally. The only moment they should be written over is during a function call routine.
+Our idea is to be able to add runtime checks in the code like SFI, therefore we need to be able to check if an address is the location of a return address. 
 
 The biggest difficulty is to be able to know if a location in the stack corresponds to a return address or not. Indeed the stack grows through function calls which pile up stack frames. 
-These frames are constructed dynamically depending on the function, hence the locations of return addresses are not easily known.
+These frames are constructed dynamically depending on the function, hence the locations of return addresses are unpredictable.
 As it is we do not have enough information to correctly protect return addresses since we do not know precisely where they are located.
 
-Several solutions exists against this issue. We could for example add a lot of meta-data during the compilation to have extra information and then effectively protect the return addresses. Another solution is to create a second stack called \textit{shadow stack}. We would then have complete control over the \textit{shadow stack} which allows us defend against ROP attacks.
+Several solutions exist for this issue. We could, for example, add a lot of meta-data during the compilation to have extra information and then effectively protect the return addresses. Another solution is to create a second stack called \textit{shadow stack}. We would then have complete control over the \textit{shadow stack} which allows us to defend against ROP attacks.
 
-Our solution is to modify the current stack structure to be able to know the return addresses locations easily. The main idea is to fix a constant offset $n$ between return addresses allowing us to exactly know where a return address is located relative to the others. We will explain thoroughly the approach that we want to apply in the following section.
+Our solution is to modify the current stack structure to be able to know the return addresses locations easily. The main idea is to fix a constant offset $n$ between return addresses allowing us to exactly know where a return address is located relatively to the others. We will explain thoroughly the approach that we want to apply in the following section.
 
 \subsubsection{Proposed solution}
 
@@ -451,12 +451,12 @@ Since all neighboring return addresses are separated by the exact amount $n$, we
 Thus we can generalize the two previous relations and for every return address location \textit{a} we will have the relation $a~mod~n = c$.
 
 The next hurdle is to choose $n$ and $c$ cleverly. 
-For $n$, the most important thing is that frames have enough space to store all the needed data. Therefore we define the value of $n$ as the biggest frame size of all the functions in a program.
+For $n$, the most important thing is that frames should have enough space to store all the needed data. Therefore we define the value of $n$ as the biggest frame size of all the functions in a program.
 If the return addresses are separated by this amount we are sure that every function will have enough space in the stack for its frame. \\
 Afterwards we have to define $c$. The best way that we found is to modify the stack in order to have the first return addresses location to be equal to $c$. If we are able to do such a thing, we can also easily define the value of $c$ and for simplicity we would like to have $c~mod~n = 0$
 
 The Figure~\ref{idea_stack} pictures the transformation we want to apply to the stack. On the left we have represented an usual stack with return addresses all over the place.
-Since these locations are almost random it's really difficult to pinpoint their location. After transforming the stack (stack on the right) we can see that the different addresses are separated by the same constant $n$.
+Since these locations are unpredictable it is really difficult to pinpoint their location. After transforming the stack (stack on the right) we can see that the different addresses are separated by the same constant $n$.
 
 We have two relations about return addresses location:
 $$[\forall a\in Ret\_locations,~a~mod~n=c]\text{ and }[c~mod~n=0]$$
@@ -474,7 +474,7 @@ We can combine our two properties and we obtain:
 \paragraph{Detection of dangerous instructions.}
 \label{par:Detection of dangerous instructions}
 
-The second step is to detect every possibly harmful instructions to return addresses. We consider as dangerous every instruction that can freely write to the memory. Our approach is mainly related to the C language.
+The second step is to detect every instruction possibly harmful to return addresses. We consider as dangerous every instruction that can freely write to the memory. Our approach is mainly related to the C language.
 In C, instructions that fit such criteria are assignment to pointer dereference in the form of  \textit{(pointer)*~=~value} or \textit{(pointer+offset)*~=~value}. \\
 In the previous example of buffer overflow Figure~\ref{buffer_overflow_code}, the vulnerability resides in the function \textit{strcpy} line~12. To pinpoint the dangerous instruction let's check the source code of \textit{strcpy} Figure~\ref{strcpy} from Apple.
 We can see in the \textit{while} loop line~10 that \textit{strcpy} copies characters one by one from the source string \textit{s2} to the destination \textit{s} until it finds a character equals to \textit{0}.
@@ -498,7 +498,7 @@ char * strcpy(char *s1, const char *s2) {
 \paragraph{Securing dangerous statements.}
 \label{par:Protection around dangerous statements}
 
-Finally when we have detected all the dangerous statements we transform the module code. Before each of this dangerous statement we add a protection mechanism similar to masking in SFI. The algorithm of the check is represented in Figure \ref{runtime_check}: \\
+Finally when we have detected all the dangerous statements we transform the module code. Before each of these dangerous statements we add a protection mechanism similar to sandboxing in SFI. The algorithm of the runtime check is represented Figure \ref{runtime_check}: \\
 	\begin{enumerate}
 		\item We check if the address is in the stack. Return addresses only exist in the stack, we do not need to concern ourselves with the other accessible memory area: the heap.
 		\item If the address is in the stack we check if the target address $a$ verifies our equality $a~mod~n=0$. If it does then it's a return address location.
@@ -514,7 +514,7 @@ We want our implementation to respect the property of transparency, if a program
 \end{figure}
 
 \hfill \break 
-	To sum it up, our approach aims at having an easy way to know return addresses location and then add a check at runtime before every dangerous instruction to prevent illegal writing on return addresses location.
+	To sum it up, our approach aims at having an easy way to know return addresses location and then adds a runtime check before every dangerous instruction to prevent illegal writing on return addresses location.
 To do this we divided the approach into four phases:
 \begin{enumerate}
 	\item Fix stack frames size
@@ -526,9 +526,9 @@ To do this we divided the approach into four phases:
 
 \subsection{Security properties}
 \label{sub:Security properties}
-	The approach we propose is composed of four phases, to get the confidence that our idea is effective in protecting return addresses we are going to formalize the properties we expect from each phase. 
-Furthermore like we pointed earlier, we are going to work with the certified compiler CompCert.
-The ideal way to be sure of our idea would be to prove it with Coq the proof assistant the language used to build CompCert.
+	The approach we propose is composed of four phases, to get the confidence that our idea is effective in protecting return addresses we formalize the properties we expect from each phase. 
+Furthermore like we pointed earlier, we work with the certified compiler CompCert.
+The ideal way to be sure of our idea would be to prove it with Coq the proof assistant, the language used to build CompCert.
 By working with these tools we hope that eventually we will be able to prove some security guarantees brought by our approach.
 
 \begin{enumerate}
@@ -546,18 +546,18 @@ By working with these tools we hope that eventually we will be able to prove som
 		\end{itemize}
 	\item \textbf{Securing memory write statements}
 		\begin{itemize}
-			\item The protection will trigger an error behaviour if we try to write on a protected address
+			\item The protection triggers an error behaviour if the code try to write on a protected address
 		\end{itemize}
 \end{enumerate}
 
-Combined, properties 1. and 2. give us the guarantee that the least significant bits of all the return addresses location will verify $a~mod~n=0$ with $n$ the fixed offset between return addresses.
+Combined, properties 1. and 2. give us the guarantee that all the return addresses locations verify $a~mod~n=0$ with $n$ the fixed offset between return addresses.
 Basically we make it so the protection mechanism prevents any write on addresses located in the \textbf{stack memory area} and verifying $a~mod~n=0$.
 
 \hfill \break 
-Another property we did not mention yet is that all our transformations need to be transparent. In other words, if we apply our methods on a program which is already safe then its behaviour is not affected. We will explain how we ensure this property more thoroughly in Chapter~\ref{sec:implementation}.
+Another property we did not mention yet is that all our transformations need to be transparent. In other words, if we apply our methods on a program which is already safe then its behaviour is not affected. We explain how we ensure this property more thoroughly in Chapter~\ref{sec:implementation}.
 
 \hfill \break 
-For these properties to always be true we need to place some conditions which we are going to list in the following section. Our approach guarantees that if all the properties mentioned are fulfilled the program will be protected against any ROP attack.
+For these properties to always be true we need to place some conditions which we are going to list in the following section. Our approach guarantees that if all the properties mentioned are fulfilled then the program is protected against ROP attacks.
 
 \subsection{Analysis of the approach}
 \label{sub:Analysis of the approach}
@@ -569,17 +569,17 @@ The solution we have just presented can bring very strong security properties ag
 
 \paragraph{Stack modifications.}
 \label{par:Stack modifications}
-Every operation that disrupts the stack structure may nullify our property that says ``every return addresses are separated by a fixed offset''. For example x86 architecture use the ESP register to keep track of the stack growth. If we fiddle with it we may introduce a shift in the return addresses location. Then our runtime check of the return addresses locations property $a~mod~n=0$ would not be relevant anymore.
-		For example, the Figure~\ref{inline_assembly} shows a piece of inline assembly which disrupts the stack line~2. Inline assembly allows one to put some assembly code in the middle of C code. Here the assembly decrements the stack pointer stored in ESP. By doing so the stack will be shifted by an amount of 50 bytes and our formula to the locations of return addresses will not be correct anymore.
+Every operation that disrupts the stack structure may nullify our property that says ``every return addresses are separated by a fixed offset''. For example x86 architecture use the ESP register to keep track of the stack growth. If we fiddle with it we may introduce a shift in the return addresses locations. Then our runtime check of the return addresses locations property $a~mod~n=0$ would not be relevant anymore.
+		For example, Figure~\ref{inline_assembly} shows a piece of inline assembly which disrupts the stack line~2. Inline assembly allows one to put some assembly code in the middle of C code. Here the assembly decrements the stack pointer ESP. By doing so the stack is shifted by an amount of 50 bytes and our formula for the locations of return addresses is not correct anymore.
 
 \paragraph{Insecure libraries.}
 \label{par:Insecure libraries}
 
-For our approach to work we need to have all dangerous write statements to contain our runtime checks. Hence all executed code must have been compiled with our transformation. For example, the \textit{glibc} library of C contains multiple insecure functions like \textit{printf, strcpy\dots} Furthermore those flawed functions are common vulnerabilities for \textit{buffer overflows} attacks which are a type of ROP attack. To avoid this issue we would need to rewrite the glibc or compile it with our tools.
+For our approach to work we need to have all dangerous write statements to contain our runtime checks. Hence all executed code must have been compiled with our transformation. For example, the C library \textit{glibc} contains multiple insecure functions like \textit{printf, strcpy\dots} Furthermore those flawed functions are common vulnerabilities for \textit{buffer overflows} attacks which are a type of ROP attack. To avoid this issue we need to rewrite the glibc or compile it with our tools.
 
 \paragraph{Modules need the same offset.}
 \label{par:Modules need the same offset}
-If a program uses multiple modules or library they need to be compiled with the same offset $n$. Indeed if the offset of the different modules are different we cannot use the previously defined relation $a~mod~n=0$ cannot be used anymore. Thus it is not possible to easily know if a location corresponds to a return address.
+If a program uses multiple modules or libraries, they need to be compiled with the same offset $n$. Indeed if the offset of the different modules are different we cannot use the previously defined relation $a~mod~n=0$ anymore. Thus it is not possible to easily know if a location corresponds to a return address.
 
 \begin{figure}[!ht]
 %asm(''sub $50, %esp'');
@@ -603,24 +603,24 @@ int foo(int a) {
 
 	The benefits of our transformation is clear, any code compiled with a compiler enforcing our methods is unable to interfere with the control flow of our program through return addresses.
 	Furthermore if we combine our solution with the SFI presented earlier we can have some strong security properties on the execution of dangerous modules with our main program.
-Our approach may also have some impact on portability and efficiency:
+In return our approach may also have some impact on portability and efficiency:
 
 \paragraph{Architecture dependant.}
 \label{par:Architecture dependant}
-Our solution depends a lot of the stack layout of the program.
+Our solution depends a lot on the stack layout of the program.
 Indeed fixing the size of the frames requires us to modify the original stack layout.
-Therefore since the stack layout vary depending on the architecture and compiler you are using, the modifications that have to be done are also different.
-We can then easily comprehend that we would need a different implementations for every existing stack layout.
+Therefore since the stack layout varies depending on the architecture and compiler you are using, the modifications that have to be done are also different.
+We can then easily understand that we need a different implementation for every existing stack layout.
 Moreover since these layouts can be really different it might be quite complicated to implement our solution on certain of them.
-In the implementation we present after we focus solely on x86-32 architecture with the compiler CompCert.
+In the implementation we present after we focus solely on the x86-32 architecture with the compiler CompCert.
 
 \paragraph{Memory consumption.}
 \label{par:Memory consumption}
-Since we are fixing the size of the frames instead of having dynamic sizes the memory usage of the stack is bigger. We have the issue of choosing an adequate size for the frames in our solution. The easiest one is to take the maximum frame size of the program as the constant size for all the frames. The downside is that we might have a memory usage explosion from our stack.
-We did not encounter any issue about memory during the tests we did but the impacts may be visible on especially big programs. It might be interesting to study the efficiency of our approach on the growth of the stack.
+Since we are fixing the size of the frames instead of having dynamic sizes, the memory usage of the stack is bigger. We have the issue of choosing an adequate size for the frames in our solution. The easiest one is to take the maximum frame size of the program as the constant size for all the frames. The downside is that we might have a memory usage explosion from our stack.
+We did not encounter any issue about memory during the tests we made but the impacts may be visible on especially big programs. It might be interesting to study the effects of our approach on the growth of the stack.
 
 Despite the cons presented we believe the benefits we gain from this method is worth it.
-We are going to present in the following section the implementation we made based on the ideas we introduced here. This implementation was made with the compiler CompCert for the x86-32 architecture. We are targeting programs written in C, which explains that all the examples we used were related to the C language.
+We present in the following section the implementation we made based on the ideas we introduced here. This implementation was made with the compiler CompCert for the x86-32 architecture. We are targeting programs written in C, which explains that all the examples we used were related to the C language.
 
 
 \newpage
