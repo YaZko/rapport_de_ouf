@@ -39,9 +39,9 @@
 
 %write your abstract here
 \abstract{
-Software Fault Isolation (SFI) is a software method which allows one to isolate the execution of possibly dangerous modules, hence preventing any risks of corruption of our system due to these modules. Even though SFI has multiple benefits it still has troubles dealing with Returned Oriented Programing attacks which aims at diverting the control flow through the return addresses. During our internship we implemented a flexible solution against these attacks with the certified compiler CompCert. Our approach transforms the stack layout in order to easily know the locations of the return addresses enabling us to protect them from being overwritten illegally. 
-We made an implementation with CompCert which is almost complete that successfully blocks buffer overflows. 
-In return we have a diminution of the efficiency depending of the number of runtime checks added. However multiple ideas exist to reduce this overhead like having a finer detection of dangerous instructions with the use of static analysis.
+Software Fault Isolation (SFI) is a software method which allows one to isolate the execution of possibly dangerous modules, hence preventing any risks of corruption of our system due to these modules. Even though SFI has multiple benefits it still has difficulties dealing with Returned Oriented Programing attacks which aim at diverting the control flow through the return addresses. During the internship we implemented a flexible solution against these attacks with the certified compiler CompCert. Our approach transforms the stack layout in order to easily know the locations of the return addresses enabling us to protect them from being overwritten illegally. 
+We made an implementation that was able to successfully protect our system from buffer overflows. 
+In return we have a diminution of the efficiency depending on the quantity of protection added. However multiple ideas exist to reduce this overhead like having a finer detection of the vulnerabilities of the compiled code with the use of static analysis.
 }
 \setcounter{tocdepth}{2}
 \begin{document}
@@ -51,31 +51,31 @@ In return we have a diminution of the efficiency depending of the number of runt
 
 \newpage
 \section{Introduction}
-IT projects regularly need to use external modules in their programs. However these modules can come from unknown sources and we don't have any guarantees that they don't contain any bugs or malicious code. Software Fault Isolation is an approach which wants to face this issue by verifying certain security properties during the execution of the dangerous modules.
+IT projects regularly need to use external modules in their programs. However these modules can come from unknown sources and we don't have any guarantees that they don't contain any bugs or malicious code. Software Fault Isolation is an approach which purpose is to face this issue by verifying certain security properties during the execution of the dangerous modules.
 
 A rising interest for the techniques of Software Fault Isolation (SFI) has appeared in the field of cyber security. SFI is a mean to protect the memory of a program with software solutions. 
 The idea is that a protected program can load in its own memory space dangerous modules without them being able to compromise its execution.
 To make it happen, SFI isolates the dangerous modules in reserved areas of the memory called sandboxes. This operation is realised by a code generator that modifies the code of the dangerous modules in order to have them comply with the security properties defined by SFI. 
-Afterwards the modified code of the modules will go though a verifier that will check that the modifications introduced before are present and valid.
+Afterwards the modified code of the modules goes through a verifier that checks that the modifications introduced before are present and valid.
 
 SFI techniques are applicable in multiple fields. An implementation has already been made for Google Chrome~\cite{Yee:2010:NCS:1629175.1629203}\cite{Sehr:2010:ASF:1929820.1929822} called NativeClient. We can also imagine using SFI for critical systems that have to execute external modules.
 For example computer clusters or system kernels could require the use of SFI to safely execute external modules.
 
-SFI has multiple strong points which explains its current appeal. Firstly, we can note high performances due to the execution of the modules natively in the address space of the protected program. This trait is quite important since the most popular memory protection mechanisms nowadays use hardware solutions and suffer from great overheads. Another benefit of SFI is that it requires a relatively small \textit{Trusted Computing Base} (TCB). Indeed only the verifier needs to be in the TCB and not the code generator. Having a small TCB means that only a minor portion of the code (the verifier) needs to be trusted to have a correct implementation of SFI.
+SFI has multiple strong points which explains its current appeal. Firstly, we can note high performances due to the execution of the modules natively in the address space of the protected program. This trait is quite important since the most popular memory protection mechanisms use hardware solutions and suffer from great overheads. Another benefit of SFI is that it requires a relatively small \textit{Trusted Computing Base} (TCB). Indeed only the verifier needs to be in the TCB and not the code generator. Having a small TCB means that only a minor portion of the code (the verifier) needs to be trusted to have a correct implementation of SFI.
 
-However SFI has still difficulties to deal with the protection of the \texttt{ret} instruction that uses return addresses on the stack. A big part of modern attacks like \textit{Return Oriented Programming} attacks focus on deviating the control flow through return addresses. Therefore it is absolutely necessary to have a good protection for return addresses. The SFI solutions found in the literature are not easily adaptable or bring a lot of overhead to the compiled modules. \\
+However SFI has still difficulties to deal with the protection of \texttt{ret} instructions that use return addresses stored on the stack. A big part of modern attacks, like \textit{Return Oriented Programming} attacks, focus on deviating the control flow through these return addresses. Therefore it is absolutely necessary to have a good protection method for return addresses. The SFI solutions found in the literature are not easily adaptable or bring a lot of overhead to the compiled modules. \\
 Hence we propose a solution which is more flexible and faster to address this specific issue of SFI.
 The idea is to modify the stack structure to have an easy way to figure out the return addresses locations in the stack.
-We set the frames size to a constant value in order to have the return addresses separated by a fix offset. Afterwards we modify the dangerous code by adding runtime checks  which take advantages of the new stack layout to prevent any instruction to overwrite the return addresses. 
+We set the frames size to a constant value in order to have the return addresses separated by a fix offset. Afterwards we modify the dangerous code by adding runtime checks which take advantages of the new stack layout to prevent any instruction to overwrite the return addresses. 
 
-This internship report will firstly present Software Fault Isolation, its principles, the existing implementations and especially a version using CompCert the certified compiler. CompCert will also be the compiler we chose to implement our solution to defend programs against ROP attacks. We will then present an overview of our approach with fixed frames size with a discussion of our idea. Afterwards we will explain in details the implementation we made of our approach with CompCert during the span of the internship. To conclude we will evaluate the different results obtained with our implementation and propose ideas to improve our solution in the future.
+This internship report will firstly present Software Fault Isolation, its principles, the existing implementations and especially a version using CompCert the certified compiler. CompCert is also be the compiler we chose to implement our solution in order to defend programs against ROP attacks. We will then present an overview of our approach with fixed frames size with a discussion of our idea. Afterwards we will detail the implementation we made of our approach with CompCert during the span of the internship. To conclude we will evaluate the different results obtained with our implementation and suggest ideas to improve our solution in the future.
 
 
 \newpage
 \section{Software Fault Isolation}
 \label{sec:sfi}
 
-	We introduce here \textit{Software Fault Isolation} (SFI) which inspired us the idea to protect return addresses through fixed stack frame size. SFI aims to protect a main program from the different modules that it will need to use. These modules will be loaded in the same memory space as the main program but in a confined area called \textit{sandbox}. The SFI mechanism is composed of two elements: a code generator and a verifier. The generator transforms the assembly code of the hazardous modules so that they will be constrained in the sandbox. The verifier operates just before loading the modules in the memory. It checks the if SFI transformations introduced by the generator are still present and valid. For the rest of the document we will reserve the word ''program'' to refer to the code protected by SFI and ''module'' to refer to the hazardous code.
+	We introduce here \textit{Software Fault Isolation} (SFI) which inspired us the idea to protect return addresses through fixed stack frame size. SFI aims at protecting a main program from the different modules that it will need to use. These modules will be loaded in the same memory space as the main program but in a confined area called \textit{sandbox}. The SFI mechanism is composed of two elements: a code generator and a verifier. The generator transforms the assembly code of the hazardous modules so that they will be constrained in the sandbox. The verifier operates just before loading the modules in the memory. It checks if the SFI transformations introduced by the generator are still present and valid. For the rest of the document we will reserve the word ''program'' to refer to the code protected by SFI and ''module'' to refer to the hazardous code.
 
 \subsection{Principle}
 
@@ -83,31 +83,31 @@ The main principle behind SFI was first presented in the work of Wahbe and al.~\
 Later works that will be introduced Chapter~\ref{sub:sfi_other} are all based on the foundations of SFI detailed here.
 The implementation described here was realised for a RISC architecture like MIPS or \textit{Alpha}.
 
-SFI considers that a malicious code is effectively contained in the sandbox if these three security properties hold true:
+SFI considers that a malicious code is effectively contained in the sandbox if these three security properties are true:
 \begin{itemize}
 	\item \textbf{Verified code}, only instructions that have been checked by the verifier will be executed 
 	\item \textbf{Memory safety}, malicious modules will not do any \textit{write} or \textit{jump} operations out of the sandbox
 	\item \textbf{Flow control integrity}, every flow control transfer from hazardous modules to the main program is identified and verified
 \end{itemize}
-The first property protects us against self-modifying code which could bypass the SFI measures. \textit{Memory safety} prevents any illegal access to the memory of the protected program. The last property allows us to authorized only licit interactions between the program and its modules. SFI forbids any call from malicious modules that could modify the flow control of the program. If the flow control was fiddled with, it could lead to an unexpected behaviour of the program which we want to avoid.
+The first property protects us against self-modifying code which can bypass the SFI measures. \textit{Memory safety} prevents any illegal access to the memory of the protected program. The last property allows us to authorize only licit interactions between the program and its modules. SFI forbids any call from malicious modules that can modify the flow control of the program. If the flow control is compromised, it can lead to an unexpected behaviour of the program which we want to avoid.
 
-The code generator transforms the assembly code of the hazardous modules so that they respect the security properties presented before. The generator is integrated to the compiler which will create a \textit{sandboxed executable}. Afterwards this executable will be checked by the verifier before being loaded into the memory. 
+The code generator transforms the assembly code of the hazardous modules so that they respect the security properties presented before. The generator is integrated to the compiler which will create a sandboxed executable. Afterwards this executable will be checked by the verifier before being loaded into the memory. 
 The verifier checks that the transformations introduced by the generator are present and valid. 
-If the verification fails the module will be rejected and will not be executed. We can note that we only need to trust the verifier to prevent running any dangerous module. 
+If the verification fails the module will be rejected and will not be executed. We can note that we only need to trust the verifier to avoid running any dangerous module. 
 It is one advantage of SFI, only the verifier needs to be in the \textit{Trusted Computing base} (TCB).
 
 
 \subsubsection{Code generator}
 \label{ssub:Code generator}
-To protect the program from its modules, the generator will restrain every write and jump instructions of the modules to addresses of their sandbox.
-The generator has to face three issues to do so. The first one is to introduce protection mechanisms before every dangerous instructions. For example, assessing that the destination address of a jump instruction is an authorized one.
+To protect a program from its modules, the generator will restrain every write and jump instructions of the modules to addresses of their sandbox.
+The generator has to face three issues to do so. The first one is to introduce protection mechanisms before every dangerous instructions. For example preventing any destination address of jump instructions to be located out of the sandbox.
 Secondly, we have to make sure that these protection mechanisms can't be avoided. 
-Finally, the transformations introduced have to only authorized legal calls from the sandbox to the protected program by using entry points specified by the latter. For example, Google Chrome only allows its modules to use a specific interface to interact with the browser. This way the modules can't disrupt the flow control of Google Chrome easily.
+Finally, the transformations injected have to authorized only legal calls from the sandbox to the protected program by using entry points specified by the latter. For example, Google Chrome only allows its modules to use a specific interface to interact with the browser. This way the modules can't disrupt the flow control of Google Chrome easily.
 \paragraph{Confining memory accesses.}
 \label{par:Confining memory accesses}
-The main program memory should avoid being corrupted by its modules. SFI aims to isolate these modules in a reserved area of the program memory called sandbox.
+The main program memory should avoid being corrupted by its modules. SFI aims at isolating these modules in a reserved area of the program memory called sandbox.
 The sandbox is a contiguous memory area which size is a power of two. These requirements ease the confinement of the modules in their sandbox by allowing the use of bit arithmetic which accelerates the process.
-In fact two sandbox are allocated, the first one for the code segment and the second for the data segment. In these conditions we only need to verify that the most significant bits of the targeted address match those of the sandbox. For example, if we allocate to the sandbox the memory \texttt{[0xda000000~-~0xdaffffff]}, then all the addresses which most significant bits match \texttt{0xda} are located in the sandbox. Thus all the SFI transformations will restrain the memory writes and jumps to the addresses of the sandbox area. In our example, we will limit ourselves to the addresses whose most significant bits are \texttt{0xda}, this sequence of bits is also called \textbf{tag}. Each tag are specific to an unique sandbox and this designation will be used repeatedly in our report. 
+In fact two sandboxex are allocated, the first one for the code segment and the second for the data segment. In these conditions we only need to verify that the most significant bits of the targeted address match those of the sandbox. For example, if we allocate to a sandbox the memory \texttt{[0xda000000~-~0xdaffffff]}, then all the addresses which most significant bits match \texttt{0xda} are located in the sandbox. Thus all the SFI transformations will restrain the memory writes and jumps to the addresses of the sandbox area. In our example, we will limit ourselves to the addresses which most significant bits are \texttt{0xda}, this sequence of bits is also called \textbf{tag}. Each tag is specific to an unique sandbox and this designation will be used repeatedly in our report. 
 
 During the code generation phase every direct memory addressing will be easily detected with static analysis. 
 The transformation will be simple, the targeted addresses will simply have their most significant bits replaced by the tag of the sandbox. Another possible reaction is to reject the code if it is explicitly unsafe. The real issue appears when faced with a write or a jump using indirect memory addressing. Indeed in these cases the destination address is stored in a register and we can't access this value during the compilation. However to address this situation SFI injects in the code of the dangerous module runtime checks that are called \textit{sandboxing}.
@@ -120,17 +120,17 @@ The transformation will be simple, the targeted addresses will simply have their
 \end{figure}
 
 
-Figure~\ref{algo_sandbox} represents an example of the sandboxing operation. The sandboxing starts with a masking operation which sets the most significant bits of the address stored in the register \texttt{ebx} to zero. Afterwards the second instruction write the tag of the sandbox on the bits it just reinitialised before. Hence we are sure that the \texttt{jmp} instruction will target a location in the sandbox of the dangerous module. We can note that the sandboxing does not change the behaviour of the module if the targeted address was already in the sandbox. This principle is called \textit{transparency}, SFI transformations does not change the execution of safe programs. For the write instructions the principle is the same. We will inject the sandboxing instructions before every write in the memory using an address stored in a register.
+Figure~\ref{algo_sandbox} represents an example of the sandboxing operation. The sandboxing starts with a masking operation which sets the most significant bits of the address stored in the register \texttt{ebx} to zero. Afterwards the second instruction writes the tag of the sandbox on the bits it just reinitialised before. Hence we are sure that the \texttt{jmp} instruction will target a location in the sandbox of the dangerous module. We can note that the sandboxing does not change the behaviour of the module if the targeted address was already in the sandbox. This principle is called \textit{transparency}, SFI transformations does not change the execution of safe programs. For the write instructions the principle is the same. We inject the sandboxing instructions before every write that can endanger our program.
 
 \paragraph{Protection of sandboxing mechanisms.}
 \label{par:Protection of sandboxing mechanisms}
-We made sure in the previous section that any dangerous modules can't either jump or write on a location out of its sandbox. Now we also want to protect the sandboxing operations to prevent any malicious code to bypass the runtime checks inserted by SFI. Using the example Figure~\ref{algo_sandbox}, we could imagine code which directly jumps on the \texttt{jmp eax} instruction. To protect the sandboxing, the solution is to establish dedicated registers exclusively used for sandboxing. These registers won't be available anymore for the rest of the code. Sandboxing requires three dedicated registers for each sandbox. First register will be used to keep the mask value (\texttt{0x00111111} in Figure~\ref{algo_sandbox}). Second register is reserved to store the tag of the concerned sandbox (\texttt{0xda000000} in Figure~\ref{algo_sandbox}). And the third dedicated register is used to manage the operations contained in the sandboxing, in our example Figure~\ref{algo_sandbox} it would be the register \texttt{eax}. This way during the whole execution of the dangerous module \texttt{eax} will only store addresses of its sandbox. Then even if malicious code can jump directly to the instruction \texttt{jmp eax} we will still be sure that we will stay in the sandbox. 
-Worst case scenario the value stored in \texttt{eax} was wrong and the dangerous module crash or has unexpected behaviour. As long as the protected program is not affected the protection is considered successful.
+We made sure in the previous section that any dangerous modules can't either jump or write on a location out of its sandbox. Now we also want to protect the sandboxing operations to prevent any malicious code to bypass the runtime checks inserted by SFI. Using the example Figure~\ref{algo_sandbox}, we could imagine code which directly jumps on the \texttt{jmp eax} instruction. To protect the sandboxing, the solution is to establish dedicated registers exclusively used for sandboxing. These registers won't be available anymore for the rest of the code. Sandboxing requires three dedicated registers for each sandbox. First register is used to keep the mask value (\texttt{0x00111111} in Figure~\ref{algo_sandbox}). Second register is reserved to store the tag of the concerned sandbox (\texttt{0xda000000} in Figure~\ref{algo_sandbox}). And the third dedicated register is used to manage the operations contained in the sandboxing, in our example Figure~\ref{algo_sandbox} it would be the register \texttt{eax}. This way during the whole execution of the dangerous module \texttt{eax} only stores addresses of its sandbox. Then even if malicious code can jump directly to the instruction \texttt{jmp eax} we will still be sure that it stays in the sandbox. 
+Worst case scenario would be that the value stored in \texttt{eax} was wrong and the dangerous module crash or has unexpected behaviour. As long as the protected program is not affected the protection is considered successful.
 These dedicated registers are never used by the rest of the code and their values can't change except during sandboxing operations.
 
-Since we have two sandboxes, one for the data and one for the code we then have a total of six dedicated registers. However SFI manages to reduce the number of dedicated registers to five by using a common mask value for both the sandbox.
+Since we have two sandboxes, one for the data and one for the code we then have a total of six dedicated registers. However SFI manages to reduce the number of dedicated registers to five by sharing the same mask for both the sandbox.
 
-We can question ourselves on the efficiency of SFI when we remove five registers for the execution of the normal code. However, in the modern RISC architecture like MIPS or Alpha there are generally 32 registers. Moreover the experiments~\cite{Wahbe:1993:ESF:173668.168635} show that removing five registers for the gcc compiler impacted insignificantly the efficiency of the programs tested.
+We can question ourselves on the efficiency of SFI when we remove five registers for the execution of the normal code. However, in the modern RISC architecture like MIPS or Alpha there are generally 32 registers. Moreover the experiments~\cite{Wahbe:1993:ESF:173668.168635} show that removing five registers for the gcc compiler impacts insignificantly the efficiency of the programs tested.
 
 \paragraph{Controlled interactions with the protected program.}
 \label{par:Controled interactions with the protected program}
@@ -138,20 +138,21 @@ We can question ourselves on the efficiency of SFI when we remove five registers
 	It is necessary for SFI to also control the different interactions that dangerous modules have with the main program. Without restrictions, malicious modules could, for example, make function calls with wrong parameters which could compromise the state of the main program. 
 To avoid such situation, SFI needs the main program to define an interface which describes all the authorized entry points available to external modules. This interface also includes the range of authorized values for the different parameters. 
 For example Google Chrome has created an API which can be called by the different modules to access the resources of the browser.
-SFI will then transform the modules so that every interaction with the main program will be done through connectors called \textit{stubs}. These stubs are part of the Trusted Computing Base (TCB) of SFI. In relation with the interface of the main program, the stubs make sure that function calls from the dangerous module to the main program are licit. If they are not, the stubs will reject the function calls. 
-System calls are controlled the same way, the stubs will first check the call and if it is authorized it will transmit the system call to the main program. Then the main program will execute the system call to the kernel and return the results to the module.
+SFI then transforms the modules so that every interaction with the main program is done through connectors called \textit{stubs}. These stubs are part of the Trusted Computing Base (TCB) of SFI. In relation with the interface of the main program, the stubs make sure that function calls from dangerous module to the main program are licit. If they are not, the stubs reject the function calls. 
+System calls are controlled the same way, the stubs first check the call and if it is authorized they transmit the system call to the main program. Then the main program executes the system call to the kernel and returns the results to the module.
 
 \subsubsection{Code verifier}
 \label{ssub:Code verifier}
-The verifier is the last element of the SFI chain. Consequently it is necessary for it to be part of the TCB contrary to the code generator. Even if the code generator is flawed the verifier will reject every executable which does not comply with the SFI requirements. Nevertheless the verifier relies on the generator work to do the checking. The verifier analysis just asserts that the SFI transformations made by the generator are present and valid. Therefore it's not possible for a binary which does not go through the generator to be validated by the verifier even if the binary is safe.
+The verifier is the last element of the SFI chain. Consequently it is necessary for it to be part of the TCB contrary to the code generator. Even if the code generator is flawed the verifier rejects every executable which does not comply with the SFI requirements. Nevertheless the verifier relies on the generator work to do the checking. The verifier analysis just asserts that the SFI transformations made by the generator are present and valid. Therefore it's not possible for a binary which does not go through the generator to be validated by the verifier even if the binary is safe.
 
-The first step of the verification is to disassemble the given binary. The implementation of Wahbe et al.~\cite{Wahbe:1993:ESF:173668.168635} was made for the architectures MIPS and Alpha. In these architectures all the instructions are 32 bits long. This particularity makes the disassembly easier since we just need to treat sequences of 32 bits. The second step is to check that the SFI transformations are present and valid. The first condition is that the registers dedicated to store the mask and the tags should never be modified. Afterwards we need to check that the sandboxing operations are done correctly. For that we define in the modules some sandboxing areas. These areas begin every time that one of the dedicated registers is modified. Then these sandboxing areas are closed when we do a jump or a write with a dedicated register or when there are no instructions left. To validate a sandboxing area we verify that the dedicated register used for the jump or the write will have an authorized value at then end of the area. In other words the dedicated register will have a value whose most significant bits are equal to the tag of the sandbox.
+The first step of the verification is to disassemble the given binary. The implementation of Wahbe et al.~\cite{Wahbe:1993:ESF:173668.168635} was made for the architectures MIPS and Alpha. In these architectures all the instructions are 32 bits long. This particularity makes the disassembly easier since we just need to treat sequences of 32 bits. The second step is to check that the SFI transformations are present and valid. The first condition is that the registers dedicated to store the mask and the tags should never be modified. Afterwards we need to check that the sandboxing operations are done correctly. For that we define in the modules some sandboxing areas. These areas begin every time that one of the dedicated registers is modified. Then these sandboxing areas are closed when we do a jump or a write with a dedicated register or when there are no instructions left. To validate a sandboxing area we verify that the dedicated register used for the jump or the write will have an authorized value at then end of the area. In other words we make sure that the dedicated register stores a value which most significant bits are equal to the tag of the sandbox.
 
 \subsubsection{Pros and cons}
 \label{ssub:Pros and cons}
 
-SFI aims to isolate the execution of dangerous modules in a designated area of the protected program memory. For this, SFI is composed of a code generator tasked with producing a sandboxed binary and a verifier which checks if the executable complies with the SFI properties.
-It is imperative that the verifier is part of the TCB in order to have SFI only accept safe code. We can note that to be functional SFI does not need an extensive TCB, only the verifier needs to be part of it. Another advantage is that SFI is not language dependant, the approach does not depend of the source language of the code. In return SFI is architecture dependant, the transformations will not be the same on x86 or on MIPS. Another con is that the sandboxed code is also less efficient and also bigger. Nevertheless only the dangerous modules are sandboxed which usually represents a minor part compared to the whole execution. A last inconvenient is that the presented implementation only includes MIPS and Alpha architecture but later works adapt SFI to other architectures.
+SFI aims at isolating the execution of dangerous modules in a designated area of the protected program memory. For this, SFI is composed of a code generator tasked with producing a sandboxed binary and a verifier which checks if the executable complies with the SFI properties.
+It is imperative for the verifier to be  part of the TCB in order to have SFI only accept safe code. %TODO
+We can note that to be functional SFI does not need an extensive TCB, only the verifier needs to be part of it. Another advantage is that SFI is not language dependant, the approach does not depend on the source language of the code. In return SFI is architecture dependant, the transformations will not be the same on x86 or on MIPS. Another con is that the sandboxed code is also less efficient and also bigger. Nevertheless only the dangerous modules are sandboxed which usually represent a minor part compared to the whole execution. A last inconvenient is that the presented implementation only includes MIPS and Alpha architecture but later works adapt SFI to other architectures.
 
 \subsection{SFI for other architectures}
 \label{sub:sfi_other}
@@ -162,7 +163,8 @@ In the work of Wahbe et al.~\cite{Wahbe:1993:ESF:173668.168635} the methods used
 	Contrary to RISC architecture in a CISC architecture the instructions may have different lengths. This particularity introduces two issues for SFI. First of all it is possible for an instruction to jump in the middle of another instruction which would totally change the flow of the program. Moreover the disassembly phase of the verifier becomes much more complex and the assembly obtained is not always reliable.
 In RISC architecture there is a natural alignment since all the instructions are 32 bits long. The processor then always makes sure that it jumps on an address respecting the 32 bits alignment. This way the code is protected from this kind of threats. In CISC it becomes a serious issue which can't be ignored by SFI.
 
-To face this problem, Pittsfield~\cite{Mccamant_evaluatingsfi} proposes to create an artificial alignment using chunks of memory of constant size. To have this approach work the sandboxed code needs to verify some additional properties:
+To face this problem, Pittsfield~\cite{Mccamant_evaluatingsfi} proposes to create an artificial alignment using chunks of memory of constant size.
+To have this approach work the sandboxed code needs to verify some additional properties:
 \begin{enumerate}
 	\item The sandbox is divided by chunks of constant length equal to a power of two
 	\item Every instruction targeted by a jump has to be located at the beginning of a chunk
@@ -171,13 +173,13 @@ To face this problem, Pittsfield~\cite{Mccamant_evaluatingsfi} proposes to creat
 	\item Every chunk which are not full are filled with \texttt{no-op} instructions
 \end{enumerate}
 
-The first rule allows us to create an artificial alignment on the chunks length. The rule number 2 enforces the property that every destination of a jump instruction will be aligned. In other words with memory chunks of sixteen bits, every jump will have its target address with the four least significant bits equal to zero. 
-The rule~3 guarantees us that every return address from a function call will be the beginning of a chunk and then will be aligned. The rule number 4 is necessary for the instructions to respect the artificial alignment. \\
-From all these rules we can deduce an atomicity property for the memory chunks. More explicitly, since it is not possible to jump in the middle of a chunk we can be certain that all the instructions of a memory chunk will be executed atomically.
-This atomicity property is a big gain for SFI because it allows us free ourselves from the use of dedicated registers to SFI. Indeed these dedicated registers were used in order to prevent bypassing the sandboxing of dangerous write or jump. By using the artificial alignment we can make sure that it is not possible to avoid the sandboxing operation and execute the dangerous instruction directly.
-We just need to gather all the sandboxing operations with their dangerous instruction in the same memory chunk, the atomicity of the chunks will then protect our mechanism.
+The first rule allows us to create an artificial alignment on the chunks length. The rule number 2 enforces the property that every destination of a jump instruction is aligned. In other words with memory chunks of sixteen bits, every jump has its target address with the four least significant bits equal to zero. 
+The rule~3 guarantees us that every return address from a function call is the beginning of a chunk and then is aligned. The rule number 4 is necessary for the instructions to respect the artificial alignment. \\
+From all these rules we can deduce an atomicity property for the memory chunks. More explicitly, since it is not possible to jump in the middle of a chunk we can be certain that all the instructions of a memory chunk are executed atomically.
+This atomicity property is a big gain for SFI because it allows us to free ourselves from the use of dedicated registers. Indeed these dedicated registers were used in order to prevent bypassing the sandboxing of dangerous write or jump. By using the artificial alignment we can make sure that it is not possible to avoid the sandboxing operation and execute the dangerous instruction directly.
+We just need to gather all the sandboxing operations with their dangerous instruction in the same memory chunk, the atomicity of the chunks then protects our mechanism.
 
-The downside of this approach is that the artificial alignment slows down the execution of the modules concerned. Benchmarks carried out show a diminution of the average performances by 21\% compared to a non-modified module.
+The downside of this approach is that the artificial alignment slows down the execution of the modules concerned. Benchmarks carried out show a decrease of the average performance by 21\% compared to a non-modified module.
 
 \subsubsection{NativeClient the implementation of SFI by Google}
 \label{ssub:NativeClient the implementation of SFI by Google}
@@ -196,7 +198,7 @@ The first version of NaCl (Native Client) was developed for the architecture x86
 \end{figure}
 
 
-NaCl uses x86 memory segments to confine the data memory area in continuous memory area. These memory segments are then used as natural sandbox for the writing instructions. Therefore we don't need to do sandboxing operations for write instructions since it is handled natively by the processor.
+NaCl uses x86 memory segments to confine the data memory area in continuous memory area. These memory segments are then used as a natural sandbox for the writing instructions. Therefore we don't need to do sandboxing operations for write instructions since it is handled natively by the processor.
 
 Afterwards we still need to confine the jump instructions to the sandbox. NaCl uses the memory segment \texttt{CS} which is a code segment. We force the segment to start at the address 0 like indicated by the rule C2 of Figure~\ref{nacl_constraints}. This way the most significant bits of the addresses in the sandbox are equal to 0 and we can then reduce the sandboxing to two operations instead of three like presented Figure~\ref{nacl_jump}.
 Moreover NaCl guarantees us that the destination address is a multiple of 32 (rule C5 of Figure~\ref{nacl_jump}). This technique is inspired from the approach using memory chunks seen earlier. This operation  is called \texttt{nacljmp} by NaCl (rule C3 of Figure~\ref{nacl_jump}).
@@ -208,16 +210,16 @@ Moreover NaCl guarantees us that the destination address is a multiple of 32 (ru
 \label{nacl_jump}
 \end{figure}
 
-We can see that the rules C1 and C6 of Figure~\ref{nacl_jump} guarantee us that the disassembly of the binary is reliable. C1 in particular allows NaCl to protect against auto modifying code. If those were accepted they would render SFI pointless. This way with a reliable disassembly NaCl can make sure that only the analysed instructions can be later executed. This core property to SFI is rarely evoked in the other works and NaCl is the only one which implements it explicitly.
+We can see that the rules C1 and C6 of Figure~\ref{nacl_jump} assure us that the disassembly of the binary is reliable. C1 in particular allows NaCl to protect programs against auto modifying code. If auto modifying modules were accepted they would render SFI pointless. This way with a reliable disassembly NaCl can make sure that only the analysed instructions can be later executed. This core property to SFI is rarely evoked in the other works and NaCl is the only one which implements it explicitly.
 
-NaCl also choses to forbid system calls, instructions that modify the memory segments state and replace the \texttt{ret} instruction with a \texttt{pop} and a \texttt{nacljmp} to the return addresses.
+NaCl also chooses to forbid system calls, instructions that modify the memory segments state and replace the \texttt{ret} instruction with a \texttt{pop} and a \texttt{nacljmp} to the return addresses.
 This last measure was taken to control the inherent vulnerability of \texttt{ret} instruction. \texttt{ret} uses an address stored in the stack as its destination address. Since the return addresses are read from the stack they are subject to concurrency from the different threads. Therefore even if we add a runtime check on the values of return addresses we do not have the guarantee that the value has not changed between the sandboxing and the execution time of \texttt{ret} (Time Of Check Time Of Use).
 
 \paragraph{NativeClient for X86-64 and ARM.}
 \label{par:NativeClient for X86-64 and ARM.}
 NaCl aims to be used with the popular browser Google Chrome, so Google needs to adapt its product to the most used architecture which are x86-64 and ARM (smartphones). These two versions of NaCl are evolutions from the x86-32 version modified to fit x86-64 and ARM specificities. For example, these two architectures do not have memory segments and NaCl was forced to reuse more classical methods of sandboxing for the write instructions. These implementations do not bring many novelties to SFI, hence we will not detail the work done but more information can be found on their publications~\cite{Sehr:2010:ASF:1929820.1929822}.
 
-To conclude on NaCl, the two implementations showed a light drop in the efficiency of 5\% for ARM and 7\% for x86-64. These satisfying results prove that SFI is viable for modern architectures to execute dangerous modules without risks. As we said before, NaCl is included in Google Chrome and it is possible to test it by downloading in the web store of Google compatible applications like Quake which is a classic of the video games world.
+To conclude on NaCl, the two implementations showed a slight decrease in efficiency of 5\% for ARM and 7\% for x86-64. These satisfying results prove that SFI is viable for modern architectures to execute dangerous modules without risks. As we said before, NaCl is included in Google Chrome and it is possible to test it by downloading in the web store of Google compatible applications like Quake which is a classic of the video games world.
 
 \subsection{SFI using a certified compiler}
 \label{sub:sfi_comp}
@@ -247,25 +249,25 @@ For example an operation without semantic in CompCert is an access out of the bo
 \label{par:Memory model of CompCert}
 CompCert uses an abstract representation of the memory for its semantics~\cite{compCert_memory_model}. This model is used to prove the correctness of the multiple compilation steps of CompCert. Therefore all the intermediary languages of CompCert share this memory model.
 
-The memory is represented by blocks of finite size and each are given a block number $b$. These blocks are separated and to access a precise location in each block we use an offset $\delta$. Pointers are then represented by the couple $(b,~\delta)$. It is also possible to represent function pointers which are represented by pointers with negative block numbers $b$. It can be surprising that such abstract model of the memory can give us enough finesse to represent our SFI transformations. However the fact that memory blocks are disjointed is enough to isolate a part of the memory. Thus one these memory blocks will be reserved as the sandbox of our implementation.
+The memory is represented by blocks of finite size and each are given a block number $b$. These blocks are separated and to access a precise location in each block we use an offset $\delta$. Pointers are then represented by the couple $(b,~\delta)$. It is also possible to represent function pointers which are represented by pointers with negative block numbers $b$. It can be surprising that such abstract model of the memory can give us enough finesse to represent our SFI transformations. However the fact that memory blocks are disjointed is enough to isolate a part of the memory. Thus one of these memory blocks will be reserved as the sandbox of our implementation.
 
 \subsubsection{SFI with CompCert}
 \label{ssub:SFI with CompCert}
 
-We present an implementation of SFI with CompCert that was done by Joshua A. Kroll, Gordon Stewart et Andrew W. Appel~\cite{Kroll:2014:PSF:2708449.2708686}. The approach is composed of two parts, first of all SFI transformations are done in the intermediary language Cminor. We will then get a sandboxed Cminor code with the properties of SFI. The correctness theorem of CompCert guarantees that if the sandboxed Cminor is \textit{safe} in the definition of CompCert then the produced code will also verify the properties of SFI.
-This way, the verifier present in the traditional approach is not necessary anymore since CompCert gives us equal guarantees. Hence this approach of SFI will not need a verifier in its TCB which is an advantage.
+We present an implementation of SFI with CompCert that was done by Joshua A. Kroll, Gordon Stewart et Andrew W. Appel~\cite{Kroll:2014:PSF:2708449.2708686}. The approach is composed of two parts. Firstly, all the SFI transformations are done in the intermediary language Cminor. We will then get a sandboxed Cminor code verifying the properties of SFI. The correctness theorem of CompCert guarantees that if the sandboxed Cminor is \textit{safe} in the definition of CompCert then the produced code will also verify the properties of SFI.
+This way, the verifier used in the traditional approach is not necessary anymore since CompCert gives us equal guarantees. Hence this approach of SFI will not need a verifier in its TCB which is an advantage.
 
 \paragraph{Cminor.}
 \label{par:Cminor}
 
-Cminor is an intermediary language created for CompCert. It is similar to a simplified version of C where we remove the type of the variables. Cminor was chosen for the SFI transformation because it is the lowest level language in the compilation steps of CompCert which is still architecture independent. This way, SFI transformations done in Cminor will be architecture independent as well. Moreover Cminor is also low level enough to be an intermediary language for other source language other than C. For these different reasons Cminor is the ideal candidate for the sandboxing operations of SFI.
+Cminor is an intermediary language created for CompCert. It is similar to a simplified version of C where we remove the type of the variables. Cminor was chosen for the SFI transformation because it is the lowest level language in the compilation steps of CompCert which is still architecture independent. This way, SFI transformations done in Cminor will be architecture independent as well. Moreover Cminor is also low level enough to be an intermediary language for source languages other than C. For these different reasons Cminor is the ideal candidate for the sandboxing operations of SFI.
 
 \paragraph{Specification of the SFI transformation.}
 \label{par:Specification of the SFI tranformation}
-SFI techniques give us the following property. Any implementation of SFI should be able to transform any dangerous module into a module which respects the properties imposed by SFI. Therefore even for a semantically ill-defined module, CompCert-SFI is supposed to produce SFI compliant code.
+SFI techniques give us the following requirement. Any implementation of SFI should be able to transform any dangerous module into a module which respects the properties imposed by SFI. Therefore even for a semantically ill-defined module, CompCert-SFI is supposed to produce SFI compliant code.
 In this case the sandboxed Cminor needs to verify these two properties:
 \begin{itemize}
-	\item the sandboxed Cminor confined all the memory accesses to its sandbox
+	\item the sandboxed Cminor confines all the memory accesses to its sandbox
 	\item the sandboxed Cminor needs to be safe semantically in order to be able to use CompCert correctness theorem
 \end{itemize}
 
@@ -274,7 +276,7 @@ However if the source program is already secure the SFI implementation will not 
 
 \paragraph{Masking in CompCert.}
 \label{par:Masking in CompCert}
-The CompCert-SFI uses the memory model of CompCert to prove that the SFI properties injected in Cminor still hold after the compilation. To represent the masking operation in the semantic of CompCert a native CompCert \textit{mask} function was created. This \textit{mask} function was axiomatized to be able to prove that the SFI transformations does not change the semantic of secure programs.
+CompCert-SFI uses the memory model of CompCert to prove that the SFI properties injected in Cminor still hold after the compilation. To represent the masking operation in the semantic of CompCert a native CompCert \textit{mask} function was created. This \textit{mask} function was then axiomatized to be able to prove that the SFI transformations does not change the semantic of secure programs.
 For example one of the axiom of the \textit{mask} function is ``If a pointer already points to the memory block of the sandbox then \textit{mask} does not change its value''.
 
 \begin{figure}
@@ -286,12 +288,12 @@ For example one of the axiom of the \textit{mask} function is ``If a pointer alr
 
 \paragraph{SFI transformations}
 \label{par:SFI transformations}
-There are two ways in CompCert Cminor to allocate memory. The first one is to use an external function like \texttt{malloc} otherwise you allocate frames in the stack. Then we need to ensure that the dangerous module Cminor can only allocate memory in the sandbox like in Figure~\ref{psfi}. Therefore CompCert-SFI will transform the dangerous Cminor with multiple steps:
+There are two ways in CompCert Cminor to allocate memory. The first one is to use an external function like \texttt{malloc}, the other way is to allocate frames in the stack. Then we need to ensure that the Cminor dangerous code can only allocate memory in the sandbox like in Figure~\ref{psfi}. Therefore CompCert-SFI transforms the dangerous Cminor with multiple steps:
 \begin{itemize}
-	\item \textit{Creation of a secondary stack}, this second stack will be created in the SFI area. Hence all the local variables of the dangerous modules will be stored in this second stack and will stay in their sandbox. To create such stack in the sandbox, we create a modified \texttt{malloc} function that will only allocate memory in the sandbox. This SFI-\texttt{malloc} will then be used to allocate the different frames of the secondary stack like in Figure~\ref{shadow_stack}. 
-	\item \textit{Replacement of} \texttt{malloc}, like we said earlier an SFI-\texttt{malloc} was created that only allocates memory in the sandboxes. This SFI transformation will then replace all the classic \texttt{malloc} used with this SFI-\texttt{malloc} to confine the modules to their sandbox.
+	\item \textit{Creation of a secondary stack}, this second stack is created in the SFI area. Hence all the local variables of the dangerous modules are stored in this second stack and stay in their sandbox. To create such stack in the sandbox, we create a modified \texttt{malloc} function that only allocates memory in the sandbox. This SFI-\texttt{malloc} is used to allocate the different frames of the secondary stack like in Figure~\ref{shadow_stack}. 
+	\item \textit{Replacement of} \texttt{malloc}, like we said earlier an SFI-\texttt{malloc} was created that only allocates memory in the sandboxes. This SFI transformation replaces all the classic \texttt{malloc} used with this SFI-\texttt{malloc} to confine the modules to their sandbox.
 	\item \textit{Masking the memory accesses}, we inject the \textit{mask} function described earlier before all possibly dangerous instructions.
-	\item \textit{Masking the function call}, memory areas are specially reserved to identify and control function pointers that could compromise the control flow of the program. Each memory area is dedicated to one authorized function of the protected program. Therefore the function pointers are redirected to these memory areas which we will control the interactions between the modules and the protected program.
+	\item \textit{Masking the function call}, memory areas are specially reserved to identify and control function pointers that could compromise the control flow of the program. Each memory area is dedicated to one authorized function of the protected program. Therefore the function pointers are redirected to these memory areas which control the interactions between the modules and the protected program.
 	\item \textit{Production of semantically safe code}, we want that all the code produced by SFI to be semantically well defined in CompCert. For this, we modify the Cminor to remove all semantically ill-defined code. For example, all the local variables which appear in the modules are initialised, we add runtime checks to prevent any division by zero or we verify that function calls match an existing function signature.
 \end{itemize}
 
@@ -306,21 +308,21 @@ There are two ways in CompCert Cminor to allocate memory. The first one is to us
 \subsubsection{Evaluation of the approach}
 \label{ssub:Evalutation of the approach}
 First of all a strong point of this approach is that it has a small \textit{Trusted Computing Base}. For the CompCert-SFI to be valid it is only necessary to trust that our SFI transformations which were not proven (like the axiomatized \textit{mask} function) does not change the behaviour of the dangerous modules. Moreover we need to trust CompCert, especially the small pieces which are not proven like the proof assistant Coq or the assembler. \\
-Another asset is that the absence of verifier of the approach which remove the necessity to develop a different verifier for every architecture targeted. Furthermore the SFI transformations are portable on every architecture supported by CompCert. Cminor is also a high level language, therefore the SFI transformations can still benefits from the optimization operations of CompCert and speed up the module. \\
-The performances obtained during the experiments are similar to a compromise between \texttt{gcc -O0} and \texttt{gcc -O1} for ARM a and x86-32. If we compare the efficiency with CompCert without SFI we have a drop of 21.7\% on x86-32 and 16.8\% on ARM.
+Another asset is the absence of verifier in the approach which removes the necessity to develop a different verifier for every architecture targeted. Furthermore the SFI transformations are portable on every architecture supported by CompCert. Cminor is also a high level language, therefore the SFI transformations can benefit from the optimization operations of CompCert which can speed up the transformed module. \\
+The performances obtained during the experiments are similar to a compromise between \texttt{gcc -O0} and \texttt{gcc -O1} for ARM a and x86-32. If we compare the efficiency with CompCert without SFI we have a decrease of 21.7\% on x86-32 and 16.8\% on ARM.
 
 However CompCert-SFI also got some downsides. First, the correctness property of CompCert does not apply for concurrent programs. Indeed CompCert does not have an operational semantic for multi-tasking programs which means we cannot ensure the SFI properties in this case. Also the CompCert-SFI approach forces us to compile the dangerous module to have sandboxed executables.
 Whereas in the traditional SFI the dangerous modules can be distributed as binaries, then we only need to have the approval of the verifier to execute them without dangers. \\
 
 
-\subsection{Limit of SFI}
+\subsection{Limits of SFI}
 \label{sub:Limits of SFI}
 
-We saw that SFI techniques confine jumps in the code differently depending of the addressing mode. For a direct addressing, the generator just rewrites directly the targeted address by replacing the most significant bits with the tag of the sandbox. For indirect addressing we added some runtime sandboxing operations to make sure that the targeted address stored in the register would be in the sandbox. There is also another way to make a jump which uses an address stored in the stack: the \texttt{ret} instruction. Since \texttt{ret} does not use any register we can't use our sandboxing operation here. We could just mask the value stored in the stack but like we mentioned Chapter~\ref{par:NaCl_32} this solution is vulnerable to race conditions. Indeed we can't guarantee that the value stored in the stack will not be overwritten by another thread between the runtime check and the execution of \texttt{ret}. Therefore the code is vulnerable to Returned Oriented Programing (ROP) attacks which will be presented in details Chapter~\ref{sub:rop_attack}. These attacks overwrite the return addresses located in the stack in order to modify the control flow of the program and possibly execute malicious code. 
+We saw that SFI techniques confine jumps in the code differently depending on the addressing mode. For a direct addressing, the generator just rewrites directly the targeted address by replacing the most significant bits with the tag of the sandbox. For indirect addressing we add some runtime sandboxing operations to make sure that the targeted address stored in the register is in the sandbox. There is also another way to make a jump which uses an address stored in the stack: the \texttt{ret} instruction. Since \texttt{ret} does not use any register we can't use our sandboxing operation here. We could just mask the value stored in the stack but like we mentioned Chapter~\ref{par:NaCl_32} this solution is vulnerable to race conditions. Indeed we can't guarantee that the value stored in the stack will not be overwritten by another thread between the runtime check and the execution of \texttt{ret}. Therefore the code is weak to Returned Oriented Programing (ROP) attacks which will be presented in detail Chapter~\ref{sub:rop_attack}. These attacks overwrite the return addresses located in the stack in order to modify the control flow of the program and possibly execute malicious code. 
 
-In the works presented only NativeClient~\cite{Yee:2010:NCS:1629175.1629203} addresses this issue. The idea is to remove all \texttt{ret} instructions and replace them by the composition of a \texttt{pop} and a \texttt{nacljmp} which is the SFI \texttt{jmp}. 
-This simple solution works but the modern processors use numerous optimizations linked to the use of \texttt{ret} instructions. Replacing \texttt{ret} instructions greatly decreases the efficiency of the programs. 
-Thus we propose in the following section a more flexible and efficient solution to protect return addresses against the famous ROP attacks and this solution could complete the SFI implementations presented perfectly. 
+In the works presented, only NativeClient~\cite{Yee:2010:NCS:1629175.1629203} addresses this issue. The idea is to remove all \texttt{ret} instructions and replace them by the composition of a \texttt{pop} and a \texttt{nacljmp} which is the SFI \texttt{jmp}. 
+This simple solution works but the modern processors use numerous optimizations reliant on the use of \texttt{ret} instructions. Replacing \texttt{ret} instructions greatly decreases the efficiency of the programs. 
+Thus we propose in the following section a more flexible and efficient solution to protect return addresses against the famous ROP attacks and this solution can complete the SFI implementations presented perfectly. 
 
 \newpage
 \section{Overview of the approach}
@@ -343,7 +345,7 @@ We will begin by a short introduction about the mechanisms behind the stack. The
 	The stack is a specific area of the memory of a program. The memory allocated to a program is divided among multiple areas like the stack (which we are going to detail), the heap (where we put dynamically allocated or global variables) and the code is also allocated in a specific area.
 The stack is composed of frames and each of them are related to a function being executed. Frames are piled up on the stack following the FIFO rule (\textit{First In First Out}). Explicitly, every time a function is called, a new frame is created and placed on the top of the stack. Reciprocally when a function terminates its frame will be popped out of the stack.
 Frames contain multiple kind of data related to their function like local variables, parameters of the function and return addresses. Return addresses indicates the point of execution to return to after a function terminates. When popping a frame the program is supposed to execute the code at the address matching the value contained in the return address.
-ROP attacks aims to overwrite these return addresses which enables them to execute malicious code hidden in another part of the memory instead of continuing the normal flow of the program.
+ROP attacks aims at overwriting these return addresses which enables them to execute malicious code hidden in another part of the memory instead of continuing the normal flow of the program.
 
 \subsubsection{Buffer overflow}
 \label{ssub:Buffer overflow}
@@ -430,7 +432,7 @@ Segmentation fault (core dumped)
 We want to be able to add runtime checks in the code like SFI, therefore we need to be able to check if an address is the location of a return address. 
 
 The biggest difficulty is to be able to know if a location in the stack corresponds to a return address or not. Indeed the stack grows through function calls which pile up stack frames. 
-These frames are constructed dynamically depending of the function, hence the locations of return addresses are not easily known.
+These frames are constructed dynamically depending on the function, hence the locations of return addresses are not easily known.
 As it is we do not have enough information to correctly protect return addresses since we do not know precisely where they are located.
 
 Several solutions exists against this issue. We could for example add a lot of meta-data during the compilation to have extra information and then effectively protect the return addresses. Another solution is to create a second stack called \textit{shadow stack}. We would then have complete control over the \textit{shadow stack} which allows us defend against ROP attacks.
@@ -512,7 +514,7 @@ We want our implementation to respect the property of transparency, if a program
 \end{figure}
 
 \hfill \break 
-	To sum it up, our approach aims to have an easy way to know return addresses location and then add a check at runtime before every dangerous instruction to prevent illegal writing on return addresses location.
+	To sum it up, our approach aims at having an easy way to know return addresses location and then add a check at runtime before every dangerous instruction to prevent illegal writing on return addresses location.
 To do this we divided the approach into four phases:
 \begin{enumerate}
 	\item Fix stack frames size
@@ -555,7 +557,7 @@ Basically we make it so the protection mechanism prevents any write on addresses
 Another property we did not mention yet is that all our transformations need to be transparent. In other words, if we apply our methods on a program which is already safe then its behaviour is not affected. We will explain how we ensure this property more thoroughly in Chapter~\ref{sec:implementation}.
 
 \hfill \break 
-For these properties to always hold true we need to place some conditions which we are going to list in the following section. Our approach guarantees that if all the properties mentioned are fulfilled the program will be protected against any ROP attack.
+For these properties to always be true we need to place some conditions which we are going to list in the following section. Our approach guarantees that if all the properties mentioned are fulfilled the program will be protected against any ROP attack.
 
 \subsection{Analysis of the approach}
 \label{sub:Analysis of the approach}
@@ -581,7 +583,7 @@ If a program uses multiple modules or library they need to be compiled with the 
 
 \begin{figure}[!ht]
 %asm(''sub $50, %esp'');
-\textcolor{green}{TODO substitute with the right syntax when finished}
+%TODO substitute with the right syntax when finished
 \begin{lstlisting}
 int foo(int a) {
 	asm(``\$sub 50, \%esp'');
@@ -607,7 +609,7 @@ Our approach may also have some impact on portability and efficiency:
 \label{par:Architecture dependant}
 Our solution depends a lot of the stack layout of the program.
 Indeed fixing the size of the frames requires us to modify the original stack layout.
-Therefore since the stack layout vary depending of the architecture and compiler you are using, the modifications that have to be done are also different.
+Therefore since the stack layout vary depending on the architecture and compiler you are using, the modifications that have to be done are also different.
 We can then easily comprehend that we would need a different implementations for every existing stack layout.
 Moreover since these layouts can be really different it might be quite complicated to implement our solution on certain of them.
 In the implementation we present after we focus solely on x86-32 architecture with the compiler CompCert.
@@ -625,7 +627,7 @@ We are going to present in the following section the implementation we made base
 \section{Implementation}
 \label{sec:implementation}
 
-For the implementation we work with the compiler CompCert. CompCert already has an implementation of SFI presented earlier. Thus if we could combine our approach with the SFI, any program compiled with CompCert would have strong security guarantees. Furthermore CompCert is written with the Coq proof assistant, our implementation then paves the way for a formal proof of security properties. In this section we explain in details how to enforce our approach and the different choices we made during the process.
+For the implementation we work with the compiler CompCert. CompCert already has an implementation of SFI presented earlier. Thus if we could combine our approach with the SFI, any program compiled with CompCert would have strong security guarantees. Furthermore CompCert is written with the Coq proof assistant, our implementation then paves the way for a formal proof of security properties. In this section we explain in detail how to enforce our approach and the different choices we made during the process.
 
 	Our approach is separated in four phases: ``Fixed stack frames size'', ``Stack alignment'', ``Detection of memory write statements'' and ``Evaluation of the implementation''. We are going to detail the implementation of these phases in the following sections. These transformations are deeply linked to the stack layout, hence to have a better understanding we are going to start by introducing the CompCert stack structure.
 
@@ -760,7 +762,7 @@ It is much safer to create a whole new function which can help us avoid introduc
 Figure~\ref{stack_align} represents the stack alignment transformation. The left stack is CompCert stack with fixed frames size equal to $n=2^8$ like we had in the previous section. From this stack we show the consequences of our operation. We insert before the \textit{main} function of the program an artificial \textit{main}. Thus the frame of this artificial \textit{main} is the first frame of the whole stack. The artificial \textit{main} objective is to align the stack in order to have the next return address location $a$ equal to $a~mod~n=0$. \\
 We can see on the left stack that the return address of \textit{main} was previously at the address \texttt{0xfffff910}. After the stack alignment transformation (right stack) it is located at the address \texttt{0xfffff700}. Since the frames size remain constant we now have all the following return addresses locations verifying $a~mod~n=0$. This was the objective of the whole stack transformation which is now completed.
 The downside of this implementation can be seen clearly on the Figure~\ref{stack_align}. Indeed all the return addresses locations verify $a~mod~n=0$ except the return address of the artificial \textit{main} we introduced.
-Since our approach aims to protect the locations verifying $a~mod~n=0$, this return address is vulnerable.
+Since our approach aims at protecting the locations verifying $a~mod~n=0$, this return address is vulnerable.
 Nevertheless, to reach this location an attacker would need to either know the exact location either overwrite the whole stack. Both ways are difficult to implement due to ASLR and the fact that we protected the stack from being overwritten at the return address location. We can also come up with a more robust implementation of the artificial \textit{main}. Since we build the ASM code by hand we are not forced to follow the usual function routine and we can have a different and robust frame structure for the artificial \textit{main}.
 
 \begin{figure}[!ht]
@@ -877,7 +879,7 @@ In Figure~\ref{clight_statements}, we have exposed all the Clight statements. Am
 \end{itemize}
 
 Among all the statements, our security checks will only apply to the \textit{Sassign} statements.
-Furthermore we can limit ourselves to \textit{Sassign} statements whose left expression can write directly in the memory. Left expressions are the expressions explicitly on the left of the ``='' symbol, they are the only expressions which enable us to write in the memory (``Sassign left\_expr right\_expr'' $\leftrightarrow$ ``left\_expr = right\_expr''). The left expressions targeted are then mostly pointers dereference. To be sure that we have all the dangerous instructions, we reiterate the same approach and we take a look at the semantic of the left expressions in Clight.\\
+Furthermore we can limit ourselves to \textit{Sassign} statements which left expression can write directly in the memory. Left expressions are the expressions explicitly on the left of the ``='' symbol, they are the only expressions which enable us to write in the memory (``Sassign left\_expr right\_expr'' $\leftrightarrow$ ``left\_expr = right\_expr''). The left expressions targeted are then mostly pointers dereference. To be sure that we have all the dangerous instructions, we reiterate the same approach and we take a look at the semantic of the left expressions in Clight.\\
 After checking the semantic of the left expressions, only two types of left expressions are able to reference a location in the memory.
 
 \begin{itemize}
@@ -887,7 +889,7 @@ After checking the semantic of the left expressions, only two types of left expr
 	\item The other expressions are not left expressions which means they do not write in the memory and they are not dangerous in our case. Unary operators \textit{Eunop}, binary operators \textit{Ebinop}, constants \textit{Econst\_int} \textit{Econst\_float} are examples of such expressions.
 \end{itemize}
 
-We finally have defined the profile of the dangerous statements that have to be targeted by our approach. To sum it up, the targeted statements are all the \textit{Sassign} whose left expression is either \textit{Ederef} or \textit{Efield}.
+We finally have defined the profile of the dangerous statements that have to be targeted by our approach. To sum it up, the targeted statements are all the \textit{Sassign} which left expression is either \textit{Ederef} or \textit{Efield}.
 
 Now that we can detect the dangerous statements we will now add the runtime checks in the Clight code which will terminate our implementation.
 
@@ -951,7 +953,7 @@ Hence we present in the next section an alternative to the classic \textit{if th
 
 We wanted to limit the overhead introduced by our approach by trying another way to make the protection mechanism. 
 
-Branchless code allows one to create code with the same behaviour as a classic \textit{if then else} but without creating any branch for the processor. In other words the processor will not need to execute different code depending of the condition, the code will be linear.\\
+Branchless code allows one to create code with the same behaviour as a classic \textit{if then else} but without creating any branch for the processor. In other words the processor will not need to execute different code depending on the condition, the code will be linear.\\
 The best way to understand it is to have an example and we show the branchless version of implementation of the protection mechanism in Figure~\ref{branchless}.
 
 The branchless code is the code located from line~2 to line~6.
@@ -1098,7 +1100,7 @@ As mentioned earlier, we also want to measure the impacts that our transformatio
 We made some experimentations in order to figure out these questions.
 Furthermore we also had to verify which implementation was the most efficient between the branchless and the classic \textit{if then else}.
 For our different experimentations we had 74 different C programs which were present within the CompCert project for testing purposes.
-The performances of our approach are compared with the original CompCert project whose performances are similar to \texttt{gcc -O1}~\cite{Leroy:2009:FVR:1538788.1538814}.
+The performances of our approach are compared with the original CompCert project which performances are similar to \texttt{gcc -O1}~\cite{Leroy:2009:FVR:1538788.1538814}.
 The machine used for the benchmarks possesses four 64 bits processors Intel Xeon E5 with a capacity of 2.80GHz and 8GB of memory. The operating system of the machine is Fedora 23.
 For all our executables compiled with fixed frames size we chose the smallest size possible for the programs to be able to run correctly. Our script just try to compile every program with an incrementing frames size until it manages to complete the compilation process.
 
@@ -1109,7 +1111,7 @@ For all our executables compiled with fixed frames size we chose the smallest si
 We wanted to measure the efficiency of our different transformations and compare them to the original CompCert. During our test we measured four different implementations: the original CompCert, our transformation just with fixed frames size, with fixed frame size and classic \textit{if then else} runtime checks and the branchless version.
 To calculate the execution time we used the Unix utility \textit{time}.
 The results are presented in the following graph Figure~\ref{time_percentage_graph}.
-For more relevant results we removed from all the tested programs the ones whose execution time was too short because the Unix utility \textit{time} imprecision could impact the result greatly.
+For more relevant results we removed from all the tested programs the ones which execution time was too short because the Unix utility \textit{time} imprecision could impact the result greatly.
 The histogram Figure\ref{time_percentage_graph} shows the percentage of overhead measured by three different implementations compared to the original CompCert compiler for multiple programs.
 The three implementations are ``Fixed frames size'' which is our implementation with modified stack layout but without adding any protection. There is also ``Secure'' which is the implementation with classic \textit{if then else} runtime checks. The last one ``Branchless'' is the version with branchless checks.
 
@@ -1150,12 +1152,12 @@ However in our implementations these predictions are certainly correct most of t
 
 The previous tests show that generally the implementations with runtime checks are slower than the one with fixed frames size without protection. We suspect that the number of runtime checks is related to the amount of delay introduced by our transformation. 
 Especially the three programs cited earlier \textit{sha1}, \textit{sha3} and \textit{aed} which have the most amount of runtime checks shows Figure~\ref{time_percentage_graph} slower execution than ``Fixed frames size''. \\
-To try to find a correlation we drew another graph Figure~\ref{correlation_graph} representing the percentage of delay introduced in each program depending of the number of runtime checks added. Like before the number of runtime checks axis uses a logarithmic scale to include all obtained values.
+To try to find a correlation we drew another graph Figure~\ref{correlation_graph} representing the percentage of delay introduced in each program depending on the number of runtime checks added. Like before the number of runtime checks axis uses a logarithmic scale to include all obtained values.
 
 \begin{figure}[!ht]
 \centering
 \includegraphics[width=1\textwidth]{images/correlation_graph.pdf}
-\caption{Evolution of the overhead percentage depending of the number of runtime checks executed}
+\caption{Evolution of the overhead percentage depending on the number of runtime checks executed}
 \label{correlation_graph}
 \end{figure}
 
@@ -1187,14 +1189,16 @@ In this section we are going to talk about some points that our implementation i
 
 \paragraph{More tests.}
 \label{par:More tests}
-Our implementation protect return addresses by modifying the stack layout of the programs. With this guarantee we are confident that we can prevent any kind of ROP attacks. 
-However we only tested our implementation with simple buffer overflows, to show that our approach is correct it would be interesting to pit our protection mechanisms against more complicated ROP attacks. Otherwise we used CompCert so that eventually we will prove the security properties of our approach . This would be an even more convincing way to affirm the benefits of our approach.
+Our implementation protects return addresses by modifying the stack layout of the programs. With this guarantee we are confident that we can prevent any kind of ROP attacks. 
+However we only tested our implementation with simple buffer overflows. To show that our approach is correct, it would be interesting to pit our protection mechanisms against more complicated ROP attacks. We use CompCert so that eventually we will prove the security properties of our approach . This would be an even more convincing way to affirm the benefits of our approach.
 
 %Another test that is lacking was mentioned before. To have an idea of the impacts of our implementation of the memory consumption it would be interesting to compare the stack growth of a normal program with one compiled with our modified CompCert compiler.
+
+%TODO
 \paragraph{Guard area between the stack and the heap}
 \label{par:guard_area}
 To ensure that either the stack or the heap grows too much and exceeds their designed area we want to put a guard area in the memory. The idea is to define a specific area in the memory, for example [\texttt{0xee000000 - \texttt{0xff000000}}], where it is forbidden to write. If an instruction writes illegally in the guard area the program will detect it and will crash.\\
-The principle is represented in Figure~\ref{guard}. Indeed we can see that the stack and the heap are clearly separated by the guard area located between [\texttt{0xee000000 - \texttt{0xff000000}}]. Thus we are sure that every address above \texttt{0xff000000} are part of the stack.
+The principle is represented in Figure~\ref{guard}. Indeed we can see that the stack and the heap are clearly separated by the guard area located between [\texttt{0xee000000 - \texttt{0xff000000}}]. Thus we are sure that every address above \texttt{0xff000000} is part of the stack.
 
 \begin{figure}[!ht]
 \centering
@@ -1211,11 +1215,11 @@ To be honest the guard area has not been implemented yet. Most of the programs d
 Actually in our implementation we protect return addresses with runtime checks but we never protect these runtime checks. As in SFI we also need to prevent malicious instructions to avoid going through these checks. Therefore we need to make sure that is not possible for a program to freely jump in the code. This way an attacker would be able to bypass the security measures we established.
 In the C language the only expression that could allow such operations would be function pointers. Function pointers allow one to execute the code addressed by the pointer.
 The simplest solution would be to totally forbid the usage of function pointers which would solve our issue.
-We could also adapt ideas of SFI~\cite{Mccamant_evaluatingsfi} like creating memory chunks and aligning them in order to render the runtime checks atomic. This idea is similar to our approach, it would need to transform the structure on the memory for the code and then perform runtime checks to make sure we only jump to authorized locations.
+We could also adapt ideas of SFI~\cite{Mccamant_evaluatingsfi} like creating memory chunks and aligning them in order to render the runtime checks atomic. This idea is similar to our approach, it would need to transform the structure of the memory for the code and then perform runtime checks to make sure we only jump to authorized locations.
 
 \paragraph{Ways of improvement.}
 \label{par:improvement}
-We saw in the earlier section that our implementation was relatively slow compared to the original CompCert. Furthermore the amount of is dependent of the number of runtime checks executed.
+We saw in the earlier section that our implementation was relatively slow compared to the original CompCert. Furthermore the amount of overhead is dependent of the number of runtime checks executed.
 The idea would be to either reduce the number of runtime checks effectively done or to improve the efficiency of our runtime checks.
 We can certainly narrow down the number of dangerous statements detected. For example Figure~\ref{harmless} presents some harmless C code that would be protected by our approach but does not present any vulnerability for a ROP attack. The pointer presented here points to an address of the heap so if the heap does not overflow on the stack it's not possible for the pointer \textit{bar} to write on a return address as it is.
 We can see clearly that the protection mechanism that will be introduced in this code is not necessary and will just slow down the program.
@@ -1248,14 +1252,15 @@ For these reasons we are confident that our implementation is transparent, but a
 \newpage
 \section{Conclusion}
 \label{sec:Conclusion}
-We presented in this paper a security techniques called Software Fault Isolation which uses software methods to isolate the execution of dangerous modules. Hence SFI enables protected program to use external modules without taking the risk of compromising its execution. SFI has the benefits of demonstrating good performances in term of speed compared to other memory protection approach and also has a relatively small TCB. In this report we presented various implementations of SFI and especially the last one which used the certified compiler CompCert~\cite{Kroll:2014:PSF:2708449.2708686}. \\
-Even though SFI has many strong points it can be considered lacking when it comes to securing the return addresses. Indeed few solutions were explained to face this issue and those were usually not easily adaptable or brought a lot of overheads. More importantly one the most important category of cyber attacks called ROP attacks explicitly target these return addresses to modify the flow control of the programs in their favour.
+We presented in this paper a security technique called Software Fault Isolation which uses software methods to isolate the execution of dangerous modules. Hence SFI enables protected program to use external modules without taking the risk of compromising its execution. SFI has the benefits of demonstrating good performances concerning speed compared to other memory protection approaches. It also has a relatively small TCB. In this report we presented various implementations of SFI and especially the last one which used the certified compiler CompCert~\cite{Kroll:2014:PSF:2708449.2708686}. \\
+Even though SFI has many strong points it can be considered lacking when it comes to securing the return addresses. Indeed few solutions were explained to face this issue and those were usually not easily adaptable or resulted in lots of overheads. More importantly one the most common category of cyber attacks called ROP attacks explicitly target these return addresses to modify the flow control of the programs in their favour.
 
 Therefore we propose a solution which is reliable and relatively efficient to protect return addresses from being corrupted. Our idea is to modify the structure of the stack in order to have an easy way to know the locations of all the return addresses. Afterwards we add runtime checks before the instructions that can compromise the integrity of the return addresses. These runtime checks take advantage of the new stack layout to forbid any illicit write on the return addresses locations.
 
-We did an implementation of our approach with the compiler CompCert for the x86-32 architecture. Even though the implementation is not totally completed, the main work has been carried out and it successfully blocked programs containing simple buffer overflows. The different experimentations show that our transformations diminish the efficiency of our compiled modules depending of the number of runtime checks. Thus the diminution of the efficiency varies greatly depending of the number of dangerous instructions that has to be tested in the compiled code.
+We implementationed our approach with the compiler CompCert for the x86-32 architecture. Even though the implementation is not totally completed, the main work has been carried out and it successfully blocked programs containing simple buffer overflows. The different experimentations show that our transformations reduce the efficiency of our compiled modules depending on the number of runtime checks. Thus the decrease in efficiency varies greatly depending on the number of dangerous instructions that has to be tested in the compiled code.
 
-However our implementation still has ways of improvement by optimizing the runtime checks efficiency or by reducing the number of runtime checks added. For example, by using static analysis we could refine our detection of dangerous instructions and narrow down the number of runtime checks required which could improve our performance greatly.
+
+However our implementation could still be improved by optimizing the runtime checks efficiency or by reducing the number of runtime checks added. For example, by using static analysis we could refine our detection of dangerous instructions and narrow down the number of runtime checks required which could greatly improve our performance.
 
 
 \newpage

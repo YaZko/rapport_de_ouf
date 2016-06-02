@@ -22,7 +22,7 @@
 \contentsline {paragraph}{Masking in CompCert.}{10}
 \contentsline {paragraph}{SFI transformations}{10}
 \contentsline {subsubsection}{\numberline {2.3.3}Evaluation of the approach}{11}
-\contentsline {subsection}{\numberline {2.4}Limit of SFI}{12}
+\contentsline {subsection}{\numberline {2.4}Limits of SFI}{12}
 \contentsline {section}{\numberline {3}Overview of the approach}{13}
 \contentsline {subsection}{\numberline {3.1}ROP attacks}{13}
 \contentsline {subsubsection}{\numberline {3.1.1}The stack}{13}
