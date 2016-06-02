@@ -37,8 +37,12 @@
 \domain{Domaine: Cryptography and Security}
 
 %write your abstract here
-\abstract{}
-
+\abstract{
+Software Fault Isolation (SFI) is a software method which allows one to isolate the execution of possibly dangerous modules, hence preventing any risks of corruption of our system due to these modules. Even though SFI has multiple benefits it still has troubles dealing with Returned Oriented Programing attacks which aims at diverting the control flow through the return addresses. During our internship we implemented a flexible solution against these attacks with the certified compiler CompCert. Our approach transforms the stack layout in order to easily know the locations of the return addresses enabling us to protect them from being overwritten illegally. 
+We made an implementation with CompCert which is almost complete that successfully blocks buffer overflows. 
+In return we have a diminution of the efficiency depending of the number of runtime checks added. However multiple ideas exist to reduce this overhead like having a finer detection of dangerous instructions with the use of static analysis.
+}
+\setcounter{tocdepth}{2}
 \begin{document}
 \maketitle
 
@@ -328,7 +332,7 @@ We propose a solution against ROP attacks which combined with SFI would protect 
 Inspired from SFI techniques we aim to prevent any overwriting of the return addresses. To do so we need to know these return addresses locations in the memory. Therefore our approach consists of modifying the stack structure in order to have a way to distinguish the return addresses locations. With this knowledge we will be able to put a mask, as in SFI, before every dangerous write instructions and prevent any ROP attack.
 
 
-\subsection{ROP attack}
+\subsection{ROP attacks}
 \label{sub:rop_attack}
 
 	We want to protect our program against ROP attacks. These attacks are directed against the stack and especially the function return addresses located in the stack.
@@ -1230,6 +1234,14 @@ For these reasons we are confident that our implementation is transparent, but a
 \newpage
 \section{Conclusion}
 \label{sec:Conclusion}
+We presented in this paper a security techniques called Software Fault Isolation which uses software methods to isolate the execution of dangerous modules. Hence SFI enables protected program to use external modules without taking the risk of compromising its execution. SFI has the benefits of demonstrating good performances in term of speed compared to other memory protection approach and also has a relatively small TCB. In this report we presented various implementations of SFI and especially the last one which used the certified compiler CompCert~\cite{Kroll:2014:PSF:2708449.2708686}. \\
+Even though SFI has many strong points it can be considered lacking when it comes to securing the return addresses. Indeed few solutions were explained to face this issue and those were usually not easily adaptable or brought a lot of overheads. More importantly one the most important category of cyber attacks called ROP attacks explicitly target these return addresses to modify the flow control of the programs in their favour.
+
+Therefore we propose a solution which is reliable and relatively efficient to protect return addresses from being corrupted. Our idea is to modify the structure of the stack in order to have an easy way to know the locations of all the return addresses. Afterwards we add runtime checks before the instructions that can compromise the integrity of the return addresses. These runtime checks take advantage of the new stack layout to forbid any illicit write on the return addresses locations.
+
+We did an implementation of our approach with the compiler CompCert for the x86-32 architecture. Even though the implementation is not totally completed, the main work has been carried out and it successfully blocked programs containing simple buffer overflows. The different experimentations show that our transformations diminish the efficiency of our compiled modules proportionally to the number of runtime checks. We estimate that each runtime checks adds an average overhead of \textcolor{green}{number}. Thus the diminution of the efficiency varies greatly depending of the number of dangerous instructions that has to be tested in the compiled code.
+
+However our implementation still has ways of improvement by optimizing the runtime checks efficiency or by reducing the number of runtime checks added. For example, by using static analysis we could refine our detection of dangerous instructions and narrow down the previous selection which could improve our performances greatly.
 
 
 \newpage

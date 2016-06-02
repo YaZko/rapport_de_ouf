@@ -24,7 +24,7 @@
 \contentsline {subsubsection}{\numberline {2.3.3}Evaluation of the approach}{11}
 \contentsline {subsection}{\numberline {2.4}Limit of SFI}{12}
 \contentsline {section}{\numberline {3}Overview of the approach}{13}
-\contentsline {subsection}{\numberline {3.1}ROP attack}{13}
+\contentsline {subsection}{\numberline {3.1}ROP attacks}{13}
 \contentsline {subsubsection}{\numberline {3.1.1}The stack}{13}
 \contentsline {subsubsection}{\numberline {3.1.2}Buffer overflow}{13}
 \contentsline {subsection}{\numberline {3.2}Description of the approach}{15}
