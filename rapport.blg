@@ -3,44 +3,49 @@ Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: rapport.aux
 The style file: plain.bst
 Database file #1: ref.bib
-You've used 9 entries,
+Repeated entry---line 131 of file ref.bib
+ : @article{Abadi:2009:CIP:1609956.1609960
+ :                                        ,
+I'm skipping whatever remains of this entry
+You've used 11 entries,
             2118 wiz_defined-function locations,
-            576 strings with 6138 characters,
-and the built_in function-call counts, 4226 in all, are:
-= -- 413
-> -- 224
+            592 strings with 6719 characters,
+and the built_in function-call counts, 5182 in all, are:
+= -- 502
+> -- 295
 < -- 7
-+ -- 87
-- -- 76
-* -- 315
-:= -- 670
-add.period$ -- 32
-call.type$ -- 9
-change.case$ -- 62
++ -- 115
+- -- 102
+* -- 406
+:= -- 837
+add.period$ -- 38
+call.type$ -- 11
+change.case$ -- 81
 chr.to.int$ -- 0
-cite$ -- 9
-duplicate$ -- 163
-empty$ -- 314
-format.name$ -- 76
-if$ -- 917
+cite$ -- 11
+duplicate$ -- 185
+empty$ -- 369
+format.name$ -- 102
+if$ -- 1100
 int.to.chr$ -- 0
-int.to.str$ -- 9
-missing$ -- 9
-newline$ -- 48
-num.names$ -- 24
-pop$ -- 65
+int.to.str$ -- 11
+missing$ -- 11
+newline$ -- 58
+num.names$ -- 28
+pop$ -- 80
 preamble$ -- 1
-purify$ -- 53
+purify$ -- 70
 quote$ -- 0
-skip$ -- 126
+skip$ -- 139
 stack$ -- 0
-substring$ -- 253
-swap$ -- 60
+substring$ -- 316
+swap$ -- 62
 text.length$ -- 7
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 36
+type$ -- 44
 warning$ -- 0
-while$ -- 42
-width$ -- 10
-write$ -- 109
+while$ -- 50
+width$ -- 13
+write$ -- 131
+(There was 1 error message)

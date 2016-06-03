@@ -48,7 +48,7 @@
 \contentsline {paragraph}{Choice of frames size.}{24}
 \contentsline {subsection}{\numberline {4.3}Stack alignment}{25}
 \contentsline {paragraph}{ASLR.}{25}
-\contentsline {paragraph}{Stack alignment.}{25}
+\contentsline {paragraph}{Stack alignment.}{26}
 \contentsline {paragraph}{Alignment algorithm.}{27}
 \contentsline {subsection}{\numberline {4.4}Detection of memory write statements}{28}
 \contentsline {paragraph}{Clight implementation.}{28}

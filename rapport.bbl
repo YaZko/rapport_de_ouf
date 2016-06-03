@@ -1,4 +1,16 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
+
+\bibitem{Abadi:2009:CIP:1609956.1609960}
+Mart\'{\i}n Abadi, Mihai Budiu, \'{U}lfar Erlingsson, and Jay Ligatti.
+\newblock Control-flow integrity principles, implementations, and applications.
+\newblock {\em ACM Trans. Inf. Syst. Secur.}, 13(1):4:1--4:40, 2009.
+
+\bibitem{Ansel:2011:LSJ:1993316.1993540}
+Jason Ansel, Petr Marchenko, \'{U}lfar Erlingsson, Elijah Taylor, Brad Chen,
+  Derek~L. Schuff, David Sehr, Cliff~L. Biffle, and Bennet Yee.
+\newblock Language-independent sandboxing of just-in-time compilation and
+  self-modifying code.
+\newblock {\em SIGPLAN Not.}, 46(6):355--366, 2011.
 
 \bibitem{compCert_memory_model}
 Frédéric Besson, Sandrine Blazy, and Pierre Wilke.

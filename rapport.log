@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2016.2.16)  3 JUN 2016 11:10
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2016.2.16)  3 JUN 2016 11:56
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -592,24 +592,24 @@ Package pdftex.def Info: images/algo_sandboxing.pdf used on input line 117.
 File: images/nacl_constraints.png Graphic file (type png)
 
 <use images/nacl_constraints.png>
-Package pdftex.def Info: images/nacl_constraints.png used on input line 195.
+Package pdftex.def Info: images/nacl_constraints.png used on input line 194.
 (pdftex.def)             Requested size: 298.86583pt x 166.62209pt.
  [6]
 <images/nacl_jump.png, id=60, 865.2325pt x 123.46124pt>
 File: images/nacl_jump.png Graphic file (type png)
 
 <use images/nacl_jump.png>
-Package pdftex.def Info: images/nacl_jump.png used on input line 208.
+Package pdftex.def Info: images/nacl_jump.png used on input line 207.
 (pdftex.def)             Requested size: 190.35173pt x 27.16154pt.
  [7 <./images/nacl_constraints.png> <./images/nacl_jump.png>] <images/compcert_
 pass.png, id=66, 1479.5275pt x 572.1375pt>
 File: images/compcert_pass.png Graphic file (type png)
 
 <use images/compcert_pass.png>
-Package pdftex.def Info: images/compcert_pass.png used on input line 237.
+Package pdftex.def Info: images/compcert_pass.png used on input line 236.
 (pdftex.def)             Requested size: 473.45848pt x 183.08774pt.
 
-Overfull \hbox (3.70346pt too wide) in paragraph at lines 237--238
+Overfull \hbox (3.70346pt too wide) in paragraph at lines 236--237
  [][] 
  []
 
@@ -617,7 +617,7 @@ Overfull \hbox (3.70346pt too wide) in paragraph at lines 237--238
 <images/psfi.png, id=75, 997.7275pt x 616.3025pt>
 File: images/psfi.png Graphic file (type png)
  <use images/psfi.png>
-Package pdftex.def Info: images/psfi.png used on input line 284.
+Package pdftex.def Info: images/psfi.png used on input line 283.
 (pdftex.def)             Requested size: 359.18163pt x 221.86873pt.
 
 [10 <./images/psfi.png>]
@@ -625,30 +625,30 @@ Package pdftex.def Info: images/psfi.png used on input line 284.
 File: images/before_shadow.png Graphic file (type png)
 
 <use images/before_shadow.png>
-Package pdftex.def Info: images/before_shadow.png used on input line 302.
+Package pdftex.def Info: images/before_shadow.png used on input line 301.
 (pdftex.def)             Requested size: 221.59857pt x 87.11572pt.
 
 <images/after_shadow.png, id=81, 671.50874pt x 328.22626pt>
 File: images/after_shadow.png Graphic file (type png)
 
 <use images/after_shadow.png>
-Package pdftex.def Info: images/after_shadow.png used on input line 303.
+Package pdftex.def Info: images/after_shadow.png used on input line 302.
 (pdftex.def)             Requested size: 221.59857pt x 108.31499pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 314--316
+Underfull \hbox (badness 10000) in paragraph at lines 313--315
 
  []
 
 [11 <./images/before_shadow.png> <./images/after_shadow.png>] [12] [13]
 LaTeX Font Info:    Font shape `OMS/cmr/m/it' in size <10.95> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 381.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 380.
 
-Underfull \hbox (badness 10000) in paragraph at lines 377--387
+Underfull \hbox (badness 10000) in paragraph at lines 376--386
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 394--424
+Underfull \hbox (badness 10000) in paragraph at lines 393--423
 
  []
 
@@ -656,10 +656,10 @@ Underfull \hbox (badness 10000) in paragraph at lines 394--424
 File: images/idea_stack.pdf Graphic file (type pdf)
 
 <use images/idea_stack.pdf>
-Package pdftex.def Info: images/idea_stack.pdf used on input line 469.
+Package pdftex.def Info: images/idea_stack.pdf used on input line 468.
 (pdftex.def)             Requested size: 338.4671pt x 187.3012pt.
  [16]
-Underfull \hbox (badness 10000) in paragraph at lines 501--503
+Underfull \hbox (badness 10000) in paragraph at lines 500--502
 
  []
 
@@ -668,21 +668,21 @@ Underfull \hbox (badness 10000) in paragraph at lines 501--503
 File: images/runtime_check.pdf Graphic file (type pdf)
 
 <use images/runtime_check.pdf>
-Package pdftex.def Info: images/runtime_check.pdf used on input line 511.
+Package pdftex.def Info: images/runtime_check.pdf used on input line 510.
 (pdftex.def)             Requested size: 230.06126pt x 320.39948pt.
  [18 <./images/runtime_check.pdf>] [19] [20]
 [21] <images/stack_layout.pdf, id=168, 443.6575pt x 474.77374pt>
 File: images/stack_layout.pdf Graphic file (type pdf)
 
 <use images/stack_layout.pdf>
-Package pdftex.def Info: images/stack_layout.pdf used on input line 642.
+Package pdftex.def Info: images/stack_layout.pdf used on input line 641.
 (pdftex.def)             Requested size: 244.01237pt x 261.12636pt.
  [22 <./images/stack_layout.pdf>]
 <images/call_routine.pdf, id=175, 810.02625pt x 378.41376pt>
 File: images/call_routine.pdf Graphic file (type pdf)
 
 <use images/call_routine.pdf>
-Package pdftex.def Info: images/call_routine.pdf used on input line 659.
+Package pdftex.def Info: images/call_routine.pdf used on input line 658.
 (pdftex.def)             Requested size: 445.51581pt x 208.1282pt.
  [23 <./images/call_routine.pdf>]
 (/usr/share/texlive/texmf-dist/tex/latex/listings/lstlang1.sty
@@ -695,17 +695,17 @@ File: lstlang2.sty 2014/03/04 1.5c listings language file
 File: images/frame_transform.pdf Graphic file (type pdf)
 
 <use images/frame_transform.pdf>
-Package pdftex.def Info: images/frame_transform.pdf used on input line 708.
+Package pdftex.def Info: images/frame_transform.pdf used on input line 707.
 (pdftex.def)             Requested size: 272.2191pt x 222.23195pt.
  [24]
 <images/stack_transform.pdf, id=189, 584.1825pt x 352.31625pt>
 File: images/stack_transform.pdf Graphic file (type pdf)
 
 <use images/stack_transform.pdf>
-Package pdftex.def Info: images/stack_transform.pdf used on input line 731.
+Package pdftex.def Info: images/stack_transform.pdf used on input line 730.
 (pdftex.def)             Requested size: 350.51219pt x 211.39137pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 746--749
+Underfull \hbox (badness 10000) in paragraph at lines 745--748
 
  []
 
@@ -714,56 +714,56 @@ Underfull \hbox (badness 10000) in paragraph at lines 746--749
 File: images/stack_align.pdf Graphic file (type pdf)
 
 <use images/stack_align.pdf>
-Package pdftex.def Info: images/stack_align.pdf used on input line 770.
+Package pdftex.def Info: images/stack_align.pdf used on input line 769.
 (pdftex.def)             Requested size: 430.61206pt x 278.24164pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 779--784
+Underfull \hbox (badness 10000) in paragraph at lines 778--783
 
  []
 
 [27 <./images/stack_align.pdf>]
-Overfull \hbox (46.68126pt too wide) in paragraph at lines 794--795
+Overfull \hbox (46.68126pt too wide) in paragraph at lines 793--794
 []\OT1/cmr/m/n/10.95 We call the orig-i-nal \OT1/cmr/m/it/10.95 main \OT1/cmr/m
 /n/10.95 func-tion, its frame will start at the lo-ca-tion stored in \OT1/cmr/m
 /it/10.95 next[]frame $\OT1/cmr/m/n/10.95 =$ \OT1/cmtt/m/n/10.95 0xfffff700 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 830--835
+Underfull \hbox (badness 10000) in paragraph at lines 829--834
 
  []
 
 [28]
-LaTeX Font Info:    Try loading font information for OML+cmr on input line 842.
+LaTeX Font Info:    Try loading font information for OML+cmr on input line 841.
 
  (/usr/share/texlive/texmf-dist/tex/latex/base/omlcmr.fd
 File: omlcmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OML/cmr/m/n' in size <10.95> not available
-(Font)              Font shape `OML/cmm/m/it' tried instead on input line 842.
+(Font)              Font shape `OML/cmm/m/it' tried instead on input line 841.
  [29] [30]
 [31] [32] [33]
-Underfull \hbox (badness 10000) in paragraph at lines 1030--1032
+Underfull \hbox (badness 10000) in paragraph at lines 1029--1031
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1033--1050
+Underfull \hbox (badness 10000) in paragraph at lines 1032--1049
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1033--1050
+Underfull \hbox (badness 10000) in paragraph at lines 1032--1049
 
  []
 
 [34]
-Underfull \hbox (badness 10000) in paragraph at lines 1064--1066
+Underfull \hbox (badness 10000) in paragraph at lines 1063--1065
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1067--1082
+Underfull \hbox (badness 10000) in paragraph at lines 1066--1081
 
  []
 
@@ -772,43 +772,43 @@ File: images/time_percentage_graph.pdf Graphic file (type pdf)
 
 <use images/time_percentage_graph.pdf>
 Package pdftex.def Info: images/time_percentage_graph.pdf used on input line 11
-20.
+19.
 (pdftex.def)             Requested size: 469.75502pt x 352.32861pt.
 
 <images/occurence_graph.pdf, id=322, 642.4pt x 481.8pt>
 File: images/occurence_graph.pdf Graphic file (type pdf)
 
 <use images/occurence_graph.pdf>
-Package pdftex.def Info: images/occurence_graph.pdf used on input line 1135.
+Package pdftex.def Info: images/occurence_graph.pdf used on input line 1134.
 (pdftex.def)             Requested size: 469.75502pt x 352.32861pt.
  [36] [37 <./images/time_percentage_graph.pdf>] <images/correlation_graph.pdf, 
 id=338, 642.4pt x 481.8pt>
 File: images/correlation_graph.pdf Graphic file (type pdf)
 
 <use images/correlation_graph.pdf>
-Package pdftex.def Info: images/correlation_graph.pdf used on input line 1159.
+Package pdftex.def Info: images/correlation_graph.pdf used on input line 1158.
 (pdftex.def)             Requested size: 469.75502pt x 352.32861pt.
  [38 <./images/occurence_graph.pdf>]
 <images/frame_size_graph.pdf, id=351, 642.4pt x 481.8pt>
 File: images/frame_size_graph.pdf Graphic file (type pdf)
 
 <use images/frame_size_graph.pdf>
-Package pdftex.def Info: images/frame_size_graph.pdf used on input line 1177.
+Package pdftex.def Info: images/frame_size_graph.pdf used on input line 1176.
 (pdftex.def)             Requested size: 469.75502pt x 352.32861pt.
  [39 <./images/correlation_graph.pdf>]
 [40 <./images/frame_size_graph.pdf>]
 <images/guard.pdf, id=376, 254.9525pt x 298.11375pt>
 File: images/guard.pdf Graphic file (type pdf)
  <use images/guard.pdf>
-Package pdftex.def Info: images/guard.pdf used on input line 1208.
+Package pdftex.def Info: images/guard.pdf used on input line 1206.
 (pdftex.def)             Requested size: 152.97266pt x 178.86963pt.
 
 [41 <./images/guard.pdf>] [42] [43] (./rapport.bbl) [44] (./rapport.aux) ) 
 Here is how much of TeX's memory you used:
- 5436 strings out of 494955
- 74168 string characters out of 6179231
- 264048 words of memory out of 5000000
- 8539 multiletter control sequences out of 15000+600000
+ 5440 strings out of 494955
+ 74249 string characters out of 6179231
+ 264056 words of memory out of 5000000
+ 8543 multiletter control sequences out of 15000+600000
  12797 words of font info for 46 fonts, out of 8000000 for 9000
  36 hyphenation exceptions out of 8191
  38i,7n,56p,1294b,1405s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -826,7 +826,7 @@ cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy1
 0.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb>
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/
 share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
-Output written on rapport.pdf (46 pages, 1558198 bytes).
+Output written on rapport.pdf (46 pages, 1558556 bytes).
 PDF statistics:
  441 PDF objects out of 1000 (max. 8388607)
  264 compressed objects within 3 object streams

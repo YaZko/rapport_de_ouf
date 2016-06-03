@@ -151,7 +151,6 @@ The first step of the verification is to disassemble the given binary. The imple
 \label{ssub:Pros and cons}
 
 SFI aims at isolating the execution of dangerous modules in a designated area of the protected program memory. For this, SFI is composed of a code generator tasked with producing a sandboxed binary and a verifier which checks if the executable complies with the SFI properties.
-It is imperative for the verifier to be  part of the TCB in order to have SFI only accept safe code. %TODO
 We can note that to be functional SFI does not need an extensive TCB, only the verifier needs to be part of it. Another advantage is that SFI is not language dependant, the approach does not depend on the source language of the code. In return SFI is architecture dependant, the transformations will not be the same on x86 or on MIPS. Another con is that the sandboxed code is also less efficient and also bigger. Nevertheless only the dangerous modules are sandboxed which usually represent a minor part compared to the whole execution. A last inconvenient is that the presented implementation only includes MIPS and Alpha architecture but later works adapt SFI to other architectures.
 
 \subsection{SFI for other architectures}
@@ -713,15 +712,15 @@ In Figure~\ref{frame_transform}, we present the transformation of the CompCert f
 \paragraph{Choice of frames size.}
 \label{par:Choice of frames size}
 
-We chose to limit the choice of the frames size to powers of two. Indeed, since addresses are written in binary having a power of two as constant offset will ease the runtime checks implementation. By using powers of two, all the return addresses will have the same least significant bits. For example if the first return address location is \texttt{0xffffff910} (in hexadecimal) and our constant frame size is $2^8 = \texttt{0100}$ (in hexadecimal). Then all the following return addresses locations will be \texttt{0xfffff810} (the stack grow downwards), \texttt{0xfffff710}, \texttt{0xfffff610}\dots And their least significant bits are actually always equal to \texttt{10}. This particularity will help during the phase of runtime checks that we will explain in Section~\ref{sub:implem_check_address}.
+We chose to limit the choice of the frames size to powers of two. Indeed, since addresses are written in binary having a power of two as constant offset eases the runtime checks implementation. By using powers of two, all the return addresses will have the same least significant bits. For example if the first return address location is \texttt{0xffffff910} (in hexadecimal) and our constant frame size is $2^8 = \texttt{0100}$ (in hexadecimal). Then all the following return addresses locations will be \texttt{0xfffff810} (the stack grow downwards), \texttt{0xfffff710}, \texttt{0xfffff610}\dots And their least significant bits are actually always equal to \texttt{10}. This particularity helps during the phase of runtime checks that we explain in Section~\ref{sub:implem_check_address}.
 
-To prevent having compiled programs with too small stack frame, we added in CompCert a check. This test verifies that the chosen size is bigger than any dynamically calculated one. If not, the compilation fails. This way the chosen size corresponds to the smallest power of two which is bigger or equal to any dynamically calculated frames size of the program.
+To prevent having compiled programs with too small stack frames, we add in CompCert a check during the compilation. This test verifies that the chosen size $n$ is bigger than any dynamically calculated frames size. If not, the compilation fails. This way the chosen size corresponds to the smallest power of two which is bigger or equal to any dynamically calculated frames size of the program.
 
 We can see in Figure~\ref{stack_transform} the effect of our implementation. 
 The left stack is the usual layout of CompCert stacks with the return addresses located at the top of the frames. We call $F_{size}$ the size of the biggest frame of the whole program.
 
 For our transformed stack we have to chose a fixed size for the frames and it needs to be a power of two, bigger or equal to $F_{size}$. In Figure~\ref{stack_transform} we chose $2^8$ to continue the examples we gave before.
-We can see that the stack on the right has fixed size frames equal to $2^8$ and the return addresses are all separated by the same offset dues to CompCert stack layout.
+We can see that the stack on the right has fixed size frames equal to $2^8$ and the return addresses are all separated by the same offset due to CompCert stack layout.
 The implementation effectively fulfills the property of having constant offset between return addresses.
 Furthermore we can see that the location of the return addresses are \texttt{0xfffff910}, \texttt{0xfffff810}, \texttt{0xfffff710}\dots
 Hence all the return addresses have the particularity of always having the same least significant bits (\texttt{10}). This particularity will be used later for the implementation of the protection mechanism.
@@ -750,8 +749,8 @@ ASLR keeps the eight most significant bits so the different memory areas like th
 \paragraph{Stack alignment.}
 \label{par:Stack alignment}
 
-We had multiple choices for the implementation of this property. One of them was to modify the main function of the protected program in order to align the return addresses locations correctly. Another idea was to modify the prelude of a program, the prelude is a piece of code created by the compilers which is executed before the program. It is necessary for any program to have this prelude to work correctly. \\
-Eventually we chose to introduce before the \textit{main} function of the program an artificial \textit{main}. Its role is to align the stack in order to make all the incoming return addresses locations to match our formula $a~mod~n=0$. \\
+We had multiple choices for the implementation of this property. One of them is to modify the main function of the protected program in order to align the return addresses locations correctly. Another idea is to modify the prelude of a program, the prelude is a piece of code created by the compilers which is executed before the program. It is necessary for any program to have this prelude to run correctly. \\
+Eventually we chose to introduce before the \textit{main} function of the program an artificial \textit{main}. Its role is to align the stack in order to make all the future return addresses locations to match our formula $a~mod~n=0$. \\
 Since we have to modify the stack structure we did our transformation at the assembly level(ASM) of CompCert. Indeed the stack pointer ESP which is responsible for the stack growth is only available in ASM. ASM is the lowest level before binary code, though it is difficult to modify ASM correctly since you have to manipulate low level objects. 
 By creating a separate artificial \textit{main} function we avoid taking the risk of bugging the prelude or the program's \textit{main} function.\\
 This approach has one definite advantage over the others solutions listed before. 
@@ -763,7 +762,7 @@ Figure~\ref{stack_align} represents the stack alignment transformation. The left
 We can see on the left stack that the return address of \textit{main} was previously at the address \texttt{0xfffff910}. After the stack alignment transformation (right stack) it is located at the address \texttt{0xfffff700}. Since the frames size remain constant we now have all the following return addresses locations verifying $a~mod~n=0$. This was the objective of the whole stack transformation which is now completed.
 The downside of this implementation can be seen clearly on the Figure~\ref{stack_align}. Indeed all the return addresses locations verify $a~mod~n=0$ except the return address of the artificial \textit{main} we introduced.
 Since our approach aims at protecting the locations verifying $a~mod~n=0$, this return address is vulnerable.
-Nevertheless, to reach this location an attacker would need to either know the exact location either overwrite the whole stack. Both ways are difficult to implement due to ASLR and the fact that we protected the stack from being overwritten at the return address location. We can also come up with a more robust implementation of the artificial \textit{main}. Since we build the ASM code by hand we are not forced to follow the usual function routine and we can have a different and robust frame structure for the artificial \textit{main}.
+Nevertheless, to reach this location an attacker would need to either know the exact location either overwrite the whole stack. Both ways are difficult to implement due to ASLR and the fact that we protect the stack from being overwritten at the return address locations. We can also come up with a more robust implementation of the artificial \textit{main}. Since we build the ASM code by hand we are not forced to follow the usual function routine, therefore we can have a different and robust frame structure specific to the artificial \textit{main}.
 
 \begin{figure}[!ht]
 \centering
@@ -909,7 +908,7 @@ In x86 architecture, the stack usually grows downwards in direction of the heap.
 The idea is to divide the memory space for the program data into two distinct part. The high addresses for the stack and the low for the heap. \\
 We defined the clear separation at the address \texttt{0xff000000}. Every address bigger than \texttt{0xff000000} is considered as part of the stack. Reciprocally every address smaller is part of the heap. However this assumption is not always true, in extreme cases the stack or the heap might overflow over this limit. To ensure that our criteria becomes a truth we propose a solution in the future works section Chapter~\ref{par:guard_area}.
 
-Figure~\ref{classic_check} presents an implementation of our runtime checks. The condition line~1 is the branch which separated addresses from the stack or the heap. Heap addresses can't be return addresses location therefore they do not continue the verification process.
+Figure~\ref{classic_check} presents an implementation of our runtime checks. The condition line~1 is the condition which separates addresses from the stack and the heap. Heap addresses can't be return addresses locations therefore they do not continue the verification process.
 
 \begin{figure}[!ht]
 \centering
@@ -935,7 +934,7 @@ The second step of the runtime check is to see if the targeted address location 
 Since $n$ is a power of two just comparing the least significant bits to $0$ is equivalent to checking if the address verifies $a~mod~n=0$.
 For example we know that the return addresses locations of our previous example Figure~\ref{stack_align} were \texttt{0xfffff700}, \texttt{0xfffff600}, \texttt{0xfffff500}\dots
 We can notice that we only need to check if the last eight bits (the last two digit in hexadecimal \texttt{00} in our example) of an address is equal to 0.
-If it is we know for sure that the targeted location is a return address.\\
+If it is, we know for sure that the targeted location is a return address.\\
 For a random authorized location \texttt{0xfffff7a2} and a return address location \texttt{0xfffff700} with $n=2^8$, we would have to compare \texttt{0x000000a2}(authorized) and \texttt{0x00000000}(unauthorized) with $0$. 
 	\item Line~3 we actually see that we do not compare the previous calculated value with 0 but 3. The reason is that return addresses are four bytes long.
 		It means that the space taken by a return address located at \texttt{0xfffff700} would be [\texttt{0xfffff700}~-~\texttt{0xffff703}]. It is logical for us to protect the whole return address space, that is why we check if the targeted address least significant bits are smaller than 3.
@@ -944,8 +943,8 @@ For a random authorized location \texttt{0xfffff7a2} and a return address locati
 \end{itemize}
 
 
-Currently our protection mechanism use two \textit{if \dots then \dots else} operation in a row to protect the return addresses. The first to check if the address is in the stack and the second to check the equality $a~mod~n=0$.
-Considering that we might inject our protection mechanism a considerable number of times for a program using a lot of pointer operations. We wanted to try another possible implementation that may improve the performance our runtime checks.
+Currently our protection mechanism uses two \textit{if \dots then \dots else} operation in a row to protect the return addresses. The first to check if the address is in the stack and the second to check the equality $a~mod~n=0$.
+Considering that we might inject our protection mechanism a considerable number of times for a program using a lot of pointer operations. We wanted to try another possible implementation that may improve the performance of our runtime checks.
 Hence we present in the next section an alternative to the classic \textit{if then else} called branchless statement.
 
 \paragraph{Branchless check.}
@@ -954,7 +953,7 @@ Hence we present in the next section an alternative to the classic \textit{if th
 We wanted to limit the overhead introduced by our approach by trying another way to make the protection mechanism. 
 
 Branchless code allows one to create code with the same behaviour as a classic \textit{if then else} but without creating any branch for the processor. In other words the processor will not need to execute different code depending on the condition, the code will be linear.\\
-The best way to understand it is to have an example and we show the branchless version of implementation of the protection mechanism in Figure~\ref{branchless}.
+The best way to understand it is to have an example and we show the branchless version of our protection mechanism Figure~\ref{branchless}.
 
 The branchless code is the code located from line~2 to line~6.
 The main idea of the branchless code is to create a mask from line~2 to line~5 which will be stored in \textit{temp\_var}. If the initial value of \textit{targeted\_address} is a return address location the mask should be full of 0 so that the masking operation line~6 gives us a null pointer. In the other case the mask should be full of 1 so that the masking operation line~6 keeps the value of \textit{targeted\_address}.
@@ -962,11 +961,11 @@ The first condition line~1 is the same as before which checks if \textit{targete
 Branchless uses a lots of bit arithmetic and low level properties of two's complement representation of negative numbers. We are going to go through every line of branchless code with two different initial value of \textit{targeted\_address}: one is a return address location which is illegal and the other is an authorized address.
 
 
-For both case we have $n=2^8$ for the chosen frames size. 
+For both cases we have $n=2^8$ for the chosen frames size. 
 We start with an authorized address and we take the \textit{targeted\_address}~=~\texttt{0xfffff7a2}. Since we have a legal address our branchless operations should leave \textit{targeted\_address} unchanged.
 \begin{enumerate}[noitemsep]
 	\setcounter{enumi}{1}
-	\item We want to keep the least significant bits with a \textit{and} operator (\texttt{0101} \& \texttt{1100} = \texttt{0100})\\
+	\item We want to keep the least significant bits with an \textit{and} operator (\texttt{0101} \& \texttt{1100} = \texttt{0100})\\
 		\textit{temp\_var}~=~\texttt{0xfffff7a2}~\&~\texttt{0x000000ff}~=~\texttt{0x000000a2}
 	\item \textit{temp\_var}~=~\texttt{0x000000a2}~-~\texttt{0x00000003}~=~\texttt{0x0000009f}
 	\item A right shift bit operation (\texttt{0100} $\rightarrow$ \texttt{0010}) thirty-one times. If the value is negative then the new bits introduced on the left are equal to 1 else they are equal to 0. \\
@@ -1194,7 +1193,6 @@ However we only tested our implementation with simple buffer overflows. To show 
 
 %Another test that is lacking was mentioned before. To have an idea of the impacts of our implementation of the memory consumption it would be interesting to compare the stack growth of a normal program with one compiled with our modified CompCert compiler.
 
-%TODO
 \paragraph{Guard area between the stack and the heap}
 \label{par:guard_area}
 As mentioned earlier, we choose in our runtime checks that addresses from the stack are addresses which value is superior to \texttt{0xff000000} and the other way around for addresses from the heap. However in some cases the stack or the heap might overflow over this separation invalidating our criteria.
@@ -1254,18 +1252,20 @@ For these reasons we are confident that our implementation is transparent, but a
 \newpage
 \section{Conclusion}
 \label{sec:Conclusion}
-We presented in this paper a security technique called Software Fault Isolation which uses software methods to isolate the execution of dangerous modules. Hence SFI enables protected program to use external modules without taking the risk of compromising its execution. SFI has the benefits of demonstrating good performances concerning speed compared to other memory protection approaches. It also has a relatively small TCB. In this report we presented various implementations of SFI and especially the last one which used the certified compiler CompCert~\cite{Kroll:2014:PSF:2708449.2708686}. \\
+We presented in this paper a security technique called Software Fault Isolation which uses software methods to isolate the execution of dangerous modules. Hence SFI enables a protected program to use external modules without taking the risk of compromising its execution. SFI has the benefits of demonstrating good performances concerning speed compared to other memory protection approaches. It also has a relatively small TCB. In this report we presented various implementations of SFI and especially the last one which used the certified compiler CompCert~\cite{Kroll:2014:PSF:2708449.2708686}. \\
 Even though SFI has many strong points it can be considered lacking when it comes to securing the return addresses. Indeed few solutions were explained to face this issue and those were usually not easily adaptable or resulted in lots of overheads. More importantly one the most common category of cyber attacks called ROP attacks explicitly target these return addresses to modify the flow control of the programs in their favour.
 
 Therefore we propose a solution which is reliable and relatively efficient to protect return addresses from being corrupted. Our idea is to modify the structure of the stack in order to have an easy way to know the locations of all the return addresses. Afterwards we add runtime checks before the instructions that can compromise the integrity of the return addresses. These runtime checks take advantage of the new stack layout to forbid any illicit write on the return addresses locations.
 
-We implementationed our approach with the compiler CompCert for the x86-32 architecture. Even though the implementation is not totally completed, the main work has been carried out and it successfully blocked programs containing simple buffer overflows. The different experimentations show that our transformations reduce the efficiency of our compiled modules depending on the number of runtime checks. Thus the decrease in efficiency varies greatly depending on the number of dangerous instructions that has to be tested in the compiled code.
+We implemented our approach with the compiler CompCert for the x86-32 architecture. Even though the implementation is not totally completed, the main work has been carried out and it successfully blocked programs containing simple buffer overflows. The different experimentations show that our transformations reduce the efficiency of our compiled modules depending on the number of runtime checks. Thus the decrease in efficiency varies greatly depending on the number of dangerous instructions that has to be tested in the compiled code.
 
 
-However our implementation could still be improved by optimizing the runtime checks efficiency or by reducing the number of runtime checks added. For example, by using static analysis we could refine our detection of dangerous instructions and narrow down the number of runtime checks required which could greatly improve our performance.
+However our implementation can still be improved by optimizing the runtime checks efficiency or by reducing the number of runtime checks added. For example, by using static analysis we could refine our detection of dangerous instructions and narrow down the number of runtime checks required which could greatly improve our performance.
 
 
 \newpage
+\nocite{Abadi:2009:CIP:1609956.1609960}
+\nocite{Ansel:2011:LSJ:1993316.1993540}
 \bibliography{ref}
 \bibliographystyle{plain}
 \end{document}
