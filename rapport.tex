@@ -350,7 +350,7 @@ ROP attacks aims at overwriting these return addresses which enables them to exe
 \subsubsection{Buffer overflow}
 \label{ssub:Buffer overflow}
 
-Stack overflows are the most popular ROP attacks \textcolor{green}{ref} . In Figure~\ref{buffer_overflow_code} we can see an example of buffer overflow written in C.
+Stack overflows are the most popular ROP attacks. In Figure~\ref{buffer_overflow_code} we can see an example of buffer overflow written in C.
 The goal of this code is to execute the function called \textit{evil\_code()} which just prints ``Argh, we got hacked!\textbackslash{n}'' line~6 of Figure~\ref{buffer_overflow_code}. The function \textit{evil\_code()} should not be executed in our program, we suppose it is never called.
 The code was compiled with \textit{gcc -m32 -fno-stack-protector} to remove all stack protections used by gcc. The output of the code from the successful buffer overflow can be seen Figure~\ref{output_buffer}.
 \begin{figure}[!ht]
@@ -629,13 +629,13 @@ We present in the following section the implementation we made based on the idea
 
 For the implementation we work with the compiler CompCert. CompCert already has an implementation of SFI presented earlier. Thus if we could combine our approach with the SFI, any program compiled with CompCert would have strong security guarantees. Furthermore CompCert is written with the Coq proof assistant, our implementation then paves the way for a formal proof of security properties. In this section we explain in detail how to enforce our approach and the different choices we made during the process.
 
-	Our approach is separated in four phases: ``Fixed stack frames size'', ``Stack alignment'', ``Detection of memory write statements'' and ``Evaluation of the implementation''. We are going to detail the implementation of these phases in the following sections. These transformations are deeply linked to the stack layout, hence to have a better understanding we are going to start by introducing the CompCert stack structure.
+	Our approach is separated in four phases: ``Fixed stack frames size'', ``Stack alignment'', ``Detection of memory write statements'' and ``Evaluation of the implementation''. We detail the implementation of these phases in the following sections. These transformations are deeply linked to the stack layout, hence to have a better understanding we start by introducing the CompCert stack structure.
 
 \subsection{CompCert stack}
 	The layout of the stack is dependent of the architecture and the compiler/interpreter used. For the sake of comprehension of the future sections we describe here the stack layout of x86-32 in CompCert.
 The stack layout of CompCert x86-32 is pictured in Figure~\ref{stack_layout}.
 First of all we can notice that the stack grows downwards, it means that the stack grows from the highest addresses to the low ones.
-As we can see the usual data are stored in this stack like local variables, parameters, register states and the return address.
+As we can see, the usual data are stored in this stack like local variables, parameters, register states and the return address.
 
 \begin{figure}[!ht]
 \centering
@@ -1011,12 +1011,12 @@ replace the first \textit{if then else} condition because it would even force he
 \newpage
 
 \section{Evaluation of the implementation}
-We will show first in this section that our implementation is effective. 
-Afterwards we will present different benchmarks we did to measure the cost of our transformations on different criteria like speed or size of the programs.
-To conclude we will discuss multiple ideas to improve the current approach.
+We show first in this section that our implementation is effective. 
+Afterwards we present different benchmarks we did to measure the efficiency of our transformations.
+To conclude we discuss multiple ideas to improve the current approach.
 
 \subsection{Evaluation of security}
-For the example we are going to confront the buffer overflow presented Figure~\ref{buffer_overflow_code} with our implementation. We modified the code of the buffer overflow a little to simplify the test. To make things easier we just added the function \textit{strcpy} in the program's code instead of calling it from another library. This way the vulnerable code of \textit{strcpy} will be compiled with our transformation and be secured instead of compiling the whole external library.
+For the example we confront the buffer overflow presented Figure~\ref{buffer_overflow_code} with our implementation. We modified the code of the buffer overflow a little to simplify the test. To make things easier we just added the function \textit{strcpy} in the program's code instead of calling it from another library. This way the vulnerable code of \textit{strcpy} will be compiled with our transformation and be secured instead of compiling the whole external library.
 
 
 To check the effectiveness of our approach we compile the buffer overflow in two different ways.
@@ -1058,7 +1058,7 @@ Segmentation fault (core dumped)
 \paragraph{Fixed stack frames without protection (Figure~\ref{output_weak}).}
 \label{par:Fixed stack frames without protection.}
 
-Like in Figure~\ref{output_buffer} we can see that we have printed \textit{Argh, we got hacked!} which means we managed to execute the function \textit{evil\_code}. The buffer overflow is successful, we can see that we needed to change the input for the attack to work. Indeed since we changed the compiler and the stack layout the input had to be different to manage the attack. 
+Like in Figure~\ref{output_buffer} we can see that we have printed \textit{Argh, we got hacked!} which means we managed to execute the function \textit{evil\_code}. The buffer overflow is successful, we can see that we needed to change the input for the attack to work. Indeed since we changed the compiler and the stack layout, the input had to be different to manage the attack. 
 
 \begin{figure}[!ht]
 \textcolor{gray}{terminal\$~} ./buff\_comp\_weak \$(python -c 'print "a"*44+"\textbackslash{xc0}\textbackslash{x85}\textbackslash{x04}\textbackslash{x08}"')\\
@@ -1089,7 +1089,7 @@ Segmentation fault (core dumped)
 For the sake of the example, we enriched the error behaviour statement which now calls  ``\textit{printf(Address:~\%p,~tmp)}'' before crashing. In \textit{tmp} we stored the value of the address for which the protection mechanism triggered the error behaviour.
 First of all we can see that we made the program crashed before \textit{evil\_code} was executed. Our implementation successfully does what we aimed for, we made the program crash on a dangerous program.
 Furthermore we can even see the address on which the program tried to write and was not allowed to. In this example our protection mechanism crashed when the program tried to write on the address $a=\texttt{0xffa2b0c0}$. 
-Since the frames size is $n=2^6$ all our return addresses location should have their least six significant bits equal to 0.
+Since the frames size is $n=2^6$ all our return addresses locations should have their least six significant bits equal to 0.
 We check that $a=\texttt{0xffa2b0c0}$ is effectively a return address. First of all $a>\texttt{0xff000000}$ which means that $a$ is actually part of the stack. Moreover we need to verify the equality $a~mod~n=0 \leftrightarrow (\texttt{0xffa2b0c0})~mod~(\texttt{0x00000040}) = 0$ which is true. 
 Both the conditions are fulfilled which means that $a$ is a return address location and that our mechanism properly worked.
 
@@ -1098,22 +1098,22 @@ Both the conditions are fulfilled which means that $a$ is a return address locat
 
 As mentioned earlier, we also want to measure the impacts that our transformation may bring in terms of memory and efficiency.
 We made some experimentations in order to figure out these questions.
-Furthermore we also had to verify which implementation was the most efficient between the branchless and the classic \textit{if then else}.
+Furthermore we also had to verify which implementation is the most efficient between the branchless and the classic \textit{if then else}.
 For our different experimentations we had 74 different C programs which were present within the CompCert project for testing purposes.
 The performances of our approach are compared with the original CompCert project which performances are similar to \texttt{gcc -O1}~\cite{Leroy:2009:FVR:1538788.1538814}.
-The machine used for the benchmarks possesses four 64 bits processors Intel Xeon E5 with a capacity of 2.80GHz and 8GB of memory. The operating system of the machine is Fedora 23.
-For all our executables compiled with fixed frames size we chose the smallest size possible for the programs to be able to run correctly. Our script just try to compile every program with an incrementing frames size until it manages to complete the compilation process.
+The machine used for the benchmarks possesses four 64 bits processors Intel~Xeon~E5 with a capacity of 2.80GHz and 8GB of memory. The operating system of the machine is Fedora~23.
+For all our executables compiled with fixed frames size we choose the smallest size possible for the programs to be able to run correctly. Our script just try to compile every program with an incrementing frames size until it manages to complete the compilation process.
 
 
 \subsubsection{Efficiency}
 \label{ssub:Efficiency}
 
-We wanted to measure the efficiency of our different transformations and compare them to the original CompCert. During our test we measured four different implementations: the original CompCert, our transformation just with fixed frames size, with fixed frame size and classic \textit{if then else} runtime checks and the branchless version.
+We want to measure the efficiency of our different transformations and compare them to the original CompCert. During our test we measured four different implementations: the original CompCert, our transformation just with fixed frames size, with fixed frame size and classic \textit{if then else} runtime checks and the branchless version.
 To calculate the execution time we used the Unix utility \textit{time}.
 The results are presented in the following graph Figure~\ref{time_percentage_graph}.
-For more relevant results we removed from all the tested programs the ones which execution time was too short because the Unix utility \textit{time} imprecision could impact the result greatly.
-The histogram Figure\ref{time_percentage_graph} shows the percentage of overhead measured by three different implementations compared to the original CompCert compiler for multiple programs.
-The three implementations are ``Fixed frames size'' which is our implementation with modified stack layout but without adding any protection. There is also ``Secure'' which is the implementation with classic \textit{if then else} runtime checks. The last one ``Branchless'' is the version with branchless checks.
+For more relevant results we removed from all the tested programs the ones which execution time were too short because the Unix utility \textit{time} imprecision could impact the result greatly.
+The histogram Figure~\ref{time_percentage_graph} shows the percentage of overhead measured by three different implementations compared to the original CompCert compiler for multiple programs.
+The three implementations are: ``Fixed frames size'' which is our implementation with modified stack layout but without adding any protection. There is also ``Secure'' which is the implementation with classic \textit{if then else} runtime checks. The last one ``Branchless'' is the version with branchless checks.
 
 \begin{figure}[!ht]
 \centering
@@ -1128,7 +1128,7 @@ We notice first that 17 out of the 23 programs an efficiency comparable to the o
 
 \paragraph{\textit{if then else} and branchless comparison.}
 \label{par:ifthenelsevsbranchless}
-As for the comparison between the \textit{if then else} and the branchless implementations we were disappointed by the results displayed by the branchless version. Indeed the branchless is clearly faster than the classic \textit{if then else} for only three programs in Figure~\ref{time_percentage_graph}. It is distinctly slower for 5 programs and for the rest the performance are similar. However to really compare the two implementations of our runtime checks we should only compare programs that contains a fair amount of them in their code, otherwise we would not really compare branchless and branching.
+As for the comparison between the \textit{if then else} and the branchless implementations we were disappointed by the results displayed by the branchless version. Indeed the branchless is clearly faster than the classic \textit{if then else} for only three programs in Figure~\ref{time_percentage_graph}. It is distinctly slower for five programs and for the rest the performance are similar. However to really compare the two implementations of our runtime checks we should only compare programs that contains a fair amount of them in their code, otherwise we would not really compare branchless and branching.
 
 \begin{figure}[!ht]
 \centering
@@ -1145,7 +1145,7 @@ To compare the branchless and \textit{if then else} we will limit ourselves to t
 What can makes branching instructions expensive in term of time is due to instructions pipelining. 
 The modern processors usually put in their pipelines a dozen of instructions ahead of the executed one. 
 The issue with branch like \textit{if then else} is that the processors try to make a prediction on the branch that is going to be executed and start pipelining the predicted branch.
-If the prediction is right everything is fine, however if the prediction is wrong the whole pipeline might need to be flushed to execute the program correctly. This pipeline flush slows down the execution greatly which is why \textit{if then else} are considered slow instructions.
+If the prediction is right everything is fine, however if the prediction is wrong the whole pipeline might need to be flushed to execute the program correctly. This pipeline flush slows down the execution greatly which is why sometimes \textit{if then else} are considered slow instructions.
 However in our implementations these predictions are certainly correct most of the time which would explain that branching introduces less overhead than the branchless version.
 
 \paragraph{Relation between runtime checks and delay.}
@@ -1165,7 +1165,7 @@ The implementation chosen for the overhead is the protected one with \textit{if 
 For this graph we selected only programs that had a significant amount of execution time so the percentage of overhead calculated is not too biased due to the precision of our tool (\textit{time} Unix utility). Furthermore among these programs we only selected the one which had executed some runtime checks during their runtime. 
 After the selection we were only left with seven programs to make a graph, the results are presented Figure~\ref{correlation_graph}.
 
-We effectively see the percentage of overhead increasing with the number of runtime checks executed in our measures (purple cross). To find the correlation we try to find a relation which corresponds the most to the measures taken. The relation found is the blue curve and is represented by $y=100+x/(1.10^8)$. Even though we have a relatively low amount of points we can see that the blue curves matches their behaviour nicely. We have found a linear relation between the percentage of overhead and the number of runtime checks. Thus we can affirm that the overhead introduced is directly related to the number of runtime checks executed.
+We effectively see the percentage of overhead increasing with the number of runtime checks executed in our measures (purple cross). To find the correlation we try to find a relation which corresponds the most to the measures taken. The relation found is the blue curve and is represented by $y=100+x/(1.10^8)$. Even though we have a relatively low amount of points we can see that the blue curve matches their behaviour nicely. We have found a linear relation between the percentage of overhead and the number of runtime checks. Thus we can affirm that the overhead introduced is directly related to the number of runtime checks executed.
 
 \subsubsection{Stack frames size}
 \label{ssub:Stack frames size}
@@ -1179,7 +1179,7 @@ Another figure we thought would be interesting was to see the distribution of th
 \label{frame_size_graph}
 \end{figure}
 
-This gives us an idea about the size of the stack in the protected implementations. The results obtained show the minimal frames size required for our programs are small enough to not impact the memory usage. However the test programs we used were all relatively small and the distribution of bigger programs could be different.
+This gives us an idea about the size of the stack in the protected implementations. The results obtained show that the minimal frames size required for our programs are small enough to not impact the memory usage. However the test programs we used were all relatively small and the distribution of bigger programs could be different.
 A more interesting graph related to memory consumption would be the comparison of the stack maximum growth between our implementations and the original CompCert. 
 %Unfortunately we did not find the time for this experimentation during the span of the internship and we hope to do it during the remaining month.
 
@@ -1197,7 +1197,10 @@ However we only tested our implementation with simple buffer overflows. To show 
 %TODO
 \paragraph{Guard area between the stack and the heap}
 \label{par:guard_area}
-To ensure that either the stack or the heap grows too much and exceeds their designed area we want to put a guard area in the memory. The idea is to define a specific area in the memory, for example [\texttt{0xee000000 - \texttt{0xff000000}}], where it is forbidden to write. If an instruction writes illegally in the guard area the program will detect it and will crash.\\
+As mentioned earlier, we choose in our runtime checks that addresses from the stack are addresses which value is superior to \texttt{0xff000000} and the other way around for addresses from the heap. However in some cases the stack or the heap might overflow over this separation invalidating our criteria.
+We suggest an idea to tackle this issue, however we did not find the time to implement our solution.
+
+To ensure that either the stack or the heap can't grow too much and exceeds their designed area we want to put a guard area in the memory. The idea is to define a specific area in the memory, for example [\texttt{0xee000000 - \texttt{0xff000000}}], where it is forbidden to write. If an instruction writes illegally in the guard area the program will detect it and will crash.\\
 The principle is represented in Figure~\ref{guard}. Indeed we can see that the stack and the heap are clearly separated by the guard area located between [\texttt{0xee000000 - \texttt{0xff000000}}]. Thus we are sure that every address above \texttt{0xff000000} is part of the stack.
 
 \begin{figure}[!ht]
@@ -1208,23 +1211,22 @@ The principle is represented in Figure~\ref{guard}. Indeed we can see that the s
 \end{figure}
 
 To detect the write in the guard one possible way is to initialize the area with 0 for example. If we detect a bit in the guard area with the value 1 then we know that the guard has been corrupted and we make the program crash. Since our approach protects against ROP attacks, which takes effect when returning from a function, it is adequate to check the integrity of the guard area at the end of each function before returning.
-To be honest the guard area has not been implemented yet. Most of the programs do not have a stack or a heap which grows enough to exceed the limit of \texttt{0xff000000} so we were able to do satisfactory tests nevertheless. This guard area is necessary for our implementation to be complete and we hope that we will be able to do it during the remaining time of the internship.
 
 \paragraph{Protection of runtime checks.}
 \label{par:Protection of runtime checks}
 Actually in our implementation we protect return addresses with runtime checks but we never protect these runtime checks. As in SFI we also need to prevent malicious instructions to avoid going through these checks. Therefore we need to make sure that is not possible for a program to freely jump in the code. This way an attacker would be able to bypass the security measures we established.
-In the C language the only expression that could allow such operations would be function pointers. Function pointers allow one to execute the code addressed by the pointer.
+In the C language the only expressions that can allow such operations are function pointers. Function pointers allow one to execute the code addressed by the pointer.
 The simplest solution would be to totally forbid the usage of function pointers which would solve our issue.
 We could also adapt ideas of SFI~\cite{Mccamant_evaluatingsfi} like creating memory chunks and aligning them in order to render the runtime checks atomic. This idea is similar to our approach, it would need to transform the structure of the memory for the code and then perform runtime checks to make sure we only jump to authorized locations.
 
 \paragraph{Ways of improvement.}
 \label{par:improvement}
-We saw in the earlier section that our implementation was relatively slow compared to the original CompCert. Furthermore the amount of overhead is dependent of the number of runtime checks executed.
+We saw in the earlier section that our implementation is relatively slow compared to the original CompCert. Furthermore the amount of overhead is dependent of the number of runtime checks executed.
 The idea would be to either reduce the number of runtime checks effectively done or to improve the efficiency of our runtime checks.
 We can certainly narrow down the number of dangerous statements detected. For example Figure~\ref{harmless} presents some harmless C code that would be protected by our approach but does not present any vulnerability for a ROP attack. The pointer presented here points to an address of the heap so if the heap does not overflow on the stack it's not possible for the pointer \textit{bar} to write on a return address as it is.
-We can see clearly that the protection mechanism that will be introduced in this code is not necessary and will just slow down the program.
+We can see clearly that the protection mechanism that is introduced in this code is not necessary and just slows down the program.
 To detect these kind of occurrences, it would be necessary to make a static analysis of the code and pinpoint the statements that present a vulnerability for ROP attacks.
-If we could implement such static analyser \textcolor{green}{find ref maybe} the overhead from our implementation will be greatly reduced since we know the more we add runtime checks the more our program will slow down.
+If we could implement such static analyser the overhead from our implementation would be greatly reduced since we know the more we add runtime checks the more our program will slow down.
 
 \begin{figure}[!ht]
 \begin{lstlisting}
@@ -1239,7 +1241,7 @@ void foo(){
 \end{figure}
 
 \hfill \break
-Another way is to improve the performance of our runtime checks. We tried to use a branchless implementation unsuccessfully. However another solution is to use a superoptimizer that can give us a super efficient assembly code equivalent to the C code used as input. If it finds a super effective assembly version of our runtime checks we could create a native function \textit{runtime\_check} in Cminor which will be expanded during the ASM compilation step.
+Another way is to improve the performance of our runtime checks. We tried to use a branchless implementation unsuccessfully. However another solution is to use a superoptimizer that can give us a super efficient assembly code equivalent to the C code used as input. If it finds an effective assembly equivalent of our runtime checks we could create a native function \textit{runtime\_check} in Cminor which will be expanded during the ASM compilation step.
 
 \paragraph{Transparency.}
 \label{par:Transparency}

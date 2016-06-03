@@ -59,10 +59,10 @@
 \contentsline {paragraph}{Branchless check.}{32}
 \contentsline {section}{\numberline {5}Evaluation of the implementation}{34}
 \contentsline {subsection}{\numberline {5.1}Evaluation of security}{34}
-\contentsline {paragraph}{Fixed stack frames without protection (Figure\nobreakspace {}23\hbox {}).}{34}
-\contentsline {paragraph}{Complete implementation with protection (Figure\nobreakspace {}24\hbox {}).}{34}
-\contentsline {subsection}{\numberline {5.2}Evaluation of performance}{34}
-\contentsline {subsubsection}{\numberline {5.2.1}Efficiency}{35}
+\contentsline {paragraph}{Fixed stack frames without protection (Figure\nobreakspace {}23\hbox {}).}{35}
+\contentsline {paragraph}{Complete implementation with protection (Figure\nobreakspace {}24\hbox {}).}{35}
+\contentsline {subsection}{\numberline {5.2}Evaluation of performance}{35}
+\contentsline {subsubsection}{\numberline {5.2.1}Efficiency}{36}
 \contentsline {paragraph}{Fixed frames size performance.}{36}
 \contentsline {paragraph}{\textit {if then else} and branchless comparison.}{36}
 \contentsline {paragraph}{Relation between runtime checks and delay.}{38}
